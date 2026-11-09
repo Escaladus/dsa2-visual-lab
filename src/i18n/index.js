@@ -9,7 +9,7 @@ export const languages = [
 ]
 export const dictionaries = { ru, fi, en }
 export const storageKey = 'dsa2-language'
-export const defaultLanguage = 'ru'
+export const defaultLanguage = 'en'
 
 export function resolveLanguage(value) {
   return Object.hasOwn(dictionaries, value) ? value : defaultLanguage

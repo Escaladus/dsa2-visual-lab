@@ -4,7 +4,7 @@ An interactive React/Vite study site for Data Structures and Algorithms II. Expl
 
 ## Languages
 
-The interface, lessons, and algorithm explanations are available in Finnish, Russian, and English. Use the language switcher at the top of the page on desktop or mobile. Your choice is saved in the browser; Russian is the default on the first visit. Switching languages preserves the current topic and visualisation step.
+The interface, lessons, and algorithm explanations are available in Finnish, Russian, and English. Use the language switcher at the top of the page on desktop or mobile. Your choice is saved in the browser; English is the default on the first visit. Switching languages preserves the current topic and visualisation step.
 
 Core translations are in `src/i18n/fi.js`, `src/i18n/ru.js`, and `src/i18n/en.js`. Topic IDs and algorithm logic are shared across languages.
 

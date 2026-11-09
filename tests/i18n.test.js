@@ -46,25 +46,25 @@ for (const { code } of languages) {
   })
 }
 
-test('language choices persist and invalid or inaccessible storage falls back to Russian', () => {
+test('language choices persist and invalid or inaccessible storage falls back to English', () => {
   const values = new Map()
   const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) }
-  assert.equal(readLanguage(storage), 'ru')
+  assert.equal(readLanguage(storage), 'en')
   for (const { code } of languages) {
     saveLanguage(storage, code)
     assert.equal(values.get(storageKey), code)
     assert.equal(readLanguage(storage), code)
   }
   for (const value of ['de', '__proto__', 'constructor', '', null, undefined]) {
-    assert.equal(resolveLanguage(value), 'ru')
+    assert.equal(resolveLanguage(value), 'en')
     storage.setItem(storageKey, value)
-    assert.equal(readLanguage(storage), 'ru')
+    assert.equal(readLanguage(storage), 'en')
   }
   const blockedStorage = {
     getItem() { throw new Error('Storage blocked') },
     setItem() { throw new Error('Storage blocked') },
   }
-  assert.equal(readLanguage(blockedStorage), 'ru')
+  assert.equal(readLanguage(blockedStorage), 'en')
   assert.doesNotThrow(() => saveLanguage(blockedStorage, 'fi'))
 })
 
