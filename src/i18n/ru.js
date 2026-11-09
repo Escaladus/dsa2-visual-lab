@@ -6,7 +6,8 @@ const base = {
   sorting: sortingTranslations.ru,
   ui: {
     language: 'Язык', topics: 'Темы', examples: 'Примеры на React и Java',
-    footer: 'Учебный проект • React/Vite • статический сайт для GitHub Pages',
+    footer: 'Автор:',
+    courseCredit: 'По материалам курса «Структуры данных и алгоритмы II» Университета Восточной Финляндии (UEF).',
     description: 'DSA2 Visual Lab — интерактивное изучение структур данных и алгоритмов',
     back: '← Назад', next: 'Следующий шаг →', forward: 'Вперёд →', reset: 'Сброс',
     play: '▶ Запуск', pause: 'Пауза', step: 'Шаг', result: 'Результат',

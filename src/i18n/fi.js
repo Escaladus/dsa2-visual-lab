@@ -6,7 +6,8 @@ const base = {
   sorting: sortingTranslations.fi,
   ui: {
     language: 'Kieli', topics: 'Aiheet', examples: 'React- ja Java-esimerkit',
-    footer: 'Oppimisprojekti • React/Vite • staattinen sivusto GitHub Pagesille',
+    footer: 'Tekijä:',
+    courseCredit: 'Perustuu UEF:n Tietorakenteet ja algoritmit II -kurssin materiaaleihin.',
     description: 'DSA2 Visual Lab — opi tietorakenteita ja algoritmeja vuorovaikutteisesti',
     back: '← Takaisin', next: 'Seuraava askel →', forward: 'Eteenpäin →', reset: 'Aloita alusta',
     play: '▶ Käynnistä', pause: 'Tauko', step: 'Askel', result: 'Tulos',

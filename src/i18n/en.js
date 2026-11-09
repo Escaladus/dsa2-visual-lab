@@ -6,7 +6,8 @@ const base = {
   sorting: sortingTranslations.en,
   ui: {
     language: 'Language', topics: 'Topics', examples: 'React + Java examples',
-    footer: 'Learning project • React/Vite • static site for GitHub Pages',
+    footer: 'Created by',
+    courseCredit: 'Based on UEF Data Structures and Algorithms II course materials.',
     description: 'DSA2 Visual Lab — interactive learning of data structures and algorithms',
     back: '← Back', next: 'Next step →', forward: 'Forward →', reset: 'Reset',
     play: '▶ Play', pause: 'Pause', step: 'Step', result: 'Result',

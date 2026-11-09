@@ -15,6 +15,11 @@
   --pink: #ff8fc7;
 }
 *{box-sizing:border-box}
+footer p{margin:0;line-height:1.7}
+footer p+p{margin-top:6px}
+footer a{color:var(--accent);text-decoration:none}
+footer a:hover{text-decoration:underline}
+footer a:focus-visible{outline:2px solid var(--accent-2);outline-offset:3px}
 html{scroll-behavior:smooth}
 body{margin:0;min-width:320px;background:radial-gradient(circle at 70% -10%,#182749 0,transparent 33%),var(--bg);color:var(--text)}
 button,input,select{font:inherit}

@@ -108,7 +108,10 @@ export default function App() {
         <LanguageSwitcher />
       </div>
       <div className="content-inner"><Lesson key={current.id} topic={current} onOpen={open} /></div>
-      <footer>{text.ui.footer}</footer>
+      <footer>
+        <p>{text.ui.footer} <a href="https://github.com/Escaladus">Denis</a></p>
+        <p>{text.ui.courseCredit}</p>
+      </footer>
     </main>
   </div>
 }
