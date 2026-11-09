@@ -1,83 +1,122 @@
 # DSA2 Visual Lab
 
-Интерактивный учебный сайт на React/Vite для повторения DSA2. Основной акцент — визуальное понимание графов, DFS/BFS, PRE/POST порядка, деревьев и сложности алгоритмов.
+An interactive React/Vite study site for Data Structures and Algorithms II. Explore graphs, DFS/BFS, PRE/POST events, trees, sorting, and algorithm complexity through visual explanations and runnable Java examples.
 
-## Языки
+## Languages
 
-Сайт полностью доступен на финском (**Suomi**), русском (**Русский**) и английском (**English**). Переключатель находится в верхней части страницы на компьютере и телефоне. Выбор сохраняется в браузере; при первом посещении используется русский язык. Смена языка сохраняет открытую тему и текущий шаг визуализации.
+The interface, lessons, and algorithm explanations are available in Finnish, Russian, and English. Use the language switcher at the top of the page on desktop or mobile. Your choice is saved in the browser; Russian is the default on the first visit. Switching languages preserves the current topic and visualisation step.
 
-Переводы интерфейса, всех тем и пояснений к алгоритмам находятся в `src/i18n/fi.js`, `src/i18n/ru.js` и `src/i18n/en.js`. Идентификаторы тем и логика алгоритмов общие для всех языков.
+Core translations are in `src/i18n/fi.js`, `src/i18n/ru.js`, and `src/i18n/en.js`. Topic IDs and algorithm logic are shared across languages.
 
-## Сверка с конспектом и Java-примеры
+## Course handout and Java examples
 
-Материал сопоставлен с предоставленным `dsaII_handout.pdf` (UEF, осень 2025, 89 страниц). [Карта покрытия и уточнения](docs/HANDOUT_ALIGNMENT.md) показывают соответствие разделов и границы обзорного материала.
+The material is aligned with the supplied `dsaII_handout.pdf` (University of Eastern Finland, autumn 2025, 89 pages). The [coverage map and implementation notes](docs/HANDOUT_ALIGNMENT.md) document the corresponding sections and identify topics covered at an introductory level. That companion document is currently in Russian.
 
-Теперь в проекте 21 тема и 26 самостоятельных `.java`-примеров: Set/Map, equals/hashCode, списки и очереди, обходы, сортировка слиянием, Dijkstra/Floyd, Prim/Kruskal, точки сочленения, matching, поток, динамическое программирование, строки и файлы. На страницах есть код, ожидаемый вывод, стоимость, условия и скачивание файла. Запуск скачанного примера:
+The site contains 21 topics and 26 standalone Java examples covering Set/Map, `equals`/`hashCode`, lists and queues, traversals, merge sort, Dijkstra/Floyd–Warshall, Prim/Kruskal, articulation points, matching, maximum flow, dynamic programming, strings, and files. Each example includes source code, expected output, complexity, assumptions, and a `.java` download.
+
+Run a downloaded example with JDK 17 or newer:
 
 ```bash
 java SetOperationsExample.java
 ```
 
-Исходники находятся в `src/examples`, каталог — в `src/data/javaExamples.js`, ссылки на конспект — в `src/data/handout.js`. Переводы дополнений — в `src/i18n/handout.ru.js`, `handout.fi.js` и `handout.en.js`. PDF конспекта в сайт не включён.
+Java sources are in `src/examples`, their catalogue is in `src/data/javaExamples.js`, and handout references are in `src/data/handout.js`. Additional lesson translations are in `src/i18n/handout.fi.js`, `src/i18n/handout.ru.js`, and `src/i18n/handout.en.js`. The handout PDF is not bundled with the site.
 
-## Что уже есть
+## Features
 
-- карта тем DSA2;
-- интерактивная таблица Big O с подстановкой `n`;
-- два указателя для объединения отсортированных списков;
-- Set/Map и `equals/hashCode`;
-- визуальный preorder/inorder/postorder дерева;
-- Heap / PriorityQueue;
-- пошаговые и автоматические визуализации bubble, insertion, merge и quick sort с буфером слияния и выделением опорного элемента;
-- граф: adjacency list;
-- интерактивный DFS с PRE/POST, стеком, visited и пошаговым объяснением;
-- интерактивный BFS с очередью, visited и distance;
-- компоненты связности, циклы, кратчайшие пути, topological order;
-- Java: Iterator, Comparable, Comparator, generics.
+- A DSA2 topic roadmap.
+- An interactive Big O table with adjustable input size `n`.
+- Two-pointer union of sorted lists.
+- Set/Map operations and the `equals`/`hashCode` contract.
+- Visual preorder, inorder, and postorder tree traversals.
+- Heap and PriorityQueue explanations.
+- Step-by-step and automatic visualisations of bubble, insertion, merge, and quick sort, including merge buffers and pivot highlighting.
+- Graph adjacency lists.
+- Interactive DFS with PRE/POST events, a call stack, visited vertices, and step explanations.
+- Interactive BFS with a queue, visited vertices, and distances.
+- Connected components, cycles, shortest paths, and topological ordering.
+- Java tools: Iterator, Comparable, Comparator, and generics.
 
-## Запуск локально
+## Local development
+
+Install dependencies and start the development server:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Production build:
+Open the local URL printed in the terminal.
+
+Create and preview a production build:
 
 ```bash
 npm run build
 npm run preview
 ```
 
-Проверка переводов, сообщений обходов и всех Java-примеров (для их компиляции нужен JDK 17+):
+## Tests
+
+Run translation, graph traversal, sorting visualisation, and Java example checks:
 
 ```bash
 npm test
 ```
 
-## GitHub Pages
+The Java checks require JDK 17 or newer and are explicitly skipped when a JDK is unavailable. They compile the examples and compare their actual output with the output displayed on the site. Additional algorithm checks cover boundary cases and comparisons with reference results.
 
-1. Создайте новый GitHub repository.
-2. Скопируйте туда содержимое этого проекта.
-3. Выполните:
+## Deploy to GitHub Pages
+
+The deployment workflow is already included in `.github/workflows/deploy.yml`.
+
+1. Create an empty public GitHub repository, for example `dsa2-visual-lab`. Leave the README, licence, and `.gitignore` initialisation options unchecked.
+2. In a terminal, change into this project's directory and run the following commands. Replace `YOUR_USERNAME` and `YOUR_REPOSITORY` with your GitHub username and repository name:
+
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial DSA2 Visual Lab"
+   git branch -M main
+   git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+   git push -u origin main
+   ```
+
+3. On GitHub, open the repository's **Settings → Pages**.
+4. Under **Build and deployment → Source**, select **GitHub Actions**.
+5. Open **Actions → Deploy DSA2 Visual Lab to GitHub Pages → Run workflow**, select `main`, and start the workflow. If an earlier run failed before Pages was enabled, rerun it after completing step 4.
+6. Wait for the workflow to succeed. Find the published URL under **Settings → Pages**:
+
+   ```text
+   https://YOUR_USERNAME.github.io/YOUR_REPOSITORY/
+   ```
+
+The workflow installs dependencies, builds the site, and publishes the `dist` directory. `vite.config.js` derives the correct base path from the repository name in GitHub Actions, including the root path for a `username.github.io` repository.
+
+To publish subsequent changes:
 
 ```bash
-git init
 git add .
-git commit -m "Initial DSA2 Visual Lab"
-git branch -M main
-git remote add origin https://github.com/YOUR_NAME/YOUR_REPOSITORY.git
-git push -u origin main
+git commit -m "Update site"
+git push
 ```
 
-4. В GitHub откройте **Settings → Pages**.
-5. В **Build and deployment → Source** выберите **GitHub Actions**.
-6. Workflow `.github/workflows/deploy.yml` установит зависимости, соберёт и опубликует сайт автоматически.
+Every push to `main` triggers deployment automatically.
 
-`vite.config.js` сам определяет имя repository в GitHub Actions и выставляет правильный `base`, поэтому вручную менять путь для обычного project site не нужно.
+## Project structure
 
-## Как расширять
+| Path | Purpose |
+| --- | --- |
+| `src/App.jsx` | Application layout and lesson rendering |
+| `src/data/topics.js` | Stable topic IDs and navigation groups |
+| `src/data/handout.js` | Handout sections and page references |
+| `src/data/javaExamples.js` | Java example catalogue and expected outputs |
+| `src/components` | Navigation, language controls, and interactive visualisations |
+| `src/i18n` | Finnish, Russian, and English lesson text and step explanations |
+| `src/utils/graphAlgorithms.js` | DFS and BFS visualisation steps |
+| `src/utils/sortingAlgorithms.js` | Visualisation steps for all four sorting algorithms |
+| `src/examples` | Downloadable standalone Java source files |
+| `tests` | Translation, algorithm, and Java checks |
 
-Каждая тема находится в `src/App.jsx`, интерактивные визуализаторы — в `src/components`, а алгоритмы обхода графа — в `src/utils/graphAlgorithms.js`.
+To extend a lesson, update its translations in `src/i18n`. Add interactive components under `src/components`, algorithm logic under `src/utils`, and Java examples under `src/examples` with a corresponding catalogue entry and translations.
 
-Проект полностью статический: сервер и база данных не требуются.
+The project is entirely static and requires no backend or database.
