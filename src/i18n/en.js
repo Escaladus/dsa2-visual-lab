@@ -2,8 +2,10 @@ import supplement from './handout.en.js'
 import { extendDictionary } from './extend.js'
 import { sortingTranslations } from './sorting.js'
 import { complexityQuizTranslations } from './complexityQuiz.js'
+import { heapTranslations } from './heap.js'
 
 const base = {
+  heap: heapTranslations.en,
   complexityQuiz: complexityQuizTranslations.en,
   sorting: sortingTranslations.en,
   ui: {

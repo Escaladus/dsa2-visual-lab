@@ -30,7 +30,7 @@ Java sources are in `src/examples`, their catalogue is in `src/data/javaExamples
 - Two-pointer union of sorted lists.
 - Set/Map operations and the `equals`/`hashCode` contract.
 - Visual preorder, inorder, and postorder tree traversals.
-- Heap and PriorityQueue explanations.
+- Interactive min-heap and PriorityQueue visualisations: synchronised tree/array views, offer/peek/poll, sift-up/down animations, removal order, return values, and manual or automatic playback.
 - Step-by-step and automatic visualisations of bubble, insertion, merge, and quick sort, including merge buffers and pivot highlighting.
 - Graph adjacency lists.
 - Interactive DFS with PRE/POST events, a call stack, visited vertices, and step explanations.
