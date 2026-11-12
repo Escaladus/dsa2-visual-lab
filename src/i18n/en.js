@@ -1,8 +1,10 @@
 import supplement from './handout.en.js'
 import { extendDictionary } from './extend.js'
 import { sortingTranslations } from './sorting.js'
+import { complexityQuizTranslations } from './complexityQuiz.js'
 
 const base = {
+  complexityQuiz: complexityQuizTranslations.en,
   sorting: sortingTranslations.en,
   ui: {
     language: 'Language', topics: 'Topics', examples: 'React + Java examples',

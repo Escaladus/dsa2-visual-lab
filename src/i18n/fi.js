@@ -1,8 +1,10 @@
 import supplement from './handout.fi.js'
 import { extendDictionary } from './extend.js'
 import { sortingTranslations } from './sorting.js'
+import { complexityQuizTranslations } from './complexityQuiz.js'
 
 const base = {
+  complexityQuiz: complexityQuizTranslations.fi,
   sorting: sortingTranslations.fi,
   ui: {
     language: 'Kieli', topics: 'Aiheet', examples: 'React- ja Java-esimerkit',

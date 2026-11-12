@@ -6,6 +6,7 @@ import GraphLab from './components/GraphLab.jsx'
 import TreeTraversalLab from './components/TreeTraversalLab.jsx'
 import SortingLab from './components/SortingLab.jsx'
 import ComplexityLab from './components/ComplexityLab.jsx'
+import ComplexityQuiz from './components/ComplexityQuiz.jsx'
 import JavaExamples from './components/JavaExamples.jsx'
 import { handout, handoutSections } from './data/handout.js'
 import { sortingAlgorithms } from './utils/sortingAlgorithms.js'
@@ -76,6 +77,7 @@ function Lesson({ topic, onOpen }) {
       <button onClick={() => onOpen('graph-bfs')}>{text.ui.goBfs}</button>
     </div>}
     <JavaExamples topicId={id} />
+    {id === 'complexity' && <ComplexityQuiz />}
   </>
 }
 

@@ -26,6 +26,7 @@ Java sources are in `src/examples`, their catalogue is in `src/data/javaExamples
 
 - A DSA2 topic roadmap.
 - An interactive Big O table with adjustable input size `n`.
+- A five-question time complexity quiz with Java examples, multiple-choice answers, explanations, a final score, and retries in all three languages.
 - Two-pointer union of sorted lists.
 - Set/Map operations and the `equals`/`hashCode` contract.
 - Visual preorder, inorder, and postorder tree traversals.
