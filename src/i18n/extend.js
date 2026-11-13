@@ -5,5 +5,5 @@ export function extendDictionary(base, supplement) {
       ? { ...base.pages[id], ...page, cards: [...base.pages[id].cards, ...page.cards] }
       : page
   }
-  return { ...base, ui: { ...base.ui, ...supplement.ui }, groups: [...base.groups, supplement.group], topics: [...base.topics, ...supplement.topics], pages, examples: supplement.examples }
+  return { ...base, ui: { ...base.ui, ...supplement.ui }, groups: [...base.groups, supplement.group], topics: [...base.topics, ...supplement.topics], pages, examples: { ...base.examples, ...supplement.examples } }
 }

@@ -3,6 +3,7 @@ export const handout = { filename: 'dsaII_handout.pdf', title: 'Data Structures 
 // PDF page numbers equal the printed page numbers in the supplied handout.
 export const handoutSections = {
   overview: { section: '1–6', pages: '2–88' },
+  recursion: { section: '1.3', pages: '12–18' },
   complexity: { section: '1.2–1.5', pages: '4–24' },
   'sorted-lists': { section: '1.6', pages: '25–26' },
   'sets-maps': { section: '1.6, 2.2', pages: '25–26, 30' },

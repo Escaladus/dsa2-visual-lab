@@ -8,6 +8,8 @@ import SortingLab from './components/SortingLab.jsx'
 import ComplexityLab from './components/ComplexityLab.jsx'
 import ComplexityQuiz from './components/ComplexityQuiz.jsx'
 import HeapLab from './components/HeapLab.jsx'
+import RecursionLab from './components/RecursionLab.jsx'
+import RecursionQuiz from './components/RecursionQuiz.jsx'
 import JavaExamples from './components/JavaExamples.jsx'
 import { handout, handoutSections } from './data/handout.js'
 import { sortingAlgorithms } from './utils/sortingAlgorithms.js'
@@ -44,7 +46,7 @@ function Lesson({ topic, onOpen }) {
   const { id } = topic
   const page = text.pages[id]
   const reference = handoutSections[id]
-  const grid = id === 'trees' ? 'cards-3' : ['sets-maps', 'graph-apps', 'java-tools'].includes(id) ? 'cards-2' : ''
+  const grid = ['trees', 'recursion'].includes(id) ? 'cards-3' : ['sets-maps', 'graph-apps', 'java-tools'].includes(id) ? 'cards-2' : ''
 
   return <>
     <header className="page-title">
@@ -74,12 +76,17 @@ function Lesson({ topic, onOpen }) {
       </ConceptCard>
     ))}</div>
 
+    {id === 'recursion' && <>
+      <RecursionLab />
+      <div className="callout-actions"><button onClick={() => onOpen('trees')}>{text.recursion.treesLink}</button><button onClick={() => onOpen('graph-dfs')}>{text.recursion.dfsLink}</button></div>
+    </>}
     {id === 'graph-basics' && <div className="callout-actions">
       <button onClick={() => onOpen('graph-dfs')}>{text.ui.goDfs}</button>
       <button onClick={() => onOpen('graph-bfs')}>{text.ui.goBfs}</button>
     </div>}
     <JavaExamples topicId={id} />
     {id === 'complexity' && <ComplexityQuiz />}
+    {id === 'recursion' && <RecursionQuiz />}
   </>
 }
 

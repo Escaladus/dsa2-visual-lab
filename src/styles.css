@@ -232,3 +232,47 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 @media(max-width:1100px){.heap-layout{grid-template-columns:minmax(0,1fr)}.heap-tree{height:280px}}
 @media(max-width:620px){.heap-lab h2{font-size:22px}.heap-intro{font-size:13px}.heap-panel{padding:12px}.heap-tree{height:250px}.heap-offer-input input{width:84px}.heap-controls{gap:12px}.heap-controls button{padding:10px}.heap-array{gap:5px}.heap-array-cell{min-width:40px}.heap-array-cell strong{font-size:14px}.heap-bottom-controls>.playback{width:100%}}
 @media(prefers-reduced-motion:reduce){.heap-node,.heap-node circle,.heap-edge{transition:none}}
+
+.recursion-lab h2{font-size:24px;line-height:1.3;margin:4px 0 20px}
+.recursion-description,.recursion-note{color:var(--muted);font-size:12px;line-height:1.65}
+.recursion-description{margin:0 4px 16px}
+.recursion-counters{display:flex;flex-wrap:wrap;gap:9px 18px;align-items:center;margin:16px 0;font-size:12px;color:#afc0dc}
+.recursion-final{margin-left:auto;color:var(--accent-2);font-size:14px}
+.recursion-panels{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.recursion-panel{padding:16px;background:#0a101e;border:1px solid #26324d;border-radius:14px;min-width:0}
+.recursion-panel h3{font-size:16px;line-height:1.4;margin:0 0 12px}
+.recursion-panel h4{color:var(--muted);font-size:12px;margin:0 0 10px}
+.recursion-code{padding:12px 0;margin:0;border-color:#314465;font-size:12px;line-height:1.8}
+.recursion-code-line{display:flex;gap:12px;padding:3px 14px;border-left:3px solid transparent;white-space:pre;min-width:max-content}
+.recursion-code-line>span:first-child{width:12px;flex:0 0 12px;color:#667a9b;user-select:none}
+.recursion-code-line.current{background:#263b60;border-left-color:var(--warn);color:#fff}
+.recursion-return{margin-top:20px;padding:14px;border:1px dashed #304663;border-radius:10px}
+.recursion-return>code{color:var(--accent-2);font-size:14px;overflow-wrap:anywhere}
+.recursion-note{margin:0 0 14px}
+.recursion-stack{display:flex;flex-direction:column;gap:9px;min-height:100px;max-height:400px;overflow:auto;overflow-anchor:none;padding:2px}
+.recursion-stack-card{border:1px solid var(--call-stroke);border-left-width:4px;background:var(--call-fill);padding:12px;border-radius:10px;flex-shrink:0}
+.recursion-stack-card>div{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:8px}
+.recursion-stack-card strong{font-size:14px}
+.recursion-stack-card small{font-size:10px;color:#bdcce1}
+.recursion-stack-card>div>span{margin-left:auto;font-size:10px;color:var(--warn)}
+.recursion-stack-card.waiting{border-style:dashed;opacity:.8}
+.recursion-stack-card.returning{border-color:var(--accent-2)}
+.recursion-stack-card.returning>div>span{color:var(--accent-2)}
+.recursion-stack-card>code{display:block;font-size:12px;line-height:1.8;overflow-wrap:anywhere;color:#e1ebff}
+.recursion-empty{padding:20px;color:var(--muted);font-size:13px;text-align:center;align-self:center;margin:auto}
+.recursion-tree-panel{margin-top:14px}
+.recursion-tree-scroll{max-height:450px;overflow:auto;border-radius:10px;min-width:0}
+.recursion-tree-scroll:focus-visible,.recursion-code:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
+.recursion-tree{display:block;min-width:100%}
+.recursion-edge{stroke:#3a4e6d;stroke-width:2}
+.recursion-edge.active{stroke:#89b3f1;stroke-width:3}
+.recursion-node circle{fill:var(--call-fill);stroke:var(--call-stroke);stroke-width:2}
+.recursion-node.waiting circle{stroke-dasharray:4 3}
+.recursion-node.done{opacity:.7}
+.recursion-node.current{opacity:1}
+.recursion-node.current circle{stroke:var(--warn);stroke-width:4}
+.recursion-node text{fill:#fff;font-size:12px;font-weight:700}
+.recursion-node .recursion-call-id{fill:#8da2c3;font-size:10px;font-weight:400;paint-order:stroke;stroke:#0a101e;stroke-width:4px}
+.recursion-node .recursion-node-result{fill:var(--accent-2);font-size:12px;paint-order:stroke;stroke:#0a101e;stroke-width:4px}
+@media(max-width:900px){.recursion-panels{grid-template-columns:minmax(0,1fr)}.recursion-stack{max-height:330px}.recursion-final{margin-left:0}}
+@media(max-width:620px){.recursion-lab h2{font-size:22px}.recursion-panel{padding:12px}.recursion-lab .segmented{max-width:100%;flex-wrap:wrap}.recursion-lab .segmented button{padding:8px 12px}.recursion-counters{gap:8px 12px}.recursion-tree-scroll{max-height:360px}}

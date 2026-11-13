@@ -3,8 +3,11 @@ import { extendDictionary } from './extend.js'
 import { sortingTranslations } from './sorting.js'
 import { complexityQuizTranslations } from './complexityQuiz.js'
 import { heapTranslations } from './heap.js'
+import { recursionTranslations } from './recursion.js'
 
 const base = {
+  recursion: recursionTranslations.ru,
+  examples: recursionTranslations.ru.examples,
   heap: heapTranslations.ru,
   complexityQuiz: complexityQuizTranslations.ru,
   sorting: sortingTranslations.ru,
@@ -32,6 +35,7 @@ const base = {
   topics: [
     ['Карта DSA2', 'Что и зачем учить'],
     ['Временная сложность', 'O(1), O(log n), O(n), O(n log n), O(n²)'],
+    recursionTranslations.ru.topic,
     ['Отсортированные списки', 'Два указателя, union без sort/set/map'],
     ['Set, Map и hashing', 'equals/hashCode, уникальность, поиск'],
     ['Деревья и обходы', 'Preorder, inorder, postorder'],
@@ -46,11 +50,13 @@ const base = {
   roadmap: [
     ['Сложность', 'Научись видеть стоимость циклов и операций.'],
     ['Линейные структуры', 'Два указателя, списки, множества, map.'],
+    recursionTranslations.ru.roadmap,
     ['Деревья', 'Рекурсия и три основных порядка обхода.'],
     ['Сортировки', 'Почему разные подходы имеют разную сложность.'],
     ['Графы', 'Представление графа, DFS, BFS и задачи поверх обходов.'],
   ],
   pages: {
+    recursion: recursionTranslations.ru.page,
     overview: {
       title: 'Понимать алгоритм, а не заучивать код',
       intro: 'Этот сайт устроен как учебная карта: сначала идея, затем визуализация, потом Java-код и типичные ошибки.',

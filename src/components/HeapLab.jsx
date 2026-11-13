@@ -58,7 +58,7 @@ export default function HeapLab() {
   const step = state.frames[state.index]
   const last = state.frames.length - 1
   const canOperate = state.index === last && !state.playing
-  const full = step.nodes.length >= heapLimit
+  const full = state.frames.at(-1).nodes.length >= heapLimit
   const active = new Set(step.active), swapping = new Set(step.swapping)
   const priority = [...step.nodes].sort((a, b) => a.value - b.value)
   const removed = pollHistory(state)
@@ -72,7 +72,7 @@ export default function HeapLab() {
 
   function offer(event) {
     event.preventDefault()
-    if (!canOperate || full) return
+    if (full) return
     const value = Number(input)
     if (!input.trim() || !validHeapValue(value)) { setInvalid(true); return }
     setInvalid(false)
@@ -93,15 +93,15 @@ export default function HeapLab() {
         <form className="heap-offer-form" onSubmit={offer} noValidate>
           <label htmlFor="heap-value">{labels.value}</label>
           <div className="heap-offer-input">
-            <input id="heap-value" type="number" min={heapValueMin} max={heapValueMax} step="1" value={input} disabled={!canOperate}
+            <input id="heap-value" type="number" min={heapValueMin} max={heapValueMax} step="1" value={input}
               aria-invalid={invalid} aria-describedby={invalid ? 'heap-input-error' : undefined}
               onChange={event => { setInput(event.target.value); setInvalid(false) }} />
-            <button type="submit" className="primary" disabled={!canOperate || full}>{labels.offer}</button>
+            <button type="submit" className="primary" disabled={full}>{labels.offer}</button>
           </div>
         </form>
         <div className="heap-operation-buttons">
-          <button disabled={!canOperate} onClick={() => dispatch({ type: 'PEEK' })}>{labels.peek}</button>
-          <button disabled={!canOperate} onClick={() => dispatch({ type: 'POLL' })}>{labels.poll}</button>
+          <button onClick={() => dispatch({ type: 'PEEK' })}>{labels.peek}</button>
+          <button onClick={() => dispatch({ type: 'POLL' })}>{labels.poll}</button>
         </div>
       </div>
       {invalid && <p className="heap-input-error" id="heap-input-error" role="alert">{formatMessage(labels.invalid, { min: heapValueMin, max: heapValueMax })}</p>}
@@ -165,6 +165,7 @@ export default function HeapLab() {
         <button className="primary" disabled={last === 0} onClick={() => dispatch({ type: 'PLAY' })}>{state.playing ? text.ui.pause : text.ui.play}</button>
         <button disabled={state.index === last} onClick={() => dispatch({ type: 'NEXT' })}>{text.ui.next}</button>
         <button disabled={state.index === last} onClick={() => dispatch({ type: 'SEEK', index: last })}>{labels.finish}</button>
+        <button disabled={!state.cancellable} onClick={() => dispatch({ type: 'CANCEL' })}>{labels.cancel}</button>
       </div>
       <div className="heap-bottom-controls">
         <label className="sorting-speed">{text.ui.speed}<input type="range" min="200" max="1600" step="100" value={speed} onChange={event => setSpeed(Number(event.target.value))} /></label>

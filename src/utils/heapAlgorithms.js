@@ -93,7 +93,7 @@ export function createHeapOperation(input, operation, entry) {
 export function createHeapState(values = heapExample) {
   const nodes = values.map((value, id) => ({ id, value }))
   if (values.length > heapLimit || !values.every(validHeapValue) || !isMinHeap(nodes)) throw new Error('Invalid initial heap')
-  return { frames: [frame(nodes, values.length ? 'ready' : 'emptyReady')], index: 0, nextId: values.length, removedBefore: [], playing: false }
+  return { frames: [frame(nodes, values.length ? 'ready' : 'emptyReady')], index: 0, nextId: values.length, removedBefore: [], playing: false, cancellable: false }
 }
 
 export function pollHistory(state) {
@@ -105,6 +105,11 @@ export function heapLabReducer(state, action) {
   if (action.type === 'RESET') return createHeapState()
   if (action.type === 'EMPTY') return createHeapState([])
   const last = state.frames.length - 1
+  if (action.type === 'CANCEL') {
+    if (!state.cancellable) return state
+    const nodes = state.frames[0].nodes
+    return { ...state, frames: [frame(nodes, 'cancelled')], index: 0, playing: false, cancellable: false }
+  }
   if (action.type === 'SEEK') {
     if (!Number.isInteger(action.index)) return state
     return { ...state, index: Math.max(0, Math.min(last, action.index)), playing: false }
@@ -115,9 +120,10 @@ export function heapLabReducer(state, action) {
     const index = Math.max(0, Math.min(last, state.index + (action.type === 'PREVIOUS' ? -1 : 1)))
     return { ...state, index, playing: action.type === 'TICK' && index < last }
   }
-  if (!['OFFER', 'PEEK', 'POLL'].includes(action.type) || state.index !== last || state.playing) return state
-  const nodes = state.frames[state.index].nodes
+  if (!['OFFER', 'PEEK', 'POLL'].includes(action.type)) return state
+  const completed = { ...state, index: last, playing: false }
+  const nodes = state.frames[last].nodes
   if (action.type === 'OFFER' && (!validHeapValue(action.value) || nodes.length >= heapLimit)) return state
   const frames = createHeapOperation(nodes, action.type.toLowerCase(), { id: state.nextId, value: action.value })
-  return { ...state, frames, index: 0, nextId: state.nextId + Number(action.type === 'OFFER'), removedBefore: pollHistory(state), playing: false }
+  return { ...state, frames, index: action.type === 'PEEK' ? frames.length - 1 : 0, nextId: state.nextId + Number(action.type === 'OFFER'), removedBefore: pollHistory(completed), playing: false, cancellable: action.type !== 'PEEK' }
 }

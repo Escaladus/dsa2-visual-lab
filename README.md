@@ -12,7 +12,7 @@ Core translations are in `src/i18n/fi.js`, `src/i18n/ru.js`, and `src/i18n/en.js
 
 The material is aligned with the supplied `dsaII_handout.pdf` (University of Eastern Finland, autumn 2025, 89 pages). The [coverage map and implementation notes](docs/HANDOUT_ALIGNMENT.md) document the corresponding sections and identify topics covered at an introductory level. That companion document is currently in Russian.
 
-The site contains 21 topics and 26 standalone Java examples covering Set/Map, `equals`/`hashCode`, lists and queues, traversals, merge sort, Dijkstra/Floyd–Warshall, Prim/Kruskal, articulation points, matching, maximum flow, dynamic programming, strings, and files. Each example includes source code, expected output, complexity, assumptions, and a `.java` download.
+The site contains 22 topics and 28 standalone Java examples covering Set/Map, `equals`/`hashCode`, lists and queues, traversals, merge sort, Dijkstra/Floyd–Warshall, Prim/Kruskal, articulation points, matching, maximum flow, dynamic programming, strings, and files. Each example includes source code, expected output, complexity, assumptions, and a `.java` download.
 
 Run a downloaded example with JDK 17 or newer:
 
@@ -29,8 +29,9 @@ Java sources are in `src/examples`, their catalogue is in `src/data/javaExamples
 - A five-question time complexity quiz with Java examples, multiple-choice answers, explanations, a final score, and retries in all three languages.
 - Two-pointer union of sorted lists.
 - Set/Map operations and the `equals`/`hashCode` contract.
+- A recursion lesson with factorial and Fibonacci call trees, active call stacks, local variables, highlighted Java code, playback, and a five-question quiz.
 - Visual preorder, inorder, and postorder tree traversals.
-- Interactive min-heap and PriorityQueue visualisations: synchronised tree/array views, offer/peek/poll, sift-up/down animations, removal order, return values, and manual or automatic playback.
+- Interactive min-heap and PriorityQueue visualisations: synchronised tree/array views, offer/peek/poll, sift-up/down animations, removal order, return values, and manual or automatic playback. Peek is immediate; starting another operation completes the current one, and Undo restores the pre-operation heap.
 - Step-by-step and automatic visualisations of bubble, insertion, merge, and quick sort, including merge buffers and pivot highlighting.
 - Graph adjacency lists.
 - Interactive DFS with PRE/POST events, a call stack, visited vertices, and step explanations.

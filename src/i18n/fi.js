@@ -3,8 +3,11 @@ import { extendDictionary } from './extend.js'
 import { sortingTranslations } from './sorting.js'
 import { complexityQuizTranslations } from './complexityQuiz.js'
 import { heapTranslations } from './heap.js'
+import { recursionTranslations } from './recursion.js'
 
 const base = {
+  recursion: recursionTranslations.fi,
+  examples: recursionTranslations.fi.examples,
   heap: heapTranslations.fi,
   complexityQuiz: complexityQuizTranslations.fi,
   sorting: sortingTranslations.fi,
@@ -32,6 +35,7 @@ const base = {
   topics: [
     ['DSA2-oppimiskartta', 'Mitä opiskella ja miksi'],
     ['Aikavaativuus', 'O(1), O(log n), O(n), O(n log n), O(n²)'],
+    recursionTranslations.fi.topic,
     ['Järjestetyt listat', 'Kaksi osoitinta, yhdiste ilman sort/set/map-operaatioita'],
     ['Set, Map ja hajautus', 'equals/hashCode, yksikäsitteisyys, haku'],
     ['Puut ja läpikäynnit', 'Esijärjestys, sisäjärjestys, jälkijärjestys'],
@@ -46,11 +50,13 @@ const base = {
   roadmap: [
     ['Aikavaativuus', 'Opi tunnistamaan silmukoiden ja operaatioiden kustannus.'],
     ['Lineaariset rakenteet', 'Kaksi osoitinta, listat, joukot ja hakurakenteet.'],
+    recursionTranslations.fi.roadmap,
     ['Puut', 'Rekursio ja kolme keskeistä läpikäyntijärjestystä.'],
     ['Lajittelu', 'Miksi eri menetelmillä on eri aikavaativuus.'],
     ['Verkot', 'Verkon esitys, DFS, BFS ja niiden sovellukset.'],
   ],
   pages: {
+    recursion: recursionTranslations.fi.page,
     overview: {
       title: 'Ymmärrä algoritmi ulkoa opettelun sijaan',
       intro: 'Sivusto toimii oppimiskarttana: ensin idea, sitten visualisointi, lopuksi Java-koodi ja tavalliset virheet.',

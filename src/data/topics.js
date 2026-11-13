@@ -4,6 +4,7 @@ import { additionalTopics } from './handout.js'
 export const topics = [
   { id: 'overview', group: 0 },
   { id: 'complexity', group: 0 },
+  { id: 'recursion', group: 0 },
   { id: 'sorted-lists', group: 1 },
   { id: 'sets-maps', group: 1 },
   { id: 'trees', group: 2 },
@@ -17,4 +18,4 @@ export const topics = [
   ...additionalTopics,
 ]
 
-export const roadmapIds = ['complexity', 'sorted-lists', 'trees', 'sorting', 'graph-basics']
+export const roadmapIds = ['complexity', 'sorted-lists', 'recursion', 'trees', 'sorting', 'graph-basics']

@@ -3,8 +3,11 @@ import { extendDictionary } from './extend.js'
 import { sortingTranslations } from './sorting.js'
 import { complexityQuizTranslations } from './complexityQuiz.js'
 import { heapTranslations } from './heap.js'
+import { recursionTranslations } from './recursion.js'
 
 const base = {
+  recursion: recursionTranslations.en,
+  examples: recursionTranslations.en.examples,
   heap: heapTranslations.en,
   complexityQuiz: complexityQuizTranslations.en,
   sorting: sortingTranslations.en,
@@ -32,6 +35,7 @@ const base = {
   topics: [
     ['DSA2 roadmap', 'What to learn and why'],
     ['Time complexity', 'O(1), O(log n), O(n), O(n log n), O(n²)'],
+    recursionTranslations.en.topic,
     ['Sorted lists', 'Two pointers, union without sort/set/map'],
     ['Set, Map and hashing', 'equals/hashCode, uniqueness, lookup'],
     ['Trees and traversals', 'Preorder, inorder, postorder'],
@@ -46,11 +50,13 @@ const base = {
   roadmap: [
     ['Complexity', 'Learn to see the cost of loops and operations.'],
     ['Linear structures', 'Two pointers, lists, sets and maps.'],
+    recursionTranslations.en.roadmap,
     ['Trees', 'Recursion and the three main traversal orders.'],
     ['Sorting', 'Why different approaches have different complexities.'],
     ['Graphs', 'Graph representation, DFS, BFS and their applications.'],
   ],
   pages: {
+    recursion: recursionTranslations.en.page,
     overview: {
       title: 'Understand algorithms instead of memorising code',
       intro: 'Use this site as a learning roadmap: start with the idea, explore a visualisation, then study Java code and common mistakes.',
