@@ -18,6 +18,16 @@ export const recursionExamples = {
   },
 }
 
+export const memoizedFibonacciCode = `static long fibonacci(int n, Long[] memo) {
+    if (n <= 1) return n;
+    if (memo[n] != null) return memo[n];
+    long left = fibonacci(n - 1, memo);
+    long right = fibonacci(n - 2, memo);
+    long value = left + right;
+    memo[n] = value;
+    return value;
+}`
+
 export const recursionQuestions = [
   { id: 'value', code: recursionExamples.factorial.code, choices: ['4', '10', '24', '16'], correctIndex: 2 },
   { id: 'first-return', code: recursionExamples.factorial.code, choices: ['factorial(4)', 'factorial(1)', 'factorial(3)', 'all'], correctIndex: 1 },

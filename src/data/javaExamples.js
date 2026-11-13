@@ -1,6 +1,7 @@
 export const javaExamples = [
   { id: 'factorial', className: 'FactorialExample', topics: ['recursion'], output: '24\n1' },
   { id: 'fibonacci', className: 'FibonacciExample', topics: ['recursion'], output: '3\n0' },
+  { id: 'memoizedFibonacci', className: 'MemoizedFibonacciExample', topics: ['recursion'], output: '8\n0' },
   { id: 'binarySearch', className: 'BinarySearchExample', topics: ['complexity'], output: '3\n-1\n-1' },
   { id: 'sortedUnion', className: 'SortedUnionExample', topics: ['sorted-lists'], output: '[1, 2, 3, 7, 8]\n[2]\n[]' },
   { id: 'setOperations', className: 'SetOperationsExample', topics: ['sets-maps', 'sets'], output: 'false\ntrue\n[1, 2, 3, 4]\n[3]\n[1, 2]\n[1, 2, 3]' },

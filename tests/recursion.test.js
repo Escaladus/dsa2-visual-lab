@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { recursionExamples, recursionQuestions } from '../src/data/recursion.js'
-import { createRecursionTrace, recursionTreeLayout } from '../src/utils/recursionAlgorithms.js'
+import { memoizedFibonacciCode, recursionExamples, recursionQuestions } from '../src/data/recursion.js'
+import { activeRecursionReturn, createRecursionPrediction, createRecursionTrace, recursionTreeLayout } from '../src/utils/recursionAlgorithms.js'
 import { dictionaries, formatMessage } from '../src/i18n/index.js'
 import { createQuizReducer, createQuizState, scoreQuiz } from '../src/utils/studentQuiz.js'
 
@@ -113,5 +113,88 @@ test('the highlighted Java code matches the downloadable, compiled examples', ()
   for (const [kind, filename] of [['factorial', 'FactorialExample.java'], ['fibonacci', 'FibonacciExample.java']]) {
     const source = readFileSync(new URL('../src/examples/' + filename, import.meta.url), 'utf8').replace(/\s+/g, ' ')
     assert.ok(source.includes(recursionExamples[kind].code.replace(/\s+/g, ' ')))
+  }
+  const memoized = readFileSync(new URL('../src/examples/MemoizedFibonacciExample.java', import.meta.url), 'utf8')
+  assert.ok(memoized.replace(/\s+/g, ' ').includes(memoizedFibonacciCode.replace(/\s+/g, ' ')))
+})
+
+test('memoised Fibonacci reuses only completed results, without hiding cache-hit invocations', () => {
+  for (let n = 0; n <= 6; n++) {
+    const frames = createRecursionTrace('fibonacci', n, { memoized: true })
+    const final = frames.at(-1)
+    assert.equal(final.result, createRecursionTrace('fibonacci', n).at(-1).result)
+    assert.equal(final.nodes.length, n < 2 ? 1 : 2 * n - 1)
+    assert.equal(final.cacheHits, Math.max(0, n - 3))
+    assert.deepEqual(final.stack, [])
+    let hits = 0
+    for (let i = 0; i < frames.length; i++) {
+      const frame = frames[i]
+      if (i) assert.notEqual(frame.cache, frames[i - 1].cache)
+      assert.equal(frame.stack.length, new Set(frame.stack).size)
+      frame.stack.forEach((id, depth) => {
+        assert.notEqual(frame.nodes[id].status, 'done')
+        assert.equal(frame.nodes[id].parent, depth ? frame.stack[depth - 1] : null)
+      })
+      if (frame.message.key === 'cacheHit') {
+        hits++
+        assert.equal(frames[i - 1].cache[frame.message.values.n], frame.message.values.value)
+        assert.ok(!final.nodes.some(node => node.parent === frame.current), 'Cache hits must not create child calls')
+      }
+      if (frame.message.key === 'storeCache') {
+        const { n: key, value } = frame.message.values
+        assert.equal(frames[i - 1].cache[key], undefined)
+        assert.equal(frame.cache[key], value)
+        assert.equal(frame.nodes[frame.current].locals.left + frame.nodes[frame.current].locals.right, value)
+      }
+      assert.equal(frame.cacheHits, hits)
+      if (frame.line !== null) assert.ok(frame.line > 0 && frame.line <= memoizedFibonacciCode.split('\n').length)
+      for (const dictionary of Object.values(dictionaries)) {
+        assert.equal(typeof dictionary.recursion.messages[frame.message.key], 'string')
+        assert.doesNotMatch(formatMessage(dictionary.recursion.messages[frame.message.key], frame.message.values), /\{\w+\}|undefined/)
+      }
+    }
+    assert.equal(Object.keys(final.cache).length, Math.max(0, n - 1))
+    assert.deepEqual(frames[0].cache, {}, 'Each execution starts with a fresh cache')
+  }
+  assert.throws(() => createRecursionTrace('factorial', 4, { memoized: true }))
+})
+
+test('return highlights connect an actual completed child to its waiting or resumed caller', () => {
+  for (const kind of ['factorial', 'fibonacci']) {
+    const frames = createRecursionTrace(kind, 4)
+    for (const frame of frames) {
+      const transfer = activeRecursionReturn(frame)
+      if (!transfer) continue
+      assert.equal(frame.nodes[transfer.from].status, 'done')
+      assert.equal(frame.nodes[transfer.from].parent, transfer.to)
+      assert.equal(frame.nodes[transfer.from].result, transfer.value)
+      if (transfer.to !== null) {
+        assert.equal(frame.stack.at(-1), transfer.to)
+        assert.ok(['active', 'waiting'].includes(frame.nodes[transfer.to].status))
+      }
+    }
+    assert.equal(activeRecursionReturn(frames.at(-1)), null, 'A stale return must not stay highlighted')
+  }
+})
+
+test('predictions ask before revealing calls and calculations; zero and large values have four distinct choices', () => {
+  for (const [kind, max] of [['factorial', 8], ['fibonacci', 6]]) {
+    for (let n = 0; n <= max; n++) {
+      const frames = createRecursionTrace(kind, n)
+      for (let i = 0; i < frames.length; i++) {
+        const question = createRecursionPrediction(frames, i)
+        if (!question) continue
+        const next = frames[i + 1]
+        assert.equal(question.answer, next.message.values[question.key === 'nextCall' ? 'n' : 'value'])
+        assert.equal(question.choices.length, 4)
+        assert.equal(new Set(question.choices).size, 4)
+        assert.ok(question.choices.every(value => Number.isInteger(value) && value >= 0))
+        assert.ok(question.choices.includes(question.answer))
+        assert.deepEqual(question, createRecursionPrediction(frames, i), 'Rewinding must not shuffle the answers')
+        if (question.key === 'nextCall') assert.equal(next.nodes.length, frames[i].nodes.length + 1)
+        else assert.equal(frames[i].nodes[next.current].result, null, 'The value being predicted must not already be revealed')
+        for (const dictionary of Object.values(dictionaries)) assert.ok(dictionary.recursion.enhancements.practice[question.key])
+      }
+    }
   }
 })

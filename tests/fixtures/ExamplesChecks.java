@@ -224,7 +224,23 @@ public class ExamplesChecks {
         }
     }
 
+    private static void memoisedFibonacci() {
+        long a = 0, b = 1;
+        for (int n = 0; n <= 92; n++) {
+            Long[] memo = new Long[n + 1];
+            check(MemoizedFibonacciExample.fibonacci(n, memo) == a, "memoised Fibonacci " + n);
+            if (n >= 2) {
+                check(memo[n] == a, "computed value must be cached");
+                check(MemoizedFibonacciExample.fibonacci(n, memo) == a, "reuse cached result");
+            }
+            long next = a + b;
+            a = b;
+            b = next;
+        }
+    }
+
     public static void main(String[] args) throws Exception {
+        memoisedFibonacci();
         listsAndSorting(); traversals(); shortestPaths(); treesAndCuts(); matchingAndFlow(); stringsAndCoins(); files();
         System.out.println("All algorithm checks passed");
     }

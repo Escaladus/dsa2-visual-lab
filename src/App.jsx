@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import TopicNav from './components/TopicNav.jsx'
 import ConceptCard from './components/ConceptCard.jsx'
 import LanguageSwitcher from './components/LanguageSwitcher.jsx'
@@ -8,13 +8,14 @@ import SortingLab from './components/SortingLab.jsx'
 import ComplexityLab from './components/ComplexityLab.jsx'
 import ComplexityQuiz from './components/ComplexityQuiz.jsx'
 import HeapLab from './components/HeapLab.jsx'
-import RecursionLab from './components/RecursionLab.jsx'
 import RecursionQuiz from './components/RecursionQuiz.jsx'
 import JavaExamples from './components/JavaExamples.jsx'
 import { handout, handoutSections } from './data/handout.js'
 import { sortingAlgorithms } from './utils/sortingAlgorithms.js'
 import { roadmapIds, topics } from './data/topics.js'
 import { useLanguage } from './i18n/LanguageContext.jsx'
+
+const RecursionLab = lazy(() => import('./components/RecursionLab.jsx'))
 
 function Code({ children }) {
   return <pre className="code-block"><code>{children}</code></pre>
@@ -77,7 +78,7 @@ function Lesson({ topic, onOpen }) {
     ))}</div>
 
     {id === 'recursion' && <>
-      <RecursionLab />
+      <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}><RecursionLab /></Suspense>
       <div className="callout-actions"><button onClick={() => onOpen('trees')}>{text.recursion.treesLink}</button><button onClick={() => onOpen('graph-dfs')}>{text.recursion.dfsLink}</button></div>
     </>}
     {id === 'graph-basics' && <div className="callout-actions">

@@ -1,5 +1,8 @@
+import { recursionNext } from './recursionNext.js'
+
 export const recursionTranslations = {
   ru: {
+    enhancements: recursionNext.ru,
     topic: ['Рекурсия', 'Базовый случай, стек вызовов и возврат результата'],
     roadmap: ['Рекурсия', 'Проследи вызовы функций и возвращение результатов.'],
     page: { title: 'Рекурсия: вызовы, ожидание и возврат', intro: 'Функция может вызвать саму себя для меньшей задачи. Текущий вызов сохраняет свои переменные и ждёт, пока вложенный вызов вернёт ответ.', cards: [
@@ -17,6 +20,7 @@ export const recursionTranslations = {
     timeline: 'Шаг рекурсии', finish: 'К результату', reset: 'С начала',
     treesLink: 'Рекурсия в деревьях →', dfsLink: 'Рекурсия в DFS →',
     messages: {
+      ...recursionNext.ru.messages,
       ready: 'Пример {fn}({n}) готов. Нажми «Следующий шаг» или запусти анимацию.',
       enter: 'Создаём вызов №{call}: {fn}({n}). Его собственный n = {n}; добавляем вызов в стек.',
       testBase: 'Проверяем базовый случай: n = {n}. Если n ≤ 1, новый рекурсивный вызов не нужен.',
@@ -34,6 +38,7 @@ export const recursionTranslations = {
       done: 'Все вызовы завершены, стек пуст. Результат {fn}({n}) = {value}.',
     },
     examples: {
+      memoizedFibonacci: recursionNext.ru.javaExample,
       factorial: ['Рекурсивный факториал', 'Базовый случай, отдельная переменная child и умножение после возврата.', 'Неотрицательный n ≤ 20 для long; Θ(n) времени и O(n) стека.'],
       fibonacci: ['Наивная рекурсия Фибоначчи', 'Два последовательных рекурсивных вызова. Одинаковые подзадачи вычисляются повторно.', 'Небольшой неотрицательный n; экспоненциальное время и O(n) стека.'],
     },
@@ -53,6 +58,7 @@ export const recursionTranslations = {
     },
   },
   en: {
+    enhancements: recursionNext.en,
     topic: ['Recursion', 'Base cases, the call stack and returning results'],
     roadmap: ['Recursion', 'Follow function calls and returning results.'],
     page: { title: 'Recursion: calls, waiting and returns', intro: 'A function can call itself for a smaller problem. The current call keeps its own variables and waits for the nested call to return an answer.', cards: [
@@ -67,6 +73,7 @@ export const recursionTranslations = {
     active: 'Executing', waiting: 'Waiting', returning: 'Returning', done: 'Finished', result: 'Final result', returned: 'Latest return', pending: 'Not computed yet', calls: 'Calls created: {count}', depth: 'Maximum stack size: {depth}', call: 'Call #{id}',
     timeline: 'Recursion step', finish: 'Jump to result', reset: 'Start over', treesLink: 'Recursion in trees →', dfsLink: 'Recursion in DFS →',
     messages: {
+      ...recursionNext.en.messages,
       ready: '{fn}({n}) is ready. Step forward or play the animation.',
       enter: 'Create call #{call}: {fn}({n}). It has its own n = {n}; push it onto the stack.',
       testBase: 'Check the base case with n = {n}. If n ≤ 1, no further recursive call is needed.',
@@ -84,6 +91,7 @@ export const recursionTranslations = {
       done: 'All calls have finished and the stack is empty. {fn}({n}) = {value}.',
     },
     examples: {
+      memoizedFibonacci: recursionNext.en.javaExample,
       factorial: ['Recursive factorial', 'A base case, a separate child variable, and multiplication after the nested call returns.', 'Non-negative n ≤ 20 for long; Θ(n) time and O(n) stack space.'],
       fibonacci: ['Naive recursive Fibonacci', 'Two sequential recursive calls. Equal subproblems are computed repeatedly.', 'Small non-negative n; exponential time and O(n) stack space.'],
     },
@@ -101,6 +109,7 @@ export const recursionTranslations = {
     },
   },
   fi: {
+    enhancements: recursionNext.fi,
     topic: ['Rekursio', 'Perustapaukset, kutsupino ja paluuarvot'],
     roadmap: ['Rekursio', 'Seuraa funktiokutsuja ja tulosten palautumista.'],
     page: { title: 'Rekursio: kutsut, odottaminen ja paluu', intro: 'Funktio voi kutsua itseään pienemmällä ongelmalla. Nykyinen kutsu säilyttää omat muuttujansa ja odottaa sisemmän kutsun vastausta.', cards: [
@@ -115,6 +124,7 @@ export const recursionTranslations = {
     active: 'Suoritetaan', waiting: 'Odottaa', returning: 'Palauttaa', done: 'Valmis', result: 'Lopputulos', returned: 'Viimeisin paluu', pending: 'Ei vielä laskettu', calls: 'Kutsuja luotu: {count}', depth: 'Suurin pinokoko: {depth}', call: 'Kutsu #{id}',
     timeline: 'Rekursion vaihe', finish: 'Siirry tulokseen', reset: 'Alusta', treesLink: 'Rekursio puissa →', dfsLink: 'Rekursio DFS:ssä →',
     messages: {
+      ...recursionNext.fi.messages,
       ready: '{fn}({n}) on valmis aloitettavaksi. Etene askelittain tai käynnistä animaatio.',
       enter: 'Luodaan kutsu #{call}: {fn}({n}). Sen oma n = {n}; lisätään kutsu pinoon.',
       testBase: 'Tarkistetaan perustapaus, kun n = {n}. Jos n ≤ 1, uutta rekursiivista kutsua ei tarvita.',
@@ -132,6 +142,7 @@ export const recursionTranslations = {
       done: 'Kaikki kutsut ovat valmiita ja pino on tyhjä. {fn}({n}) = {value}.',
     },
     examples: {
+      memoizedFibonacci: recursionNext.fi.javaExample,
       factorial: ['Rekursiivinen kertoma', 'Perustapaus, erillinen child-muuttuja ja kertolasku sisemmän kutsun palattua.', 'Ei-negatiivinen n ≤ 20 long-tyypille; Θ(n) aikaa ja O(n) pinotilaa.'],
       fibonacci: ['Naiivi rekursiivinen Fibonacci', 'Kaksi peräkkäistä rekursiivista kutsua. Samat osaongelmat lasketaan uudelleen.', 'Pieni ei-negatiivinen n; eksponentiaalinen aika ja O(n) pinotilaa.'],
     },
