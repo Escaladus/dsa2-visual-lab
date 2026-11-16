@@ -5,7 +5,7 @@ const color = n => ({ '--call-fill': `hsl(${(n * 53 + 185) % 360} 34% 21%)`, '--
 const callName = (kind, node) => `${kind}(${node.n}) #${node.id + 1}`
 const clampZoom = value => Math.max(0.15, Math.min(2, value))
 
-export default function RecursionTree({ step, layout, kind, labels }) {
+export default function RecursionTree({ step, layout, kind, labels, nodeLabel, returnLabel }) {
   const scroll = useRef(null), drag = useRef(null), zoomCenter = useRef(null)
   const marker = useId()
   const [size, setSize] = useState({ width: 0, height: 0 })
@@ -80,15 +80,15 @@ export default function RecursionTree({ step, layout, kind, labels }) {
             const parent = layout.positions[node.parent], child = layout.positions[node.id]
             return <line key={node.id} x1={parent.x} y1={parent.y} x2={child.x} y2={child.y} className={step.stack.includes(node.id) ? 'recursion-edge active' : 'recursion-edge'} />
           })}
-          {to && <g className="recursion-transfer-arrow" aria-label={`${callName(kind, step.nodes[transfer.from])} → ${transfer.value} → ${callName(kind, step.nodes[transfer.to])}`}>
+          {to && <g className="recursion-transfer-arrow" aria-label={`${callName(kind, step.nodes[transfer.from])} → ${returnLabel ?? transfer.value} → ${callName(kind, step.nodes[transfer.to])}`}>
             <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} markerEnd={`url(#${marker})`} />
-            <text x={(start.x + end.x) / 2 + 12} y={(start.y + end.y) / 2} dy=".35em">{transfer.value}</text>
+            <text x={(start.x + end.x) / 2 + 12} y={(start.y + end.y) / 2} dy=".35em">{returnLabel ? '↩' : transfer.value}</text>
           </g>}
           {step.nodes.map(node => {
             const point = layout.positions[node.id]
             return <g key={node.id} data-call-id={node.id} data-n={node.n} className={`recursion-node ${node.status} ${step.current === node.id ? 'current' : ''} ${transfer?.to === node.id ? 'receiving' : ''} ${node.cached ? 'cached' : ''}`} style={color(node.n)} transform={`translate(${point.x},${point.y})`}>
               <title>{callName(kind, node)}{node.cached ? ` · ${extra.cached}` : ''}</title><circle r="27" />
-              <text textAnchor="middle" dy=".35em">{kind === 'factorial' ? 'fact' : 'fib'}({node.n})</text>
+              <text textAnchor="middle" dy=".35em">{nodeLabel ? nodeLabel(node) : `${kind === 'factorial' ? 'fact' : 'fib'}(${node.n})`}</text>
               <text className="recursion-call-id" textAnchor="middle" y="-32">#{node.id + 1}{node.cached ? ' ✓' : ''}</text>
               {node.result !== null && <text className="recursion-node-result" textAnchor="middle" y="45">= {node.result}</text>}
             </g>

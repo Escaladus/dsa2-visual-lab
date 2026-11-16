@@ -5,6 +5,12 @@ import { dictionaries, formatMessage, languages, readLanguage, resolveLanguage, 
 import { createBfsSteps, createDfsSteps, graphNodes } from '../src/utils/graphAlgorithms.js'
 import { javaExamples } from '../src/data/javaExamples.js'
 import { handoutSections } from '../src/data/handout.js'
+import { recursionTheory } from '../src/i18n/recursionTheory.js'
+import { recursionTracing } from '../src/i18n/recursionTracing.js'
+import { recursiveDfsTranslations } from '../src/i18n/recursiveDfs.js'
+import { recursionComplexityTranslations } from '../src/i18n/recursionComplexity.js'
+import { recursionReviewTranslations } from '../src/i18n/recursionReview.js'
+import { recurrenceTreeTranslations } from '../src/i18n/recurrenceTrees.js'
 
 function compareShape(reference, actual, path = '') {
   assert.equal(typeof actual, typeof reference, path)
@@ -22,12 +28,24 @@ for (const { code } of languages) {
   test(`${code}: all UI, lessons and animation messages are translated`, () => {
     const dictionary = dictionaries[code]
     compareShape(dictionaries.ru, dictionary)
+    compareShape(recursionTheory.ru, recursionTheory[code], 'recursionTheory')
+    compareShape(recursionTracing.ru, recursionTracing[code], 'recursionTracing')
+    compareShape(recursiveDfsTranslations.ru, recursiveDfsTranslations[code], 'recursiveDfs')
+    compareShape(recursionComplexityTranslations.ru, recursionComplexityTranslations[code], 'recursionComplexity')
+    compareShape(recursionReviewTranslations.ru, recursionReviewTranslations[code], 'recursionReview')
+    compareShape(recurrenceTreeTranslations.ru, recurrenceTreeTranslations[code], 'recurrenceTrees')
     assert.equal(dictionary.topics.length, topics.length)
     assert.equal(dictionary.roadmap.length, roadmapIds.length)
     assert.deepEqual(Object.keys(dictionary.pages).sort(), topics.map(topic => topic.id).sort())
     for (const topic of topics) assert.ok(dictionary.groups[topic.group])
     assert.deepEqual(Object.keys(dictionary.examples).sort(), javaExamples.map(example => example.id).sort())
     if (code !== 'ru') assert.doesNotMatch(JSON.stringify(dictionary), /[а-яё]/i)
+    if (code !== 'ru') assert.doesNotMatch(JSON.stringify(recursionTheory[code]), /[а-яё]/i)
+    if (code !== 'ru') assert.doesNotMatch(JSON.stringify(recursionTracing[code]), /[а-яё]/i)
+    if (code !== 'ru') assert.doesNotMatch(JSON.stringify(recursiveDfsTranslations[code]), /[а-яё]/i)
+    if (code !== 'ru') assert.doesNotMatch(JSON.stringify(recursionComplexityTranslations[code]), /[а-яё]/i)
+    if (code !== 'ru') assert.doesNotMatch(JSON.stringify(recursionReviewTranslations[code]), /[а-яё]/i)
+    if (code !== 'ru') assert.doesNotMatch(JSON.stringify(recurrenceTreeTranslations[code]), /[а-яё]/i)
   })
 
   test(`${code}: every graph step renders with substituted values for every starting vertex`, () => {

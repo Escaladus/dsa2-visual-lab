@@ -10,6 +10,7 @@ export function createQuizReducer(questions) {
   return (state, action) => {
     if (action.type === 'START') return createQuizState(questions.length, 'question')
     if (state.phase !== 'question') return state
+    if (action.type === 'PREVIOUS') return state.index > 0 ? { ...state, index: state.index - 1 } : state
     const answer = state.answers[state.index], question = questions[state.index]
     if (action.type === 'SELECT') {
       if (answer.checked || !Number.isInteger(action.option) || action.option < 0 || action.option >= question.choices.length) return state

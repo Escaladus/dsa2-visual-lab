@@ -38,6 +38,7 @@ export const recursionTranslations = {
       done: 'Все вызовы завершены, стек пуст. Результат {fn}({n}) = {value}.',
     },
     examples: {
+      recursiveDfs: ['Рекурсивный DFS: вызовы и продолжение', 'Три графа, собственные переменные кадров и общий visited; обход из вершины или всего графа.', 'Списки смежности с заданным порядком соседей; полный обход Θ(V + E), дополнительная память O(V).'],
       memoizedFibonacci: recursionNext.ru.javaExample,
       factorial: ['Рекурсивный факториал', 'Базовый случай, отдельная переменная child и умножение после возврата.', 'Неотрицательный n ≤ 20 для long; Θ(n) времени и O(n) стека.'],
       fibonacci: ['Наивная рекурсия Фибоначчи', 'Два последовательных рекурсивных вызова. Одинаковые подзадачи вычисляются повторно.', 'Небольшой неотрицательный n; экспоненциальное время и O(n) стека.'],
@@ -91,6 +92,7 @@ export const recursionTranslations = {
       done: 'All calls have finished and the stack is empty. {fn}({n}) = {value}.',
     },
     examples: {
+      recursiveDfs: ['Recursive DFS: calls and continuations', 'Three graphs, per-frame local variables and shared visited; traverse from one vertex or cover the whole graph.', 'Adjacency lists with a fixed neighbour order; whole traversal Θ(V + E), auxiliary space O(V).'],
       memoizedFibonacci: recursionNext.en.javaExample,
       factorial: ['Recursive factorial', 'A base case, a separate child variable, and multiplication after the nested call returns.', 'Non-negative n ≤ 20 for long; Θ(n) time and O(n) stack space.'],
       fibonacci: ['Naive recursive Fibonacci', 'Two sequential recursive calls. Equal subproblems are computed repeatedly.', 'Small non-negative n; exponential time and O(n) stack space.'],
@@ -142,6 +144,7 @@ export const recursionTranslations = {
       done: 'Kaikki kutsut ovat valmiita ja pino on tyhjä. {fn}({n}) = {value}.',
     },
     examples: {
+      recursiveDfs: ['Rekursiivinen DFS: kutsut ja jatkokohdat', 'Kolme graafia, kehysten omat muuttujat ja yhteinen visited; aloitussolmu tai koko graafi.', 'Vieruslistat annetussa naapurijärjestyksessä; koko läpikäynti Θ(V + E), lisätila O(V).'],
       memoizedFibonacci: recursionNext.fi.javaExample,
       factorial: ['Rekursiivinen kertoma', 'Perustapaus, erillinen child-muuttuja ja kertolasku sisemmän kutsun palattua.', 'Ei-negatiivinen n ≤ 20 long-tyypille; Θ(n) aikaa ja O(n) pinotilaa.'],
       fibonacci: ['Naiivi rekursiivinen Fibonacci', 'Kaksi peräkkäistä rekursiivista kutsua. Samat osaongelmat lasketaan uudelleen.', 'Pieni ei-negatiivinen n; eksponentiaalinen aika ja O(n) pinotilaa.'],

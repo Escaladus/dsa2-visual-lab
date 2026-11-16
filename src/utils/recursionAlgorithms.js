@@ -7,14 +7,15 @@ export function createRecursionTrace(kind, input, { memoized = false } = {}) {
   const cache = {}
   let result = null, returned = null, maxDepth = 0, cacheHits = 0
   const snapshot = (key, values = {}, current = null, line = null) => frames.push({
-    nodes: nodes.map(node => ({ ...node, locals: { ...node.locals } })), stack: [...stack], current, line,
+    nodes: nodes.map(node => ({ ...node, locals: { ...node.locals }, continuation: node.continuation ? { ...node.continuation } : null, returnTo: node.returnTo ? { ...node.returnTo } : null })), stack: [...stack], current, line,
     message: { key, values }, result, returned: returned ? { ...returned } : null, maxDepth, cache: { ...cache }, cacheHits,
   })
   snapshot('ready', { fn: kind, n: input })
 
   function visit(n, parent = null) {
     const id = nodes.length
-    const node = { id, parent, n, status: 'active', result: null, locals: { n } }
+    const node = { id, parent, n, status: 'active', result: null, locals: { n }, continuation: null,
+      returnTo: parent === null ? null : { id: parent, line: nodes[parent].continuation.line, target: nodes[parent].continuation.target } }
     nodes.push(node)
     stack.push(id)
     maxDepth = Math.max(maxDepth, stack.length)
@@ -34,9 +35,11 @@ export function createRecursionTrace(kind, input, { memoized = false } = {}) {
     } else if (kind === 'factorial') {
       node.status = 'waiting'
       node.locals.child = null
+      node.continuation = { line: 3, target: 'child', nextN: n - 1 }
       snapshot('waitFactorial', { n, next: n - 1 }, id, 3)
       node.locals.child = visit(n - 1, id)
       node.status = 'active'
+      node.continuation = null
       snapshot('receiveFactorial', { n, value: node.locals.child }, id, 3)
       node.result = n * node.locals.child
       node.status = 'returning'
@@ -44,15 +47,19 @@ export function createRecursionTrace(kind, input, { memoized = false } = {}) {
     } else {
       node.status = 'waiting'
       node.locals.left = null
+      node.continuation = { line: memoized ? 4 : 3, target: 'left', nextN: n - 1 }
       snapshot('waitLeft', { n, next: n - 1 }, id, memoized ? 4 : 3)
       node.locals.left = visit(n - 1, id)
       node.status = 'active'
+      node.continuation = null
       snapshot('receiveLeft', { n, value: node.locals.left }, id, memoized ? 4 : 3)
       node.status = 'waiting'
       node.locals.right = null
+      node.continuation = { line: memoized ? 5 : 4, target: 'right', nextN: n - 2 }
       snapshot('waitRight', { n, next: n - 2, left: node.locals.left }, id, memoized ? 5 : 4)
       node.locals.right = visit(n - 2, id)
       node.status = 'active'
+      node.continuation = null
       snapshot('receiveRight', { n, value: node.locals.right }, id, memoized ? 5 : 4)
       node.result = node.locals.left + node.locals.right
       node.status = 'returning'
@@ -64,7 +71,7 @@ export function createRecursionTrace(kind, input, { memoized = false } = {}) {
     }
     stack.pop()
     node.status = 'done'
-    returned = { from: id, to: parent, value: node.result }
+    returned = { from: id, to: parent, value: node.result, line: node.returnTo?.line ?? null, target: node.returnTo?.target ?? null }
     snapshot(parent === null ? 'returnRoot' : 'return', { fn: kind, n, value: node.result }, id, n <= 1 ? 2 : node.cached ? 3 : memoized ? 8 : kind === 'factorial' ? 4 : 5)
     return node.result
   }
@@ -78,17 +85,47 @@ export function activeRecursionReturn(step) {
   return ['return', 'returnRoot', 'receiveFactorial', 'receiveLeft', 'receiveRight'].includes(step.message.key) ? step.returned : null
 }
 
+export function recursionExpression(node, kind) {
+  if (node.n <= 1) return String(kind === 'factorial' ? 1 : node.n)
+  return kind === 'factorial' ? `${node.n} × ${node.locals.child ?? '?'}` : `${node.locals.left ?? '?'} + ${node.locals.right ?? '?'}`
+}
+
+export function getRecursionStepContext(frames, index) {
+  const step = frames[index], next = frames[index + 1]
+  const current = step.nodes[step.current] ?? null
+  const transfer = activeRecursionReturn(step)
+  let resume = null
+  if (transfer?.to != null) resume = { id: transfer.to, line: transfer.line, target: transfer.target }
+  else if (current?.continuation) resume = { id: current.id, ...current.continuation }
+  else if (current?.returnTo) resume = { ...current.returnTo }
+  return { current, top: step.nodes[step.stack.at(-1)] ?? null, resume,
+    nextAction: next?.message.key ?? 'finished' }
+}
+
 // Ask before the event is revealed. Rewinding produces the same choices.
 export function createRecursionPrediction(frames, index) {
   const next = frames[index + 1]
   if (!next) return null
   const { key, values } = next.message
   const call = key === 'enter' && next.nodes[next.current].parent !== null
-  if (!call && !['base', 'multiply', 'add', 'cacheHit'].includes(key)) return null
-  const answer = call ? values.n : values.value
+  const stack = ['return', 'returnRoot'].includes(key)
+  const resume = ['receiveFactorial', 'receiveLeft', 'receiveRight'].includes(key)
+  if (!call && !stack && !resume && !['base', 'multiply', 'add', 'cacheHit'].includes(key)) return null
+  const answer = call ? values.n : stack ? next.stack.length : resume ? next.line : values.value
   const choices = [...new Set([answer, Math.max(0, answer - 1), answer + 1, answer + 2, answer + 3])].slice(0, 4)
   const rotate = index % choices.length
-  return { key: call ? 'nextCall' : 'nextValue', values, answer, choices: [...choices.slice(rotate), ...choices.slice(0, rotate)], explanation: next.message }
+  const fn = frames[0].message.values.fn
+  const owner = resume ? next.nodes[next.current] : null
+  return { key: call ? 'nextCall' : stack ? 'nextStack' : resume ? 'resumeLine' : 'nextValue',
+    values: { ...values, fn, call: owner ? `${fn}(${owner.n}) #${owner.id + 1}` : values.call }, answer,
+    choices: [...choices.slice(rotate), ...choices.slice(0, rotate)], explanation: next.message,
+    reason: stack ? { key: 'stack', values: { before: frames[index].stack.length, after: next.stack.length } }
+      : resume ? { key: 'resume', values: { call: `${fn}(${owner.n}) #${owner.id + 1}`, line: next.line, target: next.returned.target } } : null }
+}
+
+export function answerRecursionPrediction(answers, index, question, selected) {
+  if (!question || Object.hasOwn(answers, index) || !question.choices.includes(selected)) return answers
+  return { ...answers, [index]: { selected, correct: selected === question.answer } }
 }
 
 export function recursionTreeLayout(nodes) {
@@ -102,7 +139,11 @@ export function recursionTreeLayout(nodes) {
     for (const child of nested) place(child, depth + 1)
     positions[id] = { x: nested.length ? (positions[nested[0]].x + positions[nested.at(-1)].x) / 2 : 44 + 84 * leaves++, y: 45 + 112 * depth }
   }
-  if (nodes.length) place(nodes[0].id, 0)
+  const roots = nodes.filter(node => node.parent === null)
+  roots.forEach((node, index) => {
+    if (index) leaves++
+    place(node.id, 0)
+  })
   const width = Math.max(320, leaves * 84 + 4)
   const offset = (width - (leaves * 84 + 4)) / 2
   for (const position of Object.values(positions)) position.x += offset

@@ -12,7 +12,7 @@ Core translations are in `src/i18n/fi.js`, `src/i18n/ru.js`, and `src/i18n/en.js
 
 The material is aligned with the supplied `dsaII_handout.pdf` (University of Eastern Finland, autumn 2025, 89 pages). The [coverage map and implementation notes](docs/HANDOUT_ALIGNMENT.md) document the corresponding sections and identify topics covered at an introductory level. That companion document is currently in Russian.
 
-The site contains 22 topics and 29 standalone Java examples covering Set/Map, `equals`/`hashCode`, lists and queues, traversals, merge sort, Dijkstra/Floyd–Warshall, Prim/Kruskal, articulation points, matching, maximum flow, dynamic programming, strings, and files. Each example includes source code, expected output, complexity, assumptions, and a `.java` download.
+The site contains 22 topics and 30 standalone Java examples covering Set/Map, `equals`/`hashCode`, lists and queues, traversals, merge sort, Dijkstra/Floyd–Warshall, Prim/Kruskal, articulation points, matching, maximum flow, dynamic programming, strings, and files. Each example includes source code, expected output, complexity, assumptions, and a `.java` download.
 
 Run a downloaded example with JDK 17 or newer:
 
@@ -26,15 +26,20 @@ Java sources are in `src/examples`, their catalogue is in `src/data/javaExamples
 
 - A DSA2 topic roadmap.
 - An interactive Big O table with adjustable input size `n`.
+- A shared recurrence-tree lab in the Recursion and Time Complexity topics compares `T(n−1)+1`, `2T(n/2)+1`, `2T(n−1)+1`, and `2T(n/2)+n`, with `T(1)=1`. Left-hand annotations explain depth and level count; the horizontal annotation shows calls per level and maximum width. Reveal levels manually or every 850 ms, compare local and level work, and derive the full sum and time bound. All nodes remain individually drawn, including the 255-call example, with stable positions, internal scrolling, dragging, and manual 25–150% zoom. Java fragments count abstract work units; they do not measure machine instructions. Inputs are 1, 2, 4, and 8. The three languages preserve the selected example, input, level, scale, and view; mobile places the work table below the diagram.
 - A five-question time complexity quiz with Java examples, multiple-choice answers, explanations, a final score, and retries in all three languages.
 - Two-pointer union of sorted lists.
 - Set/Map operations and the `equals`/`hashCode` contract.
-- A recursion lesson with factorial and Fibonacci call trees, active call stacks, local variables, highlighted Java code, and visible returns to waiting callers. Desktop places code and stack beside the tree; smaller screens use Tree/Code/Stack tabs. Bottom playback controls, tree zoom, fit-to-view, optional call following, next-step predictions, and a five-question quiz support exploration. Side-by-side Fibonacci executions compare naive recursion with memoisation, including call counts and a live cache; mobile switches between the two executions using tabs.
+- Expandable recursion explanations cover stack frames, independent local variables, continuation after a return, termination, and `void` methods. Eight narrated factorial checkpoints open the matching visualisation states; a Fibonacci example separates sequential execution, total calls, and maximum stack depth. All lesson text is available in the three interface languages.
+- Each recursion step identifies its call and local variables, saved continuation, and next action. Java and waiting stack frames mark the return location. Optional predictions cover nested calls, values, stack size, and resume lines, with explanations, explicit skipping, and one checked answer per step when rewinding. Mobile separates the event and step analysis into tabs.
+- A recursion lesson with factorial and Fibonacci call trees, active call stacks, local variables, highlighted Java code, and visible returns to waiting callers. Desktop places code and stack beside the tree; smaller screens use Tree/Code/Stack tabs. Bottom playback controls, tree zoom, fit-to-view, optional call following, next-step predictions, and the review quiz support exploration. Side-by-side Fibonacci executions compare naive recursion with memoisation, including call counts and a live cache; mobile switches between the two executions using tabs.
+- A 15-question recursion and DFS review in both topics covers base cases, local state, stack order, return continuations, the next neighbour, `visited`, PRE/POST, disconnected graphs, and time and space complexity. Each checked answer has an explanation; incorrect choices receive specific feedback. Previous/next navigation preserves checked answers and pending choices without adding points twice. Language changes preserve the question, answers, score and visualisation step. Results include answer review and a fresh retry. The original five-question Big O quiz remains available in the complexity topic.
+- An expandable time and space analysis below the recursion workspace covers factorial, naive and memoised Fibonacci, and recursive DFS. Live counters distinguish total calls, current and peak stack frames, cache capacity and filled entries, adjacency reads, and shared structures. Recurrences and a comparison table explain the bounds; a separate `n = 0…20` growth table preserves the visualisation step. DFS analysis includes the cost of allocating `visited` even for reachable-only traversal. Counts describe the shown Java algorithms, separately from timing and visualisation history, in all three languages.
 - Visual preorder, inorder, and postorder tree traversals.
 - Interactive min-heap and PriorityQueue visualisations: synchronised tree/array views, offer/peek/poll, sift-up/down animations, removal order, return values, and manual or automatic playback. Peek is immediate; starting another operation completes the current one, and Undo restores the pre-operation heap.
 - Step-by-step and automatic visualisations of bubble, insertion, merge, and quick sort, including merge buffers and pivot highlighting.
 - Graph adjacency lists.
-- Interactive DFS with PRE/POST events, a call stack, visited vertices, and step explanations.
+- A shared recursive DFS lab in the Recursion and DFS topics: branching, cyclic and disconnected graphs; selectable start and reachable/whole-graph scope; highlighted Java including the outer traversal loop; per-call `v`, `i`, and `next`; shared `visited` and PRE/POST; explicit returns to the saved loop position; graph/call-tree views and mobile tabs. Seven guided moments explain the branching example. On desktop, Expand code widens the code and stack column from 40% to 65%, while the graph scales proportionally into the remaining space. The toggle preserves the execution step and playback; narrow screens retain the existing tabs. `RecursiveDfsExample.java` matches the displayed methods, graphs and neighbour order. Java passes reference values by value, so the arrays and lists remain shared between calls.
 - Interactive BFS with a queue, visited vertices, and distances.
 - Connected components, cycles, shortest paths, and topological ordering.
 - Java tools: Iterator, Comparable, Comparator, and generics.
@@ -59,7 +64,7 @@ npm run preview
 
 ## Tests
 
-Run translation, graph traversal, sorting visualisation, and Java example checks:
+Run translation, quiz state, recursion and complexity, graph traversal, sorting visualisation, and Java example checks:
 
 ```bash
 npm test

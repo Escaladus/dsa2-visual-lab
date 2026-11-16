@@ -2,9 +2,12 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { memoizedFibonacciCode, recursionExamples, recursionQuestions } from '../src/data/recursion.js'
-import { activeRecursionReturn, createRecursionPrediction, createRecursionTrace, recursionTreeLayout } from '../src/utils/recursionAlgorithms.js'
+import { activeRecursionReturn, answerRecursionPrediction, createRecursionPrediction, createRecursionTrace, getRecursionStepContext, recursionTreeLayout } from '../src/utils/recursionAlgorithms.js'
 import { dictionaries, formatMessage } from '../src/i18n/index.js'
 import { createQuizReducer, createQuizState, scoreQuiz } from '../src/utils/studentQuiz.js'
+import { factorialLessonTrace, factorialWalkthrough, fibonacciLeftReturn, fibonacciLessonTrace } from '../src/data/recursionLesson.js'
+import { recursionTheory } from '../src/i18n/recursionTheory.js'
+import { recursionTracing } from '../src/i18n/recursionTracing.js'
 
 for (const [kind, example] of Object.entries(recursionExamples)) {
   test(`${kind}: correct results, real stack discipline, independent locals and fully translated steps`, () => {
@@ -177,7 +180,8 @@ test('return highlights connect an actual completed child to its waiting or resu
   }
 })
 
-test('predictions ask before revealing calls and calculations; zero and large values have four distinct choices', () => {
+test('predictions cover calls, values, stack removals and resume lines before the corresponding event', () => {
+  const types = new Set()
   for (const [kind, max] of [['factorial', 8], ['fibonacci', 6]]) {
     for (let n = 0; n <= max; n++) {
       const frames = createRecursionTrace(kind, n)
@@ -185,16 +189,151 @@ test('predictions ask before revealing calls and calculations; zero and large va
         const question = createRecursionPrediction(frames, i)
         if (!question) continue
         const next = frames[i + 1]
-        assert.equal(question.answer, next.message.values[question.key === 'nextCall' ? 'n' : 'value'])
+        types.add(question.key)
+        const expected = { nextCall: next.message.values.n, nextValue: next.message.values.value, nextStack: next.stack.length, resumeLine: next.line }
+        assert.equal(question.answer, expected[question.key])
         assert.equal(question.choices.length, 4)
         assert.equal(new Set(question.choices).size, 4)
         assert.ok(question.choices.every(value => Number.isInteger(value) && value >= 0))
         assert.ok(question.choices.includes(question.answer))
         assert.deepEqual(question, createRecursionPrediction(frames, i), 'Rewinding must not shuffle the answers')
         if (question.key === 'nextCall') assert.equal(next.nodes.length, frames[i].nodes.length + 1)
-        else assert.equal(frames[i].nodes[next.current].result, null, 'The value being predicted must not already be revealed')
-        for (const dictionary of Object.values(dictionaries)) assert.ok(dictionary.recursion.enhancements.practice[question.key])
+        if (question.key === 'nextValue') assert.equal(frames[i].nodes[next.current].result, null, 'The value being predicted must not already be revealed')
+        if (question.key === 'nextStack') assert.equal(next.stack.length, frames[i].stack.length - 1)
+        if (question.key === 'resumeLine') {
+          assert.equal(next.line, frames[i].returned.line)
+          assert.equal(next.current, frames[i].returned.to)
+          assert.equal(question.reason.values.target, next.returned.target)
+        }
+        for (const [language, dictionary] of Object.entries(dictionaries)) {
+          const labels = { ...dictionary.recursion.enhancements.practice, ...recursionTracing[language].practice }
+          assert.equal(typeof labels[question.key], 'string')
+          assert.doesNotMatch(formatMessage(labels[question.key], question.values), /\{\w+\}|undefined/)
+          if (question.reason) assert.doesNotMatch(formatMessage(labels.reasons[question.reason.key], question.reason.values), /\{\w+\}|undefined/)
+        }
       }
     }
   }
+  assert.deepEqual([...types].sort(), ['nextCall', 'nextStack', 'nextValue', 'resumeLine'])
+})
+
+test('saved continuation points match Java assignments and remain independent in every stack frame', () => {
+  for (const [kind, memoized, max] of [['factorial', false, 8], ['fibonacci', false, 6], ['fibonacci', true, 6]]) {
+    const code = (memoized ? memoizedFibonacciCode : recursionExamples[kind].code).split('\n')
+    for (let n = 0; n <= max; n++) {
+      const frames = createRecursionTrace(kind, n, { memoized })
+      for (let index = 0; index < frames.length; index++) {
+        const frame = frames[index]
+        for (const node of frame.nodes) {
+          if (node.continuation) {
+            assert.equal(node.status, 'waiting')
+            assert.equal(node.locals[node.continuation.target], null)
+            assert.ok(code[node.continuation.line - 1].includes(`${node.continuation.target} = ${kind}(`))
+            if (index && frames[index - 1].nodes[node.id]?.continuation) assert.notEqual(node.continuation, frames[index - 1].nodes[node.id].continuation)
+          }
+          if (node.returnTo) {
+            assert.equal(node.returnTo.id, node.parent)
+            assert.ok(code[node.returnTo.line - 1].includes(`${node.returnTo.target} = ${kind}(`))
+          } else assert.equal(node.parent, null)
+        }
+        if (frame.message.key.startsWith('receive')) {
+          assert.equal(frame.line, frame.returned.line)
+          assert.equal(frame.current, frame.returned.to)
+          assert.equal(frame.nodes[frame.current].locals[frame.returned.target], frame.returned.value)
+          assert.equal(frame.nodes[frame.current].continuation, null)
+        }
+        const next = frames[index + 1]
+        if (next?.message.key === 'enter' && next.nodes[next.current].parent !== null) {
+          const child = next.nodes[next.current], waiting = frame.nodes[child.parent]
+          assert.equal(child.n, waiting.continuation.nextN)
+          assert.deepEqual(child.returnTo, { id: waiting.id, line: waiting.continuation.line, target: waiting.continuation.target })
+        }
+      }
+    }
+  }
+})
+
+test('every step has an accurate current call, top frame, continuation owner and translated next action', () => {
+  for (const [kind, memoized] of [['factorial', false], ['fibonacci', false], ['fibonacci', true]]) {
+    for (const n of [0, 1, 4]) {
+      const frames = createRecursionTrace(kind, n, { memoized })
+      for (let i = 0; i < frames.length; i++) {
+        const frame = frames[i], context = getRecursionStepContext(frames, i)
+        assert.equal(context.current, frame.nodes[frame.current] ?? null)
+        assert.equal(context.top, frame.nodes[frame.stack.at(-1)] ?? null)
+        for (const labels of Object.values(recursionTracing)) assert.equal(typeof labels.actions[context.nextAction], 'string')
+        if (context.resume) {
+          assert.ok(frame.stack.includes(context.resume.id))
+          assert.ok(['child', 'left', 'right'].includes(context.resume.target))
+          if (frame.message.key === 'return') assert.equal(context.resume.id, frame.returned.to)
+          if (frame.message.key.startsWith('receive')) assert.equal(context.resume.id, frame.current)
+        }
+      }
+      assert.equal(getRecursionStepContext(frames, 0).current, null)
+      assert.equal(getRecursionStepContext(frames, frames.length - 1).resume, null)
+      assert.equal(getRecursionStepContext(frames, frames.length - 1).nextAction, 'finished')
+    }
+  }
+})
+
+test('a prediction is scored once per position; rewinding cannot change checked answers, including zero', () => {
+  const frames = createRecursionTrace('factorial', 4)
+  const index = frames.findIndex((_, i) => createRecursionPrediction(frames, i)?.key === 'resumeLine')
+  const question = createRecursionPrediction(frames, index)
+  const empty = {}
+  assert.equal(answerRecursionPrediction(empty, index, null, 0), empty)
+  assert.equal(answerRecursionPrediction(empty, index, question, -1), empty)
+  const wrong = question.choices.find(value => value !== question.answer)
+  const answers = answerRecursionPrediction(empty, index, question, wrong)
+  assert.deepEqual(empty, {})
+  assert.equal(answers[index].correct, false)
+  const rewound = createRecursionPrediction(frames, index)
+  assert.equal(answerRecursionPrediction(answers, index, rewound, question.answer), answers)
+  assert.equal(Object.keys(answers).length, 1)
+  const zeroFrames = createRecursionTrace('fibonacci', 0)
+  const zeroIndex = zeroFrames.findIndex((_, i) => createRecursionPrediction(zeroFrames, i)?.key === 'nextStack')
+  const zero = createRecursionPrediction(zeroFrames, zeroIndex)
+  assert.equal(zero.answer, 0)
+  assert.deepEqual(answerRecursionPrediction({}, zeroIndex, zero, 0)[zeroIndex], { selected: 0, correct: true })
+})
+
+test('the factorial lesson opens the actual waiting, base-case, return and continuation states it explains', () => {
+  let previous = -1
+  const moments = {}
+  for (const moment of factorialWalkthrough) {
+    assert.ok(moment.index > previous && moment.index < factorialLessonTrace.length)
+    previous = moment.index
+    moments[moment.id] = factorialLessonTrace[moment.index]
+    for (const labels of Object.values(recursionTheory)) assert.equal(labels.moments[moment.id].length, 2)
+  }
+  assert.deepEqual(moments.start.stack, [])
+  assert.equal(moments.enter.line, 1)
+  assert.deepEqual(moments.wait.stack.map(id => moments.wait.nodes[id].n), [4, 3])
+  assert.equal(moments.wait.nodes[0].status, 'waiting')
+  assert.equal(moments.wait.nodes[0].locals.child, null)
+  assert.equal(moments.base.line, 2)
+  assert.equal(moments.base.stack.length, 4, 'The base call must still return before its frame is popped')
+  assert.equal(moments.return.stack.length, 3)
+  assert.equal(moments.return.returned.value, 1)
+  assert.equal(moments.resume.line, 3)
+  assert.deepEqual(moments.resume.nodes[0].locals, { n: 4, child: 6 })
+  assert.equal(moments.resume.nodes[0].result, null, 'Returning to the caller must not skip its remaining multiplication')
+  assert.equal(moments.multiply.line, 4)
+  assert.equal(moments.multiply.nodes[0].result, 24)
+  assert.equal(moments.done.result, 24)
+  assert.deepEqual(moments.done.stack, [])
+})
+
+test('the Fibonacci lesson pauses after the left branch, before the right branch is called', () => {
+  assert.ok(fibonacciLeftReturn > 0)
+  const frame = fibonacciLessonTrace[fibonacciLeftReturn]
+  assert.equal(frame.message.key, 'receiveLeft')
+  assert.equal(frame.line, 3)
+  assert.deepEqual(frame.nodes[0].locals, { n: 4, left: 2 })
+  assert.deepEqual(frame.nodes.filter(node => node.parent === 0).map(node => node.n), [3])
+  const final = fibonacciLessonTrace.at(-1)
+  assert.equal(final.nodes.length, 9)
+  assert.equal(final.maxDepth, 4)
+  assert.equal(final.result, 3)
+  for (const labels of Object.values(recursionTheory)) assert.doesNotMatch(formatMessage(labels.countText, { calls: final.nodes.length, depth: final.maxDepth }), /\{\w+\}/)
 })

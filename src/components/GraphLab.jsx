@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
-import { adjacency, createBfsSteps, createDfsSteps, graphEdges, graphNodes } from '../utils/graphAlgorithms.js'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { adjacency, createBfsSteps, graphEdges, graphNodes } from '../utils/graphAlgorithms.js'
 
 import { useLanguage } from '../i18n/LanguageContext.jsx'
+
+const RecursiveDfsLab = lazy(() => import('./RecursiveDfsLab.jsx'))
 
 const nodeKeys = Object.keys(graphNodes)
 
@@ -53,8 +55,8 @@ export default function GraphLab({ initialMode = 'dfs' }) {
   }, [initialMode])
 
   const steps = useMemo(
-    () => mode === 'dfs' ? createDfsSteps(start) : createBfsSteps(start),
-    [mode, start],
+    () => createBfsSteps(start),
+    [start],
   )
   const step = steps[index] ?? steps[0]
 
@@ -72,6 +74,14 @@ export default function GraphLab({ initialMode = 'dfs' }) {
     setPlaying(false)
     setIndex(0)
   }
+
+  if (mode === 'dfs') return <>
+    <div className="segmented dfs-section-switch" role="group" aria-label={text.ui.algorithm}>
+      <button className="selected" aria-pressed="true">DFS</button>
+      <button aria-pressed="false" onClick={() => { setMode('bfs'); reset() }}>BFS</button>
+    </div>
+    <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}><RecursiveDfsLab /></Suspense>
+  </>
 
   return (
     <div className="lab-shell">
@@ -104,7 +114,7 @@ export default function GraphLab({ initialMode = 'dfs' }) {
 
         <div className="state-panel">
           <div className="step-badge">{text.ui.step} {index + 1} / {steps.length}</div>
-          <h3>{mode === 'dfs' ? text.ui.dfsStack : text.ui.bfsQueue}</h3>
+          <h3>{text.ui.bfsQueue}</h3>
           <div className="frontier">
             {(step?.frontier ?? []).length ? (step.frontier ?? []).map((v, i) => <span key={`${v}-${i}`}>{v}</span>) : <em>{text.ui.empty}</em>}
           </div>
@@ -114,21 +124,9 @@ export default function GraphLab({ initialMode = 'dfs' }) {
             <code>{(step?.visited ?? []).join(' → ') || '—'}</code>
           </div>
 
-          {mode === 'dfs' ? (
-            <>
-              <div className="state-row pre"><strong>PRE</strong><code>{(step?.pre ?? []).join(' → ') || '—'}</code></div>
-              <div className="state-row post"><strong>POST</strong><code>{(step?.post ?? []).join(' → ') || '—'}</code></div>
-              <p className="hint">{text.ui.dfsHint}</p>
-            </>
-          ) : (
-            <>
-              <div className="state-row"><strong>{text.ui.order}</strong><code>{(step?.order ?? []).join(' → ') || '—'}</code></div>
-              <div className="distance-grid">
-                {nodeKeys.map(n => <span key={n}>{n}: {step?.distance?.[n] ?? '∞'}</span>)}
-              </div>
-              <p className="hint">{text.ui.bfsHint}</p>
-            </>
-          )}
+          <div className="state-row"><strong>{text.ui.order}</strong><code>{(step?.order ?? []).join(' → ') || '—'}</code></div>
+          <div className="distance-grid">{nodeKeys.map(n => <span key={n}>{n}: {step?.distance?.[n] ?? '∞'}</span>)}</div>
+          <p className="hint">{text.ui.bfsHint}</p>
 
           <div className="explanation-box">{message(step.message.key, step.message.values)}</div>
         </div>

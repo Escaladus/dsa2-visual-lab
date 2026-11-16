@@ -27,7 +27,7 @@ export default function StudentQuiz({ questions, labels, id }) {
   }
 
   return (
-    <section className="complexity-quiz" aria-labelledby={`${id}-title`}>
+    <section className="complexity-quiz" id={id} aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`}>{labels.title}</h2>
       {state.phase === 'intro' ? (
         <>
@@ -67,9 +67,11 @@ export default function StudentQuiz({ questions, labels, id }) {
                 <strong>{correct ? labels.correct : labels.incorrect}</strong>
                 <p>{labels.correctAnswer}: <code>{choices[question.correctIndex]}</code></p>
                 <p>{content.explanation}</p>
+                {!correct && content.feedback && <p className="quiz-choice-feedback">{content.feedback[answer.selected]}</p>}
               </div>
             ) : <p className="quiz-choice-hint">{labels.chooseHint}</p>}
             <div className="playback quiz-actions">
+              {labels.previous && <button type="button" disabled={state.index === 0} onClick={() => dispatch({ type: 'PREVIOUS' })}>{labels.previous}</button>}
               <button type="submit" className="primary" disabled={answer.selected === null}>
                 {!answer.checked ? labels.check : state.index === total - 1 ? labels.finish : labels.next}
               </button>
@@ -100,6 +102,7 @@ export default function StudentQuiz({ questions, labels, id }) {
                   <p>{labels.yourAnswer}: <code>{reviewChoices[selected]}</code></p>
                   <p>{labels.correctAnswer}: <code>{reviewChoices[item.correctIndex]}</code></p>
                   <p>{review.explanation}</p>
+                  {!isCorrect && review.feedback && <p className="quiz-choice-feedback">{review.feedback[selected]}</p>}
                 </div>
               </details>
             )
