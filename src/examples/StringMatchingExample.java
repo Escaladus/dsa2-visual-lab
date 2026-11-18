@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/** Compare direct matching, a rolling hash and edit-distance-based approximate matching. */
 public class StringMatchingExample {
     public static int naive(String text, String pattern) {
         for (int offset = 0; offset <= text.length() - pattern.length(); offset++) {
@@ -12,16 +13,22 @@ public class StringMatchingExample {
     }
 
     public static int rabinKarp(String text, String pattern) {
-        int n = text.length(), m = pattern.length();
+        int n = text.length();
+        int m = pattern.length();
         if (m == 0) return 0;
         if (m > n) return -1;
-        long base = 257, modulus = 1_000_000_007, power = 1, wanted = 0, hash = 0;
+        long base = 257;
+        long modulus = 1_000_000_007;
+        long power = 1;
+        long wanted = 0;
+        long hash = 0;
         for (int i = 0; i < m; i++) {
             wanted = (wanted * base + pattern.charAt(i)) % modulus;
             hash = (hash * base + text.charAt(i)) % modulus;
             if (i < m - 1) power = power * base % modulus;
         }
         for (int offset = 0; offset <= n - m; offset++) {
+            // Equal hashes are candidates; compare the characters to reject collisions.
             if (hash == wanted && text.regionMatches(offset, pattern, 0, m)) return offset;
             if (offset < n - m) {
                 hash = (hash - text.charAt(offset) * power % modulus + modulus) % modulus;
@@ -33,7 +40,8 @@ public class StringMatchingExample {
 
     // End positions are exclusive UTF-16 indices. D[0][j] = 0 allows any text prefix.
     public static List<Integer> approximateEnds(String pattern, String text, int maxErrors) {
-        int m = pattern.length(), n = text.length();
+        int m = pattern.length();
+        int n = text.length();
         int[][] d = new int[m + 1][n + 1];
         for (int i = 0; i <= m; i++) d[i][0] = i;
         for (int i = 1; i <= m; i++) {
@@ -44,7 +52,9 @@ public class StringMatchingExample {
             }
         }
         List<Integer> ends = new ArrayList<>();
-        for (int j = 0; j <= n; j++) if (d[m][j] <= maxErrors) ends.add(j);
+        for (int j = 0; j <= n; j++) {
+            if (d[m][j] <= maxErrors) ends.add(j);
+        }
         return ends;
     }
 

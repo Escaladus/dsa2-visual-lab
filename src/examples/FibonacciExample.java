@@ -1,3 +1,4 @@
+/** Naive recursion deliberately computes the same Fibonacci subproblems repeatedly. */
 public class FibonacciExample {
     // Small non-negative n: this deliberately repeats subproblems.
     static long fibonacci(int n) {

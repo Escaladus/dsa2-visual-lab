@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+/** Merge two already sorted disk runs without loading either run into memory. */
 public class ExternalMergeExample {
     private static Integer next(BufferedReader reader) throws Exception {
         String line = reader.readLine();

@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/** Small examples of Java collection and sorting utilities used in the course. */
 public class JavaToolsExample {
     record Student(String name, int credits) implements Comparable<Student> {
         @Override public int compareTo(Student other) { return name.compareTo(other.name); }

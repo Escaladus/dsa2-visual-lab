@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/** Each recursive call owns its neighbour index; visited and result lists are shared. */
 public class RecursiveDfsExample {
     public record Result(List<Integer> pre, List<Integer> post) {}
 

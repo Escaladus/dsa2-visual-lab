@@ -18,4 +18,11 @@ export const topics = [
   ...additionalTopics,
 ]
 
-export const roadmapIds = ['complexity', 'sorted-lists', 'recursion', 'trees', 'sorting', 'graph-basics']
+export const roadmapIds = [
+  'complexity',
+  'sorted-lists',
+  'recursion',
+  'trees',
+  'sorting',
+  'graph-basics',
+]

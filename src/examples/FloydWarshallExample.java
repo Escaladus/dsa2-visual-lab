@@ -1,5 +1,6 @@
 import java.util.Arrays;
 
+/** All-pairs shortest paths: allow one additional intermediate vertex per outer iteration. */
 public class FloydWarshallExample {
     public static final long INF = Long.MAX_VALUE / 4;
 
@@ -14,6 +15,7 @@ public class FloydWarshallExample {
         for (int k = 0; k < n; k++) {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
+                    // Do not add the infinity sentinel to a finite distance.
                     if (d[i][k] == INF || d[k][j] == INF) continue;
                     d[i][j] = Math.min(d[i][j], d[i][k] + d[k][j]);
                 }

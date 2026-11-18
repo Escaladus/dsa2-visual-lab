@@ -4,13 +4,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 
+/** Shortest paths with non-negative weights and a minimum-priority queue. */
 public class DijkstraExample {
     public record Edge(int to, int weight) {}
     private record State(int vertex, long distance) {}
 
     public static long[] distances(List<List<Edge>> graph, int start) {
-        for (List<Edge> edges : graph) for (Edge edge : edges) {
-            if (edge.weight() < 0) throw new IllegalArgumentException("negative weight");
+        for (List<Edge> edges : graph) {
+            for (Edge edge : edges) {
+                if (edge.weight() < 0) throw new IllegalArgumentException("negative weight");
+            }
         }
         long[] distance = new long[graph.size()];
         Arrays.fill(distance, Long.MAX_VALUE);
@@ -20,6 +23,7 @@ public class DijkstraExample {
         while (!queue.isEmpty()) {
             State current = queue.remove();
             int v = current.vertex();
+            // A better route may have been inserted after this queue entry was created.
             if (current.distance() != distance[v]) continue;
             for (Edge edge : graph.get(v)) {
                 long candidate = distance[v] + edge.weight();

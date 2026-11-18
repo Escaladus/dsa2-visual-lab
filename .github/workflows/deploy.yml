@@ -30,6 +30,10 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm install
+      - name: Check formatting
+        run: npm run format:check
+      - name: Check JavaScript
+        run: npm run lint
       - name: Build
         run: npm run build
       - name: Setup Pages

@@ -3,22 +3,30 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 
+/** Kruskal grows a forest; Prim grows one tree. Both choose safe minimum-weight edges. */
 public class MinimumSpanningTreeExample {
     public record Edge(int from, int to, int weight) {}
     private static final class UnionFind {
         private final int[] parent, rank;
         UnionFind(int size) {
-            parent = new int[size]; rank = new int[size];
+            parent = new int[size];
+            rank = new int[size];
             for (int i = 0; i < size; i++) parent[i] = i;
         }
         int find(int v) {
+            // Path compression shortens later searches without changing set membership.
             if (parent[v] != v) parent[v] = find(parent[v]);
             return parent[v];
         }
         boolean union(int a, int b) {
-            a = find(a); b = find(b);
+            a = find(a);
+            b = find(b);
             if (a == b) return false;
-            if (rank[a] < rank[b]) { int temporary = a; a = b; b = temporary; }
+            if (rank[a] < rank[b]) {
+                int temporary = a;
+                a = b;
+                b = temporary;
+            }
             parent[b] = a;
             if (rank[a] == rank[b]) rank[a]++;
             return true;
@@ -32,7 +40,11 @@ public class MinimumSpanningTreeExample {
         long total = 0;
         int accepted = 0;
         for (Edge edge : sorted) {
-            if (sets.union(edge.from(), edge.to())) { total += edge.weight(); accepted++; }
+            // An accepted edge joins two sets, so it cannot close a cycle.
+            if (sets.union(edge.from(), edge.to())) {
+                total += edge.weight();
+                accepted++;
+            }
         }
         if (accepted != Math.max(0, vertices - 1)) throw new IllegalArgumentException("disconnected");
         return total;
@@ -57,7 +69,9 @@ public class MinimumSpanningTreeExample {
             visited[edge.to()] = true;
             reached++;
             total += edge.weight();
-            for (Edge next : graph.get(edge.to())) if (!visited[next.to()]) queue.add(next);
+            for (Edge next : graph.get(edge.to())) {
+                if (!visited[next.to()]) queue.add(next);
+            }
         }
         if (reached != vertices) throw new IllegalArgumentException("disconnected");
         return total;

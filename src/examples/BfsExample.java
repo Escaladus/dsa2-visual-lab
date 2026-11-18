@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
+/** Breadth-first search: discover each vertex once and find unweighted shortest paths. */
 public class BfsExample {
     public record Result(int[] distance, int[] parent) {
         public List<Integer> pathTo(int target) {

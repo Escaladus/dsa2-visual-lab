@@ -1,3 +1,4 @@
+/** Cache each computed subproblem while keeping the recursive call structure. */
 public class MemoizedFibonacciExample {
     // Allocate a fresh cache once per top-level calculation.
     // Contract: 0 <= n <= 92, memo.length > n, initially all null.

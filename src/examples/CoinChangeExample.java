@@ -1,5 +1,6 @@
 import java.util.Arrays;
 
+/** Dynamic programming: reuse optimal answers for smaller amounts. */
 public class CoinChangeExample {
     public static int minimumCoins(int sum, int[] coins) {
         if (sum < 0) throw new IllegalArgumentException("negative sum");

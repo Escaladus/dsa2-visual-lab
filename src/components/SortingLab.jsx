@@ -9,18 +9,31 @@ function MergeBuffer({ state, text }) {
     [text.rightRun, state.right, state.rightIndex],
     [text.mergedRun, state.output, 0],
   ]
-  return <div className="merge-buffer">
-    {runs.map(([label, values, consumed], run) => (
-      <div className="merge-run" key={run}>
-        <strong>{label}</strong>
-        <div className="merge-values">
-          {values.length ? values.map((value, index) => (
-            <span key={index} className={index < consumed ? 'consumed' : run < 2 && index === consumed ? 'next' : ''}>{value}</span>
-          )) : <em>{text.empty}</em>}
+  return (
+    <div className="merge-buffer">
+      {runs.map(([label, values, consumed], run) => (
+        <div className="merge-run" key={run}>
+          <strong>{label}</strong>
+          <div className="merge-values">
+            {values.length ? (
+              values.map((value, index) => (
+                <span
+                  key={index}
+                  className={
+                    index < consumed ? 'consumed' : run < 2 && index === consumed ? 'next' : ''
+                  }
+                >
+                  {value}
+                </span>
+              ))
+            ) : (
+              <em>{text.empty}</em>
+            )}
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
+      ))}
+    </div>
+  )
 }
 
 export default function SortingLab() {
@@ -37,7 +50,9 @@ export default function SortingLab() {
   const ordered = new Set(step.ordered)
 
   useEffect(() => {
-    if (!playing) return
+    if (!playing) {
+      return
+    }
     if (index >= steps.length - 1) {
       setPlaying(false)
       return
@@ -58,7 +73,9 @@ export default function SortingLab() {
   }
 
   function togglePlay() {
-    if (index === steps.length - 1) setIndex(0)
+    if (index === steps.length - 1) {
+      setIndex(0)
+    }
     setPlaying(value => !value)
   }
 
@@ -75,30 +92,89 @@ export default function SortingLab() {
       <div className="bars" role="list" aria-label={labels.array}>
         {step.values.map((value, i) => {
           const outside = step.range && (i < step.range[0] || i > step.range[1]) && !sorted.has(i)
-          const classes = ['bar', active.has(i) && 'active', sorted.has(i) && 'sorted', ordered.has(i) && 'ordered', step.pivot === i && 'pivot', outside && 'outside'].filter(Boolean).join(' ')
-          return <div key={i} role="listitem" aria-label={`${i + 1}: ${value}`} data-value={value} className={classes} style={{ height: `${value * 24}px` }}><span>{value}</span></div>
+          const classes = [
+            'bar',
+            active.has(i) && 'active',
+            sorted.has(i) && 'sorted',
+            ordered.has(i) && 'ordered',
+            step.pivot === i && 'pivot',
+            outside && 'outside',
+          ]
+            .filter(Boolean)
+            .join(' ')
+          return (
+            <div
+              key={i}
+              role="listitem"
+              aria-label={`${i + 1}: ${value}`}
+              data-value={value}
+              className={classes}
+              style={{ height: `${value * 24}px` }}
+            >
+              <span>{value}</span>
+            </div>
+          )
         })}
       </div>
       <div className="sorting-legend">
-        <span><i className="legend-dot comparison" />{labels.active}</span>
-        <span><i className="legend-dot ordered" />{labels.ordered}</span>
-        <span><i className="legend-dot visited" />{labels.sorted}</span>
-        {algorithm === 'quick' && <span><i className="legend-dot pivot" />{labels.pivot}</span>}
+        <span>
+          <i className="legend-dot comparison" />
+          {labels.active}
+        </span>
+        <span>
+          <i className="legend-dot ordered" />
+          {labels.ordered}
+        </span>
+        <span>
+          <i className="legend-dot visited" />
+          {labels.sorted}
+        </span>
+        {algorithm === 'quick' && (
+          <span>
+            <i className="legend-dot pivot" />
+            {labels.pivot}
+          </span>
+        )}
       </div>
       {step.auxiliary && <MergeBuffer state={step.auxiliary} text={labels} />}
-      <div className="explanation-box" aria-live="polite">{formatMessage(labels.messages[step.message.key], step.message.values)}</div>
+      <div className="explanation-box" aria-live="polite">
+        {formatMessage(labels.messages[step.message.key], step.message.values)}
+      </div>
       <div className="sorting-timeline">
-        <span className="step-text">{text.ui.step} {index + 1} / {steps.length}</span>
-        <input type="range" aria-label={labels.timeline} min="0" max={steps.length - 1} value={index} onChange={event => seek(Number(event.target.value))} />
+        <span className="step-text">
+          {text.ui.step} {index + 1} / {steps.length}
+        </span>
+        <input
+          type="range"
+          aria-label={labels.timeline}
+          min="0"
+          max={steps.length - 1}
+          value={index}
+          onChange={event => seek(Number(event.target.value))}
+        />
       </div>
       <div className="playback">
-        <button onClick={() => seek(index - 1)} disabled={index === 0}>{text.ui.back}</button>
-        <button className="primary" onClick={togglePlay}>{playing ? text.ui.pause : text.ui.play}</button>
-        <button onClick={() => seek(index + 1)} disabled={index === steps.length - 1}>{text.ui.next}</button>
+        <button onClick={() => seek(index - 1)} disabled={index === 0}>
+          {text.ui.back}
+        </button>
+        <button className="primary" onClick={togglePlay}>
+          {playing ? text.ui.pause : text.ui.play}
+        </button>
+        <button onClick={() => seek(index + 1)} disabled={index === steps.length - 1}>
+          {text.ui.next}
+        </button>
         <button onClick={() => seek(0)}>{text.ui.reset}</button>
       </div>
-      <label className="sorting-speed">{text.ui.speed}
-        <input type="range" min="150" max="1500" step="50" value={speed} onChange={event => setSpeed(Number(event.target.value))} />
+      <label className="sorting-speed">
+        {text.ui.speed}
+        <input
+          type="range"
+          min="150"
+          max="1500"
+          step="50"
+          value={speed}
+          onChange={event => setSpeed(Number(event.target.value))}
+        />
       </label>
     </div>
   )

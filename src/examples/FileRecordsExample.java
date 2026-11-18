@@ -2,6 +2,7 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/** Fixed-size records allow direct access using a calculated byte offset. */
 public class FileRecordsExample {
     public static void main(String[] args) throws Exception {
         Path file = Files.createTempFile("dsa2-records-", ".bin");
@@ -15,6 +16,8 @@ public class FileRecordsExample {
                 System.out.println(records.readInt());
                 System.out.println(records.length());
             }
-        } finally { Files.deleteIfExists(file); }
+        } finally {
+            Files.deleteIfExists(file);
+        }
     }
 }

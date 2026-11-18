@@ -2,6 +2,7 @@ import java.util.Comparator;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+/** Ordered collections expose sorted keys and neighbour queries. */
 public class OrderedCollectionsExample {
     public static void main(String[] args) {
         TreeSet<Integer> values = new TreeSet<>(java.util.List.of(9, 2, 5, 2));

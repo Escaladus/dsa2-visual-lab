@@ -1,6 +1,15 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createHeapOperation, createHeapState, heapExample, heapLabReducer as reduce, heapLimit, isMinHeap, pollHistory, validHeapValue } from '../src/utils/heapAlgorithms.js'
+import {
+  createHeapOperation,
+  createHeapState,
+  heapExample,
+  heapLabReducer as reduce,
+  heapLimit,
+  isMinHeap,
+  pollHistory,
+  validHeapValue,
+} from '../src/utils/heapAlgorithms.js'
 import { dictionaries, formatMessage } from '../src/i18n/index.js'
 
 const values = nodes => nodes.map(node => node.value)
@@ -11,12 +20,21 @@ function checkFrames(frames) {
   for (let index = 0; index < frames.length; index++) {
     const step = frames[index]
     assert.equal(new Set(step.nodes.map(node => node.id)).size, step.nodes.length)
-    const valid = step.nodes.every((node, i) => !i || step.nodes[Math.floor((i - 1) / 2)].value <= node.value)
+    const valid = step.nodes.every(
+      (node, i) => !i || step.nodes[Math.floor((i - 1) / 2)].value <= node.value,
+    )
     assert.equal(step.valid, valid, 'Repair status must describe the actual current heap')
-    for (const i of [...step.active, ...step.swapping]) assert.ok(i >= 0 && i < step.nodes.length)
+    for (const i of [...step.active, ...step.swapping]) {
+      assert.ok(i >= 0 && i < step.nodes.length)
+    }
     if (index) {
       assert.notEqual(step.nodes, frames[index - 1].nodes)
-      for (const node of step.nodes) assert.ok(!frames[index - 1].nodes.includes(node), 'Earlier snapshots must own their node data')
+      for (const node of step.nodes) {
+        assert.ok(
+          !frames[index - 1].nodes.includes(node),
+          'Earlier snapshots must own their node data',
+        )
+      }
     }
     for (const dictionary of Object.values(dictionaries)) {
       const template = dictionary.heap.messages[step.message.key]
@@ -70,21 +88,31 @@ test('empty queues return null; zero, negative values and duplicates remain real
 })
 
 test('mixed heap operations agree with an independently sorted multiset', () => {
-  let seed = 29, nextId = 0, nodes = [], bag = []
-  const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed }
+  let seed = 29
+  let nextId = 0
+  let nodes = []
+  let bag = []
+  const random = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
+    return seed
+  }
   for (let i = 0; i < 600; i++) {
     const choice = random() % 3
-    const operation = nodes.length >= heapLimit ? 'poll' : choice === 0 ? 'offer' : choice === 1 ? 'poll' : 'peek'
-    const value = random() % 31 - 15
+    const operation =
+      nodes.length >= heapLimit ? 'poll' : choice === 0 ? 'offer' : choice === 1 ? 'poll' : 'peek'
+    const value = (random() % 31) - 15
     const before = structuredClone(nodes)
     const frames = createHeapOperation(nodes, operation, { id: nextId++, value })
     checkFrames(frames)
     assert.deepEqual(nodes, before)
-    if (operation === 'offer') bag.push(value)
-    else {
+    if (operation === 'offer') {
+      bag.push(value)
+    } else {
       const expected = bag.length ? Math.min(...bag) : null
       assert.equal(frames.at(-1).result.value, expected)
-      if (operation === 'poll' && bag.length) bag.splice(bag.indexOf(expected), 1)
+      if (operation === 'poll' && bag.length) {
+        bag.splice(bag.indexOf(expected), 1)
+      }
     }
     nodes = frames.at(-1).nodes
     assert.deepEqual(sorted(values(nodes)), sorted(bag))
@@ -106,7 +134,9 @@ test('peek is immediate and a new action finishes an interrupted operation befor
   state = finish(state)
   assert.deepEqual(pollHistory(state), [0, 0])
   state = reduce(state, { type: 'PLAY' })
-  while (state.playing) state = reduce(state, { type: 'TICK' })
+  while (state.playing) {
+    state = reduce(state, { type: 'TICK' })
+  }
   assert.deepEqual(pollHistory(state), [0, 0], 'Replay must not apply removal twice')
 })
 
@@ -131,8 +161,12 @@ test('undo restores a valid pre-operation heap and poll history, even after comp
 })
 
 test('limits, invalid input, clearing and reset protect the heap and stop playback', () => {
-  for (const value of ['', null, undefined, '1', NaN, Infinity, 0.5, -100, 1000]) assert.equal(validHeapValue(value), false)
-  for (const value of [-99, 0, 999]) assert.equal(validHeapValue(value), true)
+  for (const value of ['', null, undefined, '1', NaN, Infinity, 0.5, -100, 1000]) {
+    assert.equal(validHeapValue(value), false)
+  }
+  for (const value of [-99, 0, 999]) {
+    assert.equal(validHeapValue(value), true)
+  }
   const full = createHeapState(Array.from({ length: heapLimit }, (_, i) => i))
   assert.equal(reduce(full, { type: 'OFFER', value: 2 }), full)
   assert.throws(() => createHeapOperation(full.frames[0].nodes, 'offer', { id: 20, value: 2 }))
@@ -142,7 +176,11 @@ test('limits, invalid input, clearing and reset protect the heap and stop playba
   state = reduce(state, { type: 'EMPTY' })
   assert.equal(state.playing, false)
   assert.deepEqual(state.frames[0].nodes, [])
-  assert.equal(reduce(state, { type: 'TICK' }), state, 'A cancelled timer must not advance the next operation')
+  assert.equal(
+    reduce(state, { type: 'TICK' }),
+    state,
+    'A cancelled timer must not advance the next operation',
+  )
   state = reduce(state, { type: 'RESET' })
   assert.deepEqual(values(state.frames[0].nodes), heapExample)
   assert.deepEqual(pollHistory(state), [])

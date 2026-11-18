@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/** A full DFS of a DAG gives a topological order by reversing completion order. */
 public class TopologicalExample {
     public static List<Integer> sort(int[][] graph) {
         int[] color = new int[graph.length];

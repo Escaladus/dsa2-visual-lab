@@ -1,3 +1,4 @@
+/** Search a sorted array by repeatedly discarding half of the remaining interval. */
 public class BinarySearchExample {
     public static int search(int[] values, int target) {
         int low = 0, high = values.length - 1;

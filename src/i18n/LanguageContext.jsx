@@ -1,10 +1,22 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { defaultLanguage, dictionaries, formatMessage, languages, readLanguage, resolveLanguage, saveLanguage } from './index.js'
+import {
+  defaultLanguage,
+  dictionaries,
+  formatMessage,
+  languages,
+  readLanguage,
+  resolveLanguage,
+  saveLanguage,
+} from './index.js'
 
 const LanguageContext = createContext(null)
 
 function initialLanguage() {
-  try { return readLanguage(window.localStorage) } catch { return defaultLanguage }
+  try {
+    return readLanguage(window.localStorage)
+  } catch {
+    return defaultLanguage
+  }
 }
 
 export function LanguageProvider({ children }) {
@@ -15,7 +27,11 @@ export function LanguageProvider({ children }) {
   useEffect(() => {
     document.documentElement.lang = language
     document.querySelector('meta[name="description"]')?.setAttribute('content', text.ui.description)
-    try { saveLanguage(window.localStorage, language) } catch { /* Keep the in-memory choice. */ }
+    try {
+      saveLanguage(window.localStorage, language)
+    } catch {
+      /* Keep the in-memory choice. */
+    }
   }, [language, text])
 
   function message(key, values) {
@@ -23,7 +39,15 @@ export function LanguageProvider({ children }) {
   }
 
   return (
-    <LanguageContext.Provider value={{ language, locale, text, message, setLanguage: value => setLanguage(resolveLanguage(value)) }}>
+    <LanguageContext.Provider
+      value={{
+        language,
+        locale,
+        text,
+        message,
+        setLanguage: value => setLanguage(resolveLanguage(value)),
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   )

@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+/** The same graph stored as an adjacency matrix and adjacency lists. */
 public class GraphRepresentationExample {
     static final class Graph<V> {
         private final Map<V, Set<V>> adjacency = new LinkedHashMap<>();

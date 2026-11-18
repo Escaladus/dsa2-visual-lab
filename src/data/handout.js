@@ -1,4 +1,8 @@
-export const handout = { filename: 'dsaII_handout.pdf', title: 'Data Structures and Algorithms II', year: 2025 }
+export const handout = {
+  filename: 'dsaII_handout.pdf',
+  title: 'Data Structures and Algorithms II',
+  year: 2025,
+}
 
 // PDF page numbers equal the printed page numbers in the supplied handout.
 export const handoutSections = {
@@ -27,7 +31,13 @@ export const handoutSections = {
 }
 
 export const additionalTopics = [
-  { id: 'adts', group: 1 }, { id: 'sets', group: 1 }, { id: 'maps', group: 1 },
-  { id: 'shortest-paths', group: 4 }, { id: 'mst', group: 4 }, { id: 'graph-analysis', group: 4 },
-  { id: 'strategies', group: 3 }, { id: 'string-matching', group: 3 }, { id: 'external-memory', group: 6 },
+  { id: 'adts', group: 1 },
+  { id: 'sets', group: 1 },
+  { id: 'maps', group: 1 },
+  { id: 'shortest-paths', group: 4 },
+  { id: 'mst', group: 4 },
+  { id: 'graph-analysis', group: 4 },
+  { id: 'strategies', group: 3 },
+  { id: 'string-matching', group: 3 },
+  { id: 'external-memory', group: 6 },
 ]

@@ -8,8 +8,13 @@ export default function LanguageSwitcher() {
       <span className="language-label">{text.ui.language}</span>
       <div className="language-options">
         {languages.map(item => (
-          <button key={item.code} type="button" lang={item.code} aria-pressed={language === item.code}
-            onClick={() => setLanguage(item.code)}>
+          <button
+            key={item.code}
+            type="button"
+            lang={item.code}
+            aria-pressed={language === item.code}
+            onClick={() => setLanguage(item.code)}
+          >
             {item.label}
           </button>
         ))}

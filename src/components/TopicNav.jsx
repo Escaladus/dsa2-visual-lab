@@ -17,16 +17,23 @@ export default function TopicNav({ active, onSelect }) {
         {text.groups.map((group, groupIndex) => (
           <div className="nav-group" key={group}>
             <div className="nav-group-title">{group}</div>
-            {topics.map((topic, index) => ({ ...topic, title: text.topics[index][0], short: text.topics[index][1] })).filter(t => t.group === groupIndex).map(topic => (
-              <button
-                key={topic.id}
-                className={`nav-item ${active === topic.id ? 'active' : ''}`}
-                onClick={() => onSelect(topic.id)}
-              >
-                <span>{topic.title}</span>
-                <small>{topic.short}</small>
-              </button>
-            ))}
+            {topics
+              .map((topic, index) => ({
+                ...topic,
+                title: text.topics[index][0],
+                short: text.topics[index][1],
+              }))
+              .filter(t => t.group === groupIndex)
+              .map(topic => (
+                <button
+                  key={topic.id}
+                  className={`nav-item ${active === topic.id ? 'active' : ''}`}
+                  onClick={() => onSelect(topic.id)}
+                >
+                  <span>{topic.title}</span>
+                  <small>{topic.short}</small>
+                </button>
+              ))}
           </div>
         ))}
       </nav>

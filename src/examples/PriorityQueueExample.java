@@ -3,6 +3,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 
+/** A priority queue returns a minimum element; its iteration order is not sorted. */
 public class PriorityQueueExample {
     record Task(String id, int priority) {}
 

@@ -1,9 +1,14 @@
 // Unit-cost model for the shown Java long/array operations. These are counts,
 // not measured execution times or JVM byte sizes.
 export function recursionGrowth(n) {
-  if (!Number.isInteger(n) || n < 0 || n > 20) throw new Error('Growth input must be an integer from 0 to 20')
-  let previous = 1, calls = 1
-  for (let i = 2; i <= n; i++) [previous, calls] = [calls, 1 + previous + calls]
+  if (!Number.isInteger(n) || n < 0 || n > 20) {
+    throw new Error('Growth input must be an integer from 0 to 20')
+  }
+  let previous = 1
+  let calls = 1
+  for (let i = 2; i <= n; i++) {
+    ;[previous, calls] = [calls, 1 + previous + calls]
+  }
   const peak = Math.max(1, n)
   return [
     { id: 'factorial', calls: Math.max(1, n), peak, cacheSlots: 0 },
@@ -19,7 +24,13 @@ export function recursionMetrics(step, n, memoized = false) {
     peak: step.maxDepth,
     repeated: step.nodes.length - new Set(step.nodes.map(node => node.n)).size,
   }
-  if (memoized) Object.assign(metrics, { cacheEntries: Object.keys(step.cache).length, cacheSlots: n + 1, cacheHits: step.cacheHits })
+  if (memoized) {
+    Object.assign(metrics, {
+      cacheEntries: Object.keys(step.cache).length,
+      cacheSlots: n + 1,
+      cacheHits: step.cacheHits,
+    })
+  }
   return metrics
 }
 

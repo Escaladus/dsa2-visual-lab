@@ -1,3 +1,4 @@
+/** A recursive result is completed only after the smaller call returns. */
 public class FactorialExample {
     // Input: 0 <= n <= 20, so the result fits in long.
     static long factorial(int n) {

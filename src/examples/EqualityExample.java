@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+/** Objects used as hash keys must agree on equals and hashCode. */
 public class EqualityExample {
     static final class Student {
         private final int id;

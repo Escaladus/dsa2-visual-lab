@@ -2,6 +2,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+/** Sets store distinct values and support membership and standard set operations. */
 public class SetOperationsExample {
     public static void main(String[] args) {
         Set<Integer> a = new HashSet<>(Set.of(1, 2, 3));

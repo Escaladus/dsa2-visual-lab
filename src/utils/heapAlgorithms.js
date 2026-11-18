@@ -8,26 +8,54 @@ export function validHeapValue(value) {
 }
 
 export function isMinHeap(nodes) {
-  return nodes.every((node, index) => index === 0 || nodes[Math.floor((index - 1) / 2)].value <= node.value)
+  return nodes.every(
+    (node, index) => index === 0 || nodes[Math.floor((index - 1) / 2)].value <= node.value,
+  )
 }
 
+// Preserve node IDs as values move: duplicate values still represent different heap entries.
 function frame(nodes, key, values = {}, active = [], swapping = [], result = null) {
-  return { nodes: nodes.map(node => ({ ...node })), message: { key, values }, active: [...active], swapping: [...swapping], result: result ? { ...result } : null, valid: isMinHeap(nodes) }
+  return {
+    nodes: nodes.map(node => ({ ...node })),
+    message: { key, values },
+    active: [...active],
+    swapping: [...swapping],
+    result: result ? { ...result } : null,
+    valid: isMinHeap(nodes),
+  }
 }
 
+/** Produce a complete offer/peek/poll trace; the input heap is never mutated. */
 export function createHeapOperation(input, operation, entry) {
-  if (!isMinHeap(input)) throw new Error('An operation must start from a valid min-heap')
-  if (!['offer', 'peek', 'poll'].includes(operation)) throw new Error('Unknown heap operation')
-  if (operation === 'offer' && (!entry || !validHeapValue(entry.value) || input.length >= heapLimit || input.some(node => node.id === entry.id))) throw new Error('Invalid heap insertion')
+  if (!isMinHeap(input)) {
+    throw new Error('An operation must start from a valid min-heap')
+  }
+  if (!['offer', 'peek', 'poll'].includes(operation)) {
+    throw new Error('Unknown heap operation')
+  }
+  if (
+    operation === 'offer' &&
+    (!entry ||
+      !validHeapValue(entry.value) ||
+      input.length >= heapLimit ||
+      input.some(node => node.id === entry.id))
+  ) {
+    throw new Error('Invalid heap insertion')
+  }
   const nodes = input.map(node => ({ ...node }))
   const steps = []
   let result = null
-  const push = (key, values = {}, active = [], swapping = []) => steps.push(frame(nodes, key, values, active, swapping, result))
+  const push = (key, values = {}, active = [], swapping = []) =>
+    steps.push(frame(nodes, key, values, active, swapping, result))
 
   if (operation === 'peek') {
     push('peekStart', {}, nodes.length ? [0] : [])
     result = { kind: 'peek', value: nodes[0]?.value ?? null }
-    push(nodes.length ? 'peekResult' : 'peekEmpty', { value: result.value }, nodes.length ? [0] : [])
+    push(
+      nodes.length ? 'peekResult' : 'peekEmpty',
+      { value: result.value },
+      nodes.length ? [0] : [],
+    )
     return steps
   }
 
@@ -38,7 +66,8 @@ export function createHeapOperation(input, operation, entry) {
     push('offerAppend', { value: entry.value, index }, [index])
     while (index > 0) {
       const parent = Math.floor((index - 1) / 2)
-      const childValue = nodes[index].value, parentValue = nodes[parent].value
+      const childValue = nodes[index].value
+      const parentValue = nodes[parent].value
       push('compareUp', { child: childValue, parent: parentValue }, [parent, index])
       if (childValue >= parentValue) {
         push('upFits', { child: childValue, parent: parentValue }, [parent, index])
@@ -70,13 +99,21 @@ export function createHeapOperation(input, operation, entry) {
   push('pollReplace', { removed: minimum, value: last.value }, [0])
   let index = 0
   while (2 * index + 1 < nodes.length) {
-    const left = 2 * index + 1, right = left + 1
+    const left = 2 * index + 1
+    const right = left + 1
     let child = left
     if (right < nodes.length) {
-      if (nodes[right].value < nodes[left].value) child = right
-      push('chooseChild', { left: nodes[left].value, right: nodes[right].value, child: nodes[child].value }, [left, right])
+      if (nodes[right].value < nodes[left].value) {
+        child = right
+      }
+      push(
+        'chooseChild',
+        { left: nodes[left].value, right: nodes[right].value, child: nodes[child].value },
+        [left, right],
+      )
     }
-    const parentValue = nodes[index].value, childValue = nodes[child].value
+    const parentValue = nodes[index].value
+    const childValue = nodes[child].value
     push('compareDown', { parent: parentValue, child: childValue }, [index, child])
     if (parentValue <= childValue) {
       push('downFits', { parent: parentValue, child: childValue }, [index, child])
@@ -92,38 +129,84 @@ export function createHeapOperation(input, operation, entry) {
 
 export function createHeapState(values = heapExample) {
   const nodes = values.map((value, id) => ({ id, value }))
-  if (values.length > heapLimit || !values.every(validHeapValue) || !isMinHeap(nodes)) throw new Error('Invalid initial heap')
-  return { frames: [frame(nodes, values.length ? 'ready' : 'emptyReady')], index: 0, nextId: values.length, removedBefore: [], playing: false, cancellable: false }
+  if (values.length > heapLimit || !values.every(validHeapValue) || !isMinHeap(nodes)) {
+    throw new Error('Invalid initial heap')
+  }
+  return {
+    frames: [frame(nodes, values.length ? 'ready' : 'emptyReady')],
+    index: 0,
+    nextId: values.length,
+    removedBefore: [],
+    playing: false,
+    cancellable: false,
+  }
 }
 
 export function pollHistory(state) {
   const result = state.frames[state.index].result
-  return result?.kind === 'poll' && result.value !== null ? [...state.removedBefore, result.value] : [...state.removedBefore]
+  return result?.kind === 'poll' && result.value !== null
+    ? [...state.removedBefore, result.value]
+    : [...state.removedBefore]
 }
 
 export function heapLabReducer(state, action) {
-  if (action.type === 'RESET') return createHeapState()
-  if (action.type === 'EMPTY') return createHeapState([])
+  if (action.type === 'RESET') {
+    return createHeapState()
+  }
+  if (action.type === 'EMPTY') {
+    return createHeapState([])
+  }
   const last = state.frames.length - 1
   if (action.type === 'CANCEL') {
-    if (!state.cancellable) return state
+    if (!state.cancellable) {
+      return state
+    }
     const nodes = state.frames[0].nodes
-    return { ...state, frames: [frame(nodes, 'cancelled')], index: 0, playing: false, cancellable: false }
+    return {
+      ...state,
+      frames: [frame(nodes, 'cancelled')],
+      index: 0,
+      playing: false,
+      cancellable: false,
+    }
   }
   if (action.type === 'SEEK') {
-    if (!Number.isInteger(action.index)) return state
+    if (!Number.isInteger(action.index)) {
+      return state
+    }
     return { ...state, index: Math.max(0, Math.min(last, action.index)), playing: false }
   }
-  if (action.type === 'PLAY') return last === 0 ? state : { ...state, index: state.index === last ? 0 : state.index, playing: !state.playing }
+  if (action.type === 'PLAY') {
+    return last === 0
+      ? state
+      : { ...state, index: state.index === last ? 0 : state.index, playing: !state.playing }
+  }
   if (action.type === 'NEXT' || action.type === 'PREVIOUS' || action.type === 'TICK') {
-    if (action.type === 'TICK' && !state.playing) return state
+    if (action.type === 'TICK' && !state.playing) {
+      return state
+    }
     const index = Math.max(0, Math.min(last, state.index + (action.type === 'PREVIOUS' ? -1 : 1)))
     return { ...state, index, playing: action.type === 'TICK' && index < last }
   }
-  if (!['OFFER', 'PEEK', 'POLL'].includes(action.type)) return state
+  if (!['OFFER', 'PEEK', 'POLL'].includes(action.type)) {
+    return state
+  }
   const completed = { ...state, index: last, playing: false }
   const nodes = state.frames[last].nodes
-  if (action.type === 'OFFER' && (!validHeapValue(action.value) || nodes.length >= heapLimit)) return state
-  const frames = createHeapOperation(nodes, action.type.toLowerCase(), { id: state.nextId, value: action.value })
-  return { ...state, frames, index: action.type === 'PEEK' ? frames.length - 1 : 0, nextId: state.nextId + Number(action.type === 'OFFER'), removedBefore: pollHistory(completed), playing: false, cancellable: action.type !== 'PEEK' }
+  if (action.type === 'OFFER' && (!validHeapValue(action.value) || nodes.length >= heapLimit)) {
+    return state
+  }
+  const frames = createHeapOperation(nodes, action.type.toLowerCase(), {
+    id: state.nextId,
+    value: action.value,
+  })
+  return {
+    ...state,
+    frames,
+    index: action.type === 'PEEK' ? frames.length - 1 : 0,
+    nextId: state.nextId + Number(action.type === 'OFFER'),
+    removedBefore: pollHistory(completed),
+    playing: false,
+    cancellable: action.type !== 'PEEK',
+  }
 }

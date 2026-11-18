@@ -8,7 +8,6 @@ import SortingLab from './components/SortingLab.jsx'
 import ComplexityLab from './components/ComplexityLab.jsx'
 import ComplexityQuiz from './components/ComplexityQuiz.jsx'
 import HeapLab from './components/HeapLab.jsx'
-import JavaExamples from './components/JavaExamples.jsx'
 import { handout, handoutSections } from './data/handout.js'
 import { sortingAlgorithms } from './utils/sortingAlgorithms.js'
 import { roadmapIds, topics } from './data/topics.js'
@@ -16,17 +15,25 @@ import { useLanguage } from './i18n/LanguageContext.jsx'
 
 const RecursionLab = lazy(() => import('./components/RecursionLab.jsx'))
 const RecursionQuiz = lazy(() => import('./components/RecursionQuiz.jsx'))
+const GraphQuiz = lazy(() => import('./components/GraphQuiz.jsx'))
+const JavaExamples = lazy(() => import('./components/JavaExamples.jsx'))
 const RecurrenceTreeLab = lazy(() => import('./components/RecurrenceTreeLab.jsx'))
 
 function Code({ children }) {
-  return <pre className="code-block"><code>{children}</code></pre>
+  return (
+    <pre className="code-block">
+      <code>{children}</code>
+    </pre>
+  )
 }
 
 // Inline code stays text, including Java generics such as List<T>.
 function InlineText({ children }) {
-  return children.split(/(`[^`]+`)/g).map((part, index) =>
-    part.startsWith('`') ? <code key={index}>{part.slice(1, -1)}</code> : part,
-  )
+  return children
+    .split(/(`[^`]+`)/g)
+    .map((part, index) =>
+      part.startsWith('`') ? <code key={index}>{part.slice(1, -1)}</code> : part,
+    )
 }
 
 function SortingTable() {
@@ -34,10 +41,22 @@ function SortingTable() {
   return (
     <div className="table-wrap">
       <table className="complexity-table">
-        <thead><tr><th>{text.ui.algorithm}</th><th>{text.ui.average}</th><th>{text.ui.idea}</th></tr></thead>
-        <tbody>{sortingAlgorithms.map(({ id, average }, index) => (
-          <tr key={id}><td>{text.sorting.algorithms[id].name}</td><td>{average}</td><td>{text.sortingIdeas[index]}</td></tr>
-        ))}</tbody>
+        <thead>
+          <tr>
+            <th>{text.ui.algorithm}</th>
+            <th>{text.ui.average}</th>
+            <th>{text.ui.idea}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortingAlgorithms.map(({ id, average }, index) => (
+            <tr key={id}>
+              <td>{text.sorting.algorithms[id].name}</td>
+              <td>{average}</td>
+              <td>{text.sortingIdeas[index]}</td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
   )
@@ -48,49 +67,127 @@ function Lesson({ topic, onOpen }) {
   const { id } = topic
   const page = text.pages[id]
   const reference = handoutSections[id]
-  const grid = ['trees', 'recursion'].includes(id) ? 'cards-3' : ['sets-maps', 'graph-apps', 'java-tools'].includes(id) ? 'cards-2' : ''
+  const grid = ['trees', 'recursion'].includes(id)
+    ? 'cards-3'
+    : ['sets-maps', 'graph-apps', 'java-tools'].includes(id)
+      ? 'cards-2'
+      : ''
 
-  return <>
-    <header className="page-title">
-      <span>{id === 'overview' ? 'DSA2' : text.groups[topic.group]}</span>
-      <h1>{page.title}</h1>
-      <p>{page.intro}</p>
-    </header>
-    <div className="handout-reference"><strong>{text.ui.handout}</strong><span>{handout.filename} · § {reference.section} · {text.ui.handoutPages} {reference.pages}</span></div>
+  return (
+    <>
+      <header className="page-title">
+        <span>{id === 'overview' ? 'DSA2' : text.groups[topic.group]}</span>
+        <h1>{page.title}</h1>
+        <p>{page.intro}</p>
+      </header>
+      <div className="handout-reference">
+        <strong>{text.ui.handout}</strong>
+        <span>
+          {handout.filename} · § {reference.section} · {text.ui.handoutPages} {reference.pages}
+        </span>
+      </div>
 
-    {id === 'overview' && <div className="roadmap">{text.roadmap.map(([title, description], index) => (
-      <button key={roadmapIds[index]} onClick={() => onOpen(roadmapIds[index])}>
-        <span>{index + 1}</span><div><b>{title}</b><small>{description}</small></div>
-      </button>
-    ))}</div>}
-    {id === 'complexity' && <><ComplexityLab /><Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}><RecurrenceTreeLab /></Suspense></>}
-    {id === 'trees' && <TreeTraversalLab />}
-    {id === 'heap' && <HeapLab />}
-    {id === 'sorting' && <><SortingLab /><SortingTable /></>}
-    {(id === 'graph-dfs' || id === 'graph-bfs') && <GraphLab initialMode={id === 'graph-dfs' ? 'dfs' : 'bfs'} />}
+      {id === 'overview' && (
+        <div className="roadmap">
+          {text.roadmap.map(([title, description], index) => (
+            <button key={roadmapIds[index]} onClick={() => onOpen(roadmapIds[index])}>
+              <span>{index + 1}</span>
+              <div>
+                <b>{title}</b>
+                <small>{description}</small>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+      {id === 'complexity' && <ComplexityLab />}
+      {id === 'trees' && <TreeTraversalLab />}
+      {id === 'heap' && <HeapLab />}
+      {id === 'sorting' && (
+        <>
+          <SortingLab />
+          <SortingTable />
+        </>
+      )}
+      {(id === 'graph-dfs' || id === 'graph-bfs') && (
+        <GraphLab initialMode={id === 'graph-dfs' ? 'dfs' : 'bfs'} />
+      )}
 
-    {id !== 'recursion' && <div className={grid}>{page.cards.map(([title, body], index) => (
-      <ConceptCard key={index} title={title} accent={index === 0 && ['overview', 'sorted-lists', 'graph-dfs', 'graph-bfs'].includes(id)}>
-        {id === 'graph-basics' && index === 2 && <Code>{'A: [B, C]\nB: [A, D, F]\nC: [A, D, E]\n...'}</Code>}
-        {Array.isArray(body)
-          ? <ul>{body.map((item, i) => <li key={i}><InlineText>{item}</InlineText></li>)}</ul>
-          : <p><InlineText>{body}</InlineText></p>}
-      </ConceptCard>
-    ))}</div>}
+      {id !== 'recursion' && (
+        <div className={grid}>
+          {page.cards.map(([title, body], index) => (
+            <ConceptCard
+              key={index}
+              title={title}
+              accent={
+                index === 0 && ['overview', 'sorted-lists', 'graph-dfs', 'graph-bfs'].includes(id)
+              }
+            >
+              {id === 'graph-basics' && index === 2 && (
+                <Code>{'A: [B, C]\nB: [A, D, F]\nC: [A, D, E]\n...'}</Code>
+              )}
+              {Array.isArray(body) ? (
+                <ul>
+                  {body.map((item, i) => (
+                    <li key={i}>
+                      <InlineText>{item}</InlineText>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>
+                  <InlineText>{body}</InlineText>
+                </p>
+              )}
+            </ConceptCard>
+          ))}
+        </div>
+      )}
 
-    {id === 'recursion' && <>
-      <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}><RecursionLab /></Suspense>
-      <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}><RecurrenceTreeLab /></Suspense>
-      <div className="callout-actions"><button onClick={() => onOpen('trees')}>{text.recursion.treesLink}</button><button onClick={() => onOpen('graph-dfs')}>{text.recursion.dfsLink}</button></div>
-    </>}
-    {id === 'graph-basics' && <div className="callout-actions">
-      <button onClick={() => onOpen('graph-dfs')}>{text.ui.goDfs}</button>
-      <button onClick={() => onOpen('graph-bfs')}>{text.ui.goBfs}</button>
-    </div>}
-    <JavaExamples topicId={id} />
-    {id === 'complexity' && <ComplexityQuiz />}
-    {(id === 'recursion' || id === 'graph-dfs') && <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}><RecursionQuiz /></Suspense>}
-  </>
+      {id === 'recursion' && (
+        <>
+          <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
+            <RecursionLab />
+          </Suspense>
+          <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
+            <RecurrenceTreeLab />
+          </Suspense>
+          <div className="callout-actions">
+            <button onClick={() => onOpen('trees')}>{text.recursion.treesLink}</button>
+            <button onClick={() => onOpen('graph-dfs')}>{text.recursion.dfsLink}</button>
+          </div>
+        </>
+      )}
+      {id === 'graph-basics' && (
+        <div className="callout-actions">
+          <button onClick={() => onOpen('graph-dfs')}>{text.ui.goDfs}</button>
+          <button onClick={() => onOpen('graph-bfs')}>{text.ui.goBfs}</button>
+        </div>
+      )}
+      {id !== 'overview' && (
+        <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
+          <JavaExamples topicId={id} />
+        </Suspense>
+      )}
+      {id === 'complexity' && <ComplexityQuiz />}
+      {id === 'recursion' && (
+        <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
+          <RecursionQuiz />
+        </Suspense>
+      )}
+      {(id === 'graph-dfs' || id === 'graph-bfs') && (
+        <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
+          <GraphQuiz />
+        </Suspense>
+      )}
+      {id === 'graph-analysis' && (
+        <div className="callout-actions">
+          <button onClick={() => onOpen('graph-dfs')}>{text.recursion.dfsLink}</button>
+          <button onClick={() => onOpen('graph-bfs')}>BFS →</button>
+        </div>
+      )}
+    </>
+  )
 }
 
 export default function App() {
@@ -112,20 +209,38 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHash)
   }, [])
 
-  return <div className="app-layout">
-    <div className={`mobile-overlay ${menuOpen ? 'show' : ''}`} onClick={() => setMenuOpen(false)} />
-    <div id="topic-sidebar" className={`sidebar-wrap ${menuOpen ? 'open' : ''}`}><TopicNav active={current.id} onSelect={open} /></div>
-    <main className="content">
-      <div className="content-top">
-        <button className="menu-toggle" aria-expanded={menuOpen} aria-controls="topic-sidebar" onClick={() => setMenuOpen(value => !value)}>☰ {text.ui.topics}</button>
-        <strong className="mobile-brand">DSA2 Visual Lab</strong>
-        <LanguageSwitcher />
+  return (
+    <div className="app-layout">
+      <div
+        className={`mobile-overlay ${menuOpen ? 'show' : ''}`}
+        onClick={() => setMenuOpen(false)}
+      />
+      <div id="topic-sidebar" className={`sidebar-wrap ${menuOpen ? 'open' : ''}`}>
+        <TopicNav active={current.id} onSelect={open} />
       </div>
-      <div className="content-inner"><Lesson key={current.id} topic={current} onOpen={open} /></div>
-      <footer>
-        <p>{text.ui.footer} <a href="https://github.com/Escaladus">Denis</a></p>
-        <p>{text.ui.courseCredit}</p>
-      </footer>
-    </main>
-  </div>
+      <main className="content">
+        <div className="content-top">
+          <button
+            className="menu-toggle"
+            aria-expanded={menuOpen}
+            aria-controls="topic-sidebar"
+            onClick={() => setMenuOpen(value => !value)}
+          >
+            ☰ {text.ui.topics}
+          </button>
+          <strong className="mobile-brand">DSA2 Visual Lab</strong>
+          <LanguageSwitcher />
+        </div>
+        <div className="content-inner">
+          <Lesson key={current.id} topic={current} onOpen={open} />
+        </div>
+        <footer>
+          <p>
+            {text.ui.footer} <a href="https://github.com/Escaladus">Denis</a>
+          </p>
+          <p>{text.ui.courseCredit}</p>
+        </footer>
+      </main>
+    </div>
+  )
 }

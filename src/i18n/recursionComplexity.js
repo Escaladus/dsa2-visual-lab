@@ -1,149 +1,371 @@
 export const recursionComplexityTranslations = {
   ru: {
     title: 'Рекурсия: время и память',
-    bounds: { factorial: 'Время Θ(n) · память Θ(n)', fibonacci: 'Время Θ(φⁿ) · память Θ(n)', memoized: 'Время Θ(n) · память Θ(n)', comparison: 'Фибоначчи: Θ(φⁿ) → Θ(n)', dfs: 'Полный обход: Θ(V + E) · память O(V)', partialDfs: 'traverse: Θ(V + R + Aᵣ) · память O(V)' },
-    names: { factorial: 'Факториал', fibonacci: 'Наивный Фибоначчи', memoized: 'Фибоначчи с мемоизацией', dfs: 'Рекурсивный DFS' },
-    live: 'Счётчики выбранного выполнения', progress: 'Учебный шаг {step} из {total}',
-    metricLabels: { calls: 'Создано вызовов', active: 'Кадров сейчас', peak: 'Пик кадров к этому шагу', repeated: 'Повторных вызовов с тем же аргументом', cacheEntries: 'Занято ячеек кэша', cacheSlots: 'Всего ячеек memo', cacheHits: 'Попаданий в кэш', reached: 'Помечено вершин', neighborChecks: 'Прочитано записей соседей', outerChecks: 'Вершин рассмотрено внешним циклом', visitedSlots: 'Выделено ячеек visited', resultEntries: 'Записей в PRE + POST' },
-    counterNote: 'Это числа вызовов, кадров и элементов структур, а не миллисекунды или байты. Учебный шаг анимации не равен одной операции Java. После завершения текущий стек пуст, но его максимальная глубина остаётся в счётчике.',
-    previousStep: 'Предыдущий шаг анализа', nextStep: 'Следующий шаг анализа', finishRun: 'К концу запуска',
+    bounds: {
+      factorial: 'Время Θ(n) · память Θ(n)',
+      fibonacci: 'Время Θ(φⁿ) · память Θ(n)',
+      memoized: 'Время Θ(n) · память Θ(n)',
+      comparison: 'Фибоначчи: Θ(φⁿ) → Θ(n)',
+      dfs: 'Полный обход: Θ(V + E) · память O(V)',
+      partialDfs: 'traverse: Θ(V + R + Aᵣ) · память O(V)',
+    },
+    names: {
+      factorial: 'Факториал',
+      fibonacci: 'Наивный Фибоначчи',
+      memoized: 'Фибоначчи с мемоизацией',
+      dfs: 'Рекурсивный DFS',
+    },
+    live: 'Счётчики выбранного выполнения',
+    progress: 'Учебный шаг {step} из {total}',
+    metricLabels: {
+      calls: 'Создано вызовов',
+      active: 'Кадров сейчас',
+      peak: 'Пик кадров к этому шагу',
+      repeated: 'Повторных вызовов с тем же аргументом',
+      cacheEntries: 'Занято ячеек кэша',
+      cacheSlots: 'Всего ячеек memo',
+      cacheHits: 'Попаданий в кэш',
+      reached: 'Помечено вершин',
+      neighborChecks: 'Прочитано записей соседей',
+      outerChecks: 'Вершин рассмотрено внешним циклом',
+      visitedSlots: 'Выделено ячеек visited',
+      resultEntries: 'Записей в PRE + POST',
+    },
+    counterNote:
+      'Это числа вызовов, кадров и элементов структур, а не миллисекунды или байты. Учебный шаг анимации не равен одной операции Java. После завершения текущий стек пуст, но его максимальная глубина остаётся в счётчике.',
+    previousStep: 'Предыдущий шаг анализа',
+    nextStep: 'Следующий шаг анализа',
+    finishRun: 'К концу запуска',
     methodTitle: 'Как получить оценку',
     method: [
-      ['Работа одного вызова', 'Сначала посчитай его собственную работу, исключив выполнение вложенных вызовов. У факториала это проверка, вызов и умножение; у DFS — ещё и перебор соседей.'],
-      ['Суммарная работа', 'Затем учти все вызовы и повторные подзадачи. Глубина дерева сама по себе не показывает количество выполненной работы.'],
-      ['Память одновременно', 'Для стека нужен максимум одновременно живых кадров. Отдельно добавь кэш, visited и результаты. Общая структура не копируется целиком в каждый кадр.'],
+      [
+        'Работа одного вызова',
+        'Сначала посчитай его собственную работу, исключив выполнение вложенных вызовов. У факториала это проверка, вызов и умножение; у DFS — ещё и перебор соседей.',
+      ],
+      [
+        'Суммарная работа',
+        'Затем учти все вызовы и повторные подзадачи. Глубина дерева сама по себе не показывает количество выполненной работы.',
+      ],
+      [
+        'Память одновременно',
+        'Для стека нужен максимум одновременно живых кадров. Отдельно добавь кэш, visited и результаты. Общая структура не копируется целиком в каждый кадр.',
+      ],
     ],
-    model: 'Здесь сравнение, арифметика long и индексирование массива считаются O(1), а добавление в ArrayList — амортизированно O(1). Θ описывает порядок роста с точностью до постоянных множителей; O задаёт верхнюю границу. Это не точное число машинных команд.',
-    tableTitle: 'Сравнение оценок', algorithm: 'Алгоритм', time: 'Время', memory: 'Дополнительная память',
-    memoryRows: { factorial: 'Θ(n), стек', fibonacci: 'Θ(n), стек', memoized: 'Θ(n), стек и один кэш', dfs: 'O(V), стек, visited и PRE/POST' },
-    tableNote: 'Для DFS здесь указан полный обход со списками смежности. V — число вершин, E — число рёбер. Память включает списки результата, но не входной граф. Оценки описывают рост входа; для n = 0 или 1 базовый вызов занимает постоянное время и один кадр.',
-    chapters: {
-      factorial: { title: 'Факториал: одна цепочка вызовов', formula: 'T(n) = T(n − 1) + Θ(1) ⇒ Θ(n)', paragraphs: [
-        'Для n ≥ 1 цепочка n → n − 1 → … → 1 содержит n вызовов. В каждом, кроме вложенной рекурсии, выполняется постоянная работа. Поэтому сумма работы линейна.',
-        'Перед первым возвратом все n кадров одновременно находятся в стеке. В каждом хранится постоянное число переменных: память Θ(n). В конце кадров уже 0, но пиковая память выполнения от этого не становится O(1).',
-      ] },
-      fibonacci: { title: 'Наивный Фибоначчи: повторная работа', formula: 'T(n) = T(n − 1) + T(n − 2) + Θ(1) ⇒ Θ(φⁿ)', paragraphs: [
-        'Разные ветви снова вызывают метод с одинаковым n. Цвета одинаковых аргументов в дереве помогают увидеть повторения. Своя работа одного вызова постоянна, но количество вызовов растёт экспоненциально.',
-        'Здесь φ = (1 + √5) / 2 ≈ 1,618. O(2ⁿ) — допустимая верхняя оценка; более точный порядок роста — Θ(φⁿ). Число вызовов удовлетворяет C(0) = C(1) = 1 и C(n) = 1 + C(n − 1) + C(n − 2).',
-        'Левая ветвь завершается до запуска правой. Поэтому в стеке одновременно хранится одна цепочка предков глубины Θ(n), а не всё экспоненциальное дерево. Время экспоненциальное, память стека линейная.',
-      ] },
-      memoized: { title: 'Мемоизация: вычислить и сохранить', formula: 'Θ(n) работы + Θ(n) выделения кэша ⇒ Θ(n)', paragraphs: [
-        'В показанном методе каждый результат для n ≥ 2 вычисляется и сохраняется один раз. Следующий вызов с тем же аргументом читает memo[n] за O(1) и не создаёт детей. Базовые случаи возвращаются сразу, без сохранения.',
-        'При n ≥ 2 создаётся 2n − 1 вызовов, включая попадания в кэш. Это по-прежнему Θ(n). Кэш Long[n + 1] создаётся один раз; выделение и начальное заполнение null также требуют Θ(n).',
-        'Первая левая цепочка остаётся глубины Θ(n). Стек Θ(n) и один общий кэш Θ(n) складываются: Θ(n) + Θ(n) = Θ(n), а не Θ(n²). Число занятых ячеек кэша отличается от его выделенной длины n + 1.',
-      ] },
-      dfs: { title: 'DFS: считаем вершины и записи соседей', formula: 'Σᵥ Θ(1 + degree(v)) = Θ(V + 2E) = Θ(V + E)', paragraphs: [
-        'Один вызов dfs(v) делает Θ(1 + degree(v)) собственной работы без учёта детей. Каждая вершина помечается до рекурсивных переходов и получает только один вызов. Каждый элемент её списка соседей читается один раз, даже если сосед уже посещён.',
-        'При полном обходе рассматриваются все V вершин. В неориентированном графе каждое ребро хранится в двух списках: суммарно A = 2E записей соседей. Внешний цикл и создание visited добавляют Θ(V), поэтому время остаётся Θ(V + E).',
-        'Один dfs(start) обходит только R достижимых вершин и их Aᵣ записей соседей: ядро DFS работает за Θ(R + Aᵣ), если visited уже подготовлен. Но показанный traverse каждый раз создаёт boolean[V], поэтому его время в этом режиме — Θ(V + R + Aᵣ). Даже изолированная стартовая вершина не отменяет выделение массива на весь граф.',
-        'Глубина рекурсии не больше R, но visited содержит V ячеек. PRE и POST содержат по R записей. Вместе это O(V) дополнительной памяти; входные списки смежности занимают Θ(V + E) отдельно и в эту оценку не включены.',
-      ] },
+    model:
+      'Здесь сравнение, арифметика long и индексирование массива считаются O(1), а добавление в ArrayList — амортизированно O(1). Θ описывает порядок роста с точностью до постоянных множителей; O задаёт верхнюю границу. Это не точное число машинных команд.',
+    tableTitle: 'Сравнение оценок',
+    algorithm: 'Алгоритм',
+    time: 'Время',
+    memory: 'Дополнительная память',
+    memoryRows: {
+      factorial: 'Θ(n), стек',
+      fibonacci: 'Θ(n), стек',
+      memoized: 'Θ(n), стек и один кэш',
+      dfs: 'O(V), стек, visited и PRE/POST',
     },
-    dfsInput: 'Этот граф: V = {vertices}, записей соседей A = {adjacency}. Для неориентированного графа A = 2E.',
-    dfsFull: 'За весь выбранный запуск: {reached} посещённых вершин, {scanned} прочитанных записей соседей, {outer} вершин во внешнем цикле и {slots} выделенных ячеек visited.',
-    dfsPartial: 'За весь выбранный запуск: R = {reached}, Aᵣ = {scanned}, хотя во входе V = {vertices}. Внешний цикл не запущен; visited всё равно занимает {slots} ячеек.',
-    growthTitle: 'Как меняется число вызовов при росте n', growthInput: 'n для расчёта роста', growthCalls: 'Всего вызовов', growthStack: 'Пик кадров', growthCache: 'Ячеек кэша',
-    growthNote: 'Таблица вычисляется по рекуррентностям и структуре методов, без запуска больших рекурсивных деревьев и без измерения секунд. Этот n меняет только таблицу; выбранный шаг визуализации сохраняется.',
-    fibExample: 'Для n = 6: наивный вариант создаёт {naive} вызовов, вариант с мемоизацией — {memoized}; пиковая глубина обоих — {peak}.',
+    tableNote:
+      'Для DFS здесь указан полный обход со списками смежности. V — число вершин, E — число рёбер. Память включает списки результата, но не входной граф. Оценки описывают рост входа; для n = 0 или 1 базовый вызов занимает постоянное время и один кадр.',
+    chapters: {
+      factorial: {
+        title: 'Факториал: одна цепочка вызовов',
+        formula: 'T(n) = T(n − 1) + Θ(1) ⇒ Θ(n)',
+        paragraphs: [
+          'Для n ≥ 1 цепочка n → n − 1 → … → 1 содержит n вызовов. В каждом, кроме вложенной рекурсии, выполняется постоянная работа. Поэтому сумма работы линейна.',
+          'Перед первым возвратом все n кадров одновременно находятся в стеке. В каждом хранится постоянное число переменных: память Θ(n). В конце кадров уже 0, но пиковая память выполнения от этого не становится O(1).',
+        ],
+      },
+      fibonacci: {
+        title: 'Наивный Фибоначчи: повторная работа',
+        formula: 'T(n) = T(n − 1) + T(n − 2) + Θ(1) ⇒ Θ(φⁿ)',
+        paragraphs: [
+          'Разные ветви снова вызывают метод с одинаковым n. Цвета одинаковых аргументов в дереве помогают увидеть повторения. Своя работа одного вызова постоянна, но количество вызовов растёт экспоненциально.',
+          'Здесь φ = (1 + √5) / 2 ≈ 1,618. O(2ⁿ) — допустимая верхняя оценка; более точный порядок роста — Θ(φⁿ). Число вызовов удовлетворяет C(0) = C(1) = 1 и C(n) = 1 + C(n − 1) + C(n − 2).',
+          'Левая ветвь завершается до запуска правой. Поэтому в стеке одновременно хранится одна цепочка предков глубины Θ(n), а не всё экспоненциальное дерево. Время экспоненциальное, память стека линейная.',
+        ],
+      },
+      memoized: {
+        title: 'Мемоизация: вычислить и сохранить',
+        formula: 'Θ(n) работы + Θ(n) выделения кэша ⇒ Θ(n)',
+        paragraphs: [
+          'В показанном методе каждый результат для n ≥ 2 вычисляется и сохраняется один раз. Следующий вызов с тем же аргументом читает memo[n] за O(1) и не создаёт детей. Базовые случаи возвращаются сразу, без сохранения.',
+          'При n ≥ 2 создаётся 2n − 1 вызовов, включая попадания в кэш. Это по-прежнему Θ(n). Кэш Long[n + 1] создаётся один раз; выделение и начальное заполнение null также требуют Θ(n).',
+          'Первая левая цепочка остаётся глубины Θ(n). Стек Θ(n) и один общий кэш Θ(n) складываются: Θ(n) + Θ(n) = Θ(n), а не Θ(n²). Число занятых ячеек кэша отличается от его выделенной длины n + 1.',
+        ],
+      },
+      dfs: {
+        title: 'DFS: считаем вершины и записи соседей',
+        formula: 'Σᵥ Θ(1 + degree(v)) = Θ(V + 2E) = Θ(V + E)',
+        paragraphs: [
+          'Один вызов dfs(v) делает Θ(1 + degree(v)) собственной работы без учёта детей. Каждая вершина помечается до рекурсивных переходов и получает только один вызов. Каждый элемент её списка соседей читается один раз, даже если сосед уже посещён.',
+          'При полном обходе рассматриваются все V вершин. В неориентированном графе каждое ребро хранится в двух списках: суммарно A = 2E записей соседей. Внешний цикл и создание visited добавляют Θ(V), поэтому время остаётся Θ(V + E).',
+          'Один dfs(start) обходит только R достижимых вершин и их Aᵣ записей соседей: ядро DFS работает за Θ(R + Aᵣ), если visited уже подготовлен. Но показанный traverse каждый раз создаёт boolean[V], поэтому его время в этом режиме — Θ(V + R + Aᵣ). Даже изолированная стартовая вершина не отменяет выделение массива на весь граф.',
+          'Глубина рекурсии не больше R, но visited содержит V ячеек. PRE и POST содержат по R записей. Вместе это O(V) дополнительной памяти; входные списки смежности занимают Θ(V + E) отдельно и в эту оценку не включены.',
+        ],
+      },
+    },
+    dfsInput:
+      'Этот граф: V = {vertices}, записей соседей A = {adjacency}. Для неориентированного графа A = 2E.',
+    dfsFull:
+      'За весь выбранный запуск: {reached} посещённых вершин, {scanned} прочитанных записей соседей, {outer} вершин во внешнем цикле и {slots} выделенных ячеек visited.',
+    dfsPartial:
+      'За весь выбранный запуск: R = {reached}, Aᵣ = {scanned}, хотя во входе V = {vertices}. Внешний цикл не запущен; visited всё равно занимает {slots} ячеек.',
+    growthTitle: 'Как меняется число вызовов при росте n',
+    growthInput: 'n для расчёта роста',
+    growthCalls: 'Всего вызовов',
+    growthStack: 'Пик кадров',
+    growthCache: 'Ячеек кэша',
+    growthNote:
+      'Таблица вычисляется по рекуррентностям и структуре методов, без запуска больших рекурсивных деревьев и без измерения секунд. Этот n меняет только таблицу; выбранный шаг визуализации сохраняется.',
+    fibExample:
+      'Для n = 6: наивный вариант создаёт {naive} вызовов, вариант с мемоизацией — {memoized}; пиковая глубина обоих — {peak}.',
     historyTitle: 'Память алгоритма и память учебной визуализации',
-    history: 'Java-метод не хранит рисунок всех вызовов и копии каждого шага. Интерфейс сохраняет их для перемотки, поэтому память истории и отрисовки оценивается отдельно. Большое дерево на экране не означает, что все его кадры одновременно живут в стеке Java.',
+    history:
+      'Java-метод не хранит рисунок всех вызовов и копии каждого шага. Интерфейс сохраняет их для перемотки, поэтому память истории и отрисовки оценивается отдельно. Большое дерево на экране не означает, что все его кадры одновременно живут в стеке Java.',
   },
   en: {
     title: 'Recursion: time and space',
-    bounds: { factorial: 'Time Θ(n) · space Θ(n)', fibonacci: 'Time Θ(φⁿ) · space Θ(n)', memoized: 'Time Θ(n) · space Θ(n)', comparison: 'Fibonacci: Θ(φⁿ) → Θ(n)', dfs: 'Full traversal: Θ(V + E) · space O(V)', partialDfs: 'traverse: Θ(V + R + Aᵣ) · space O(V)' },
-    names: { factorial: 'Factorial', fibonacci: 'Naive Fibonacci', memoized: 'Memoised Fibonacci', dfs: 'Recursive DFS' },
-    live: 'Counters for the selected execution', progress: 'Teaching step {step} of {total}',
-    metricLabels: { calls: 'Calls created', active: 'Frames now', peak: 'Peak frames so far', repeated: 'Repeated calls with the same argument', cacheEntries: 'Cache entries filled', cacheSlots: 'Total memo slots', cacheHits: 'Cache hits', reached: 'Vertices marked', neighborChecks: 'Neighbour entries read', outerChecks: 'Vertices considered by the outer loop', visitedSlots: 'Visited slots allocated', resultEntries: 'PRE + POST entries' },
-    counterNote: 'These count calls, frames and structure entries, not milliseconds or bytes. One teaching step is not one Java operation. The stack is empty at the end, but its peak depth remains recorded.',
-    previousStep: 'Previous analysis step', nextStep: 'Next analysis step', finishRun: 'Jump to end of run',
+    bounds: {
+      factorial: 'Time Θ(n) · space Θ(n)',
+      fibonacci: 'Time Θ(φⁿ) · space Θ(n)',
+      memoized: 'Time Θ(n) · space Θ(n)',
+      comparison: 'Fibonacci: Θ(φⁿ) → Θ(n)',
+      dfs: 'Full traversal: Θ(V + E) · space O(V)',
+      partialDfs: 'traverse: Θ(V + R + Aᵣ) · space O(V)',
+    },
+    names: {
+      factorial: 'Factorial',
+      fibonacci: 'Naive Fibonacci',
+      memoized: 'Memoised Fibonacci',
+      dfs: 'Recursive DFS',
+    },
+    live: 'Counters for the selected execution',
+    progress: 'Teaching step {step} of {total}',
+    metricLabels: {
+      calls: 'Calls created',
+      active: 'Frames now',
+      peak: 'Peak frames so far',
+      repeated: 'Repeated calls with the same argument',
+      cacheEntries: 'Cache entries filled',
+      cacheSlots: 'Total memo slots',
+      cacheHits: 'Cache hits',
+      reached: 'Vertices marked',
+      neighborChecks: 'Neighbour entries read',
+      outerChecks: 'Vertices considered by the outer loop',
+      visitedSlots: 'Visited slots allocated',
+      resultEntries: 'PRE + POST entries',
+    },
+    counterNote:
+      'These count calls, frames and structure entries, not milliseconds or bytes. One teaching step is not one Java operation. The stack is empty at the end, but its peak depth remains recorded.',
+    previousStep: 'Previous analysis step',
+    nextStep: 'Next analysis step',
+    finishRun: 'Jump to end of run',
     methodTitle: 'How to obtain a bound',
     method: [
-      ['Work in one call', 'First count its own work, excluding the execution of nested calls. For factorial this is a check, a call and multiplication; DFS also scans neighbours.'],
-      ['Total work', 'Then account for all calls and repeated subproblems. The depth of a tree alone does not tell you the total work.'],
-      ['Memory at one time', 'For the stack, use the maximum number of simultaneously live frames. Add the cache, visited and results separately. A shared structure is not copied in full into every frame.'],
+      [
+        'Work in one call',
+        'First count its own work, excluding the execution of nested calls. For factorial this is a check, a call and multiplication; DFS also scans neighbours.',
+      ],
+      [
+        'Total work',
+        'Then account for all calls and repeated subproblems. The depth of a tree alone does not tell you the total work.',
+      ],
+      [
+        'Memory at one time',
+        'For the stack, use the maximum number of simultaneously live frames. Add the cache, visited and results separately. A shared structure is not copied in full into every frame.',
+      ],
     ],
-    model: 'Here, comparisons, long arithmetic and array indexing cost O(1); ArrayList append is amortised O(1). Θ gives a growth rate up to constant factors; O gives an upper bound. This is not an exact count of machine instructions.',
-    tableTitle: 'Comparing the bounds', algorithm: 'Algorithm', time: 'Time', memory: 'Additional space',
-    memoryRows: { factorial: 'Θ(n), stack', fibonacci: 'Θ(n), stack', memoized: 'Θ(n), stack and one cache', dfs: 'O(V), stack, visited and PRE/POST' },
-    tableNote: 'The DFS row describes a full traversal with adjacency lists. V is the vertex count and E the edge count. Space includes result lists, but excludes the input graph. Bounds describe growing inputs; n = 0 or 1 uses constant time and one frame.',
-    chapters: {
-      factorial: { title: 'Factorial: one chain of calls', formula: 'T(n) = T(n − 1) + Θ(1) ⇒ Θ(n)', paragraphs: [
-        'For n ≥ 1, the chain n → n − 1 → … → 1 contains n calls. Each performs constant work apart from nested recursion. The sum of that work is linear.',
-        'Before the first return, all n frames are on the stack at once. Each holds a constant number of variables: Θ(n) space. There are 0 frames at the end, but that does not turn peak execution space into O(1).',
-      ] },
-      fibonacci: { title: 'Naive Fibonacci: repeated work', formula: 'T(n) = T(n − 1) + T(n − 2) + Θ(1) ⇒ Θ(φⁿ)', paragraphs: [
-        'Different branches call the method again with the same n. Matching argument colours in the tree reveal repetitions. Each call does constant work of its own, but the call count grows exponentially.',
-        'Here φ = (1 + √5) / 2 ≈ 1.618. O(2ⁿ) is a valid upper bound; the tighter growth rate is Θ(φⁿ). The call count satisfies C(0) = C(1) = 1 and C(n) = 1 + C(n − 1) + C(n − 2).',
-        'The left branch finishes before the right branch starts. Only one ancestor chain of depth Θ(n) is on the stack, not the entire exponential tree. Time is exponential, while stack space is linear.',
-      ] },
-      memoized: { title: 'Memoisation: compute and save', formula: 'Θ(n) work + Θ(n) cache allocation ⇒ Θ(n)', paragraphs: [
-        'In the shown method, each result for n ≥ 2 is computed and stored once. A later call with that argument reads memo[n] in O(1), without children. Base cases return directly and are not cached.',
-        'For n ≥ 2 there are 2n − 1 calls, including cache hits. This is still Θ(n). The Long[n + 1] cache is created once; allocation and initial null values also take Θ(n).',
-        'The first left chain still has depth Θ(n). The Θ(n) stack and one shared Θ(n) cache add up: Θ(n) + Θ(n) = Θ(n), not Θ(n²). Filled cache entries are different from its allocated length n + 1.',
-      ] },
-      dfs: { title: 'DFS: count vertices and neighbour entries', formula: 'Σᵥ Θ(1 + degree(v)) = Θ(V + 2E) = Θ(V + E)', paragraphs: [
-        'One dfs(v) call does Θ(1 + degree(v)) work of its own, excluding children. Each vertex is marked before descending and receives only one call. Every entry in its adjacency list is read once, even if the neighbour is already visited.',
-        'A full traversal considers all V vertices. In an undirected graph, each edge is stored twice: A = 2E neighbour entries altogether. The outer loop and visited allocation add Θ(V), so time remains Θ(V + E).',
-        'One dfs(start) visits only R reachable vertices and their Aᵣ neighbour entries: its core work is Θ(R + Aᵣ) if visited is ready. But the shown traverse creates boolean[V] each time, so its time in this mode is Θ(V + R + Aᵣ). Even an isolated start does not avoid allocating the whole visited array.',
-        'Recursion depth is at most R, but visited has V slots. PRE and POST hold R entries each. Together this is O(V) additional space; the input adjacency lists take Θ(V + E) separately and are excluded from that bound.',
-      ] },
+    model:
+      'Here, comparisons, long arithmetic and array indexing cost O(1); ArrayList append is amortised O(1). Θ gives a growth rate up to constant factors; O gives an upper bound. This is not an exact count of machine instructions.',
+    tableTitle: 'Comparing the bounds',
+    algorithm: 'Algorithm',
+    time: 'Time',
+    memory: 'Additional space',
+    memoryRows: {
+      factorial: 'Θ(n), stack',
+      fibonacci: 'Θ(n), stack',
+      memoized: 'Θ(n), stack and one cache',
+      dfs: 'O(V), stack, visited and PRE/POST',
     },
-    dfsInput: 'This graph: V = {vertices}, neighbour entries A = {adjacency}. For an undirected graph, A = 2E.',
-    dfsFull: 'Over the selected complete run: {reached} vertices visited, {scanned} neighbour entries read, {outer} vertices considered by the outer loop, and {slots} visited slots allocated.',
-    dfsPartial: 'Over the selected complete run: R = {reached}, Aᵣ = {scanned}, although the input has V = {vertices}. The outer loop is not run; visited still has {slots} slots.',
-    growthTitle: 'How call counts grow with n', growthInput: 'n for the growth calculation', growthCalls: 'Total calls', growthStack: 'Peak frames', growthCache: 'Cache slots',
-    growthNote: 'The table is calculated from recurrences and method structure, without running large recursion trees or timing seconds. This n changes only the table; the selected visualisation step stays unchanged.',
-    fibExample: 'At n = 6: naive Fibonacci creates {naive} calls and memoisation creates {memoized}; both have peak depth {peak}.',
+    tableNote:
+      'The DFS row describes a full traversal with adjacency lists. V is the vertex count and E the edge count. Space includes result lists, but excludes the input graph. Bounds describe growing inputs; n = 0 or 1 uses constant time and one frame.',
+    chapters: {
+      factorial: {
+        title: 'Factorial: one chain of calls',
+        formula: 'T(n) = T(n − 1) + Θ(1) ⇒ Θ(n)',
+        paragraphs: [
+          'For n ≥ 1, the chain n → n − 1 → … → 1 contains n calls. Each performs constant work apart from nested recursion. The sum of that work is linear.',
+          'Before the first return, all n frames are on the stack at once. Each holds a constant number of variables: Θ(n) space. There are 0 frames at the end, but that does not turn peak execution space into O(1).',
+        ],
+      },
+      fibonacci: {
+        title: 'Naive Fibonacci: repeated work',
+        formula: 'T(n) = T(n − 1) + T(n − 2) + Θ(1) ⇒ Θ(φⁿ)',
+        paragraphs: [
+          'Different branches call the method again with the same n. Matching argument colours in the tree reveal repetitions. Each call does constant work of its own, but the call count grows exponentially.',
+          'Here φ = (1 + √5) / 2 ≈ 1.618. O(2ⁿ) is a valid upper bound; the tighter growth rate is Θ(φⁿ). The call count satisfies C(0) = C(1) = 1 and C(n) = 1 + C(n − 1) + C(n − 2).',
+          'The left branch finishes before the right branch starts. Only one ancestor chain of depth Θ(n) is on the stack, not the entire exponential tree. Time is exponential, while stack space is linear.',
+        ],
+      },
+      memoized: {
+        title: 'Memoisation: compute and save',
+        formula: 'Θ(n) work + Θ(n) cache allocation ⇒ Θ(n)',
+        paragraphs: [
+          'In the shown method, each result for n ≥ 2 is computed and stored once. A later call with that argument reads memo[n] in O(1), without children. Base cases return directly and are not cached.',
+          'For n ≥ 2 there are 2n − 1 calls, including cache hits. This is still Θ(n). The Long[n + 1] cache is created once; allocation and initial null values also take Θ(n).',
+          'The first left chain still has depth Θ(n). The Θ(n) stack and one shared Θ(n) cache add up: Θ(n) + Θ(n) = Θ(n), not Θ(n²). Filled cache entries are different from its allocated length n + 1.',
+        ],
+      },
+      dfs: {
+        title: 'DFS: count vertices and neighbour entries',
+        formula: 'Σᵥ Θ(1 + degree(v)) = Θ(V + 2E) = Θ(V + E)',
+        paragraphs: [
+          'One dfs(v) call does Θ(1 + degree(v)) work of its own, excluding children. Each vertex is marked before descending and receives only one call. Every entry in its adjacency list is read once, even if the neighbour is already visited.',
+          'A full traversal considers all V vertices. In an undirected graph, each edge is stored twice: A = 2E neighbour entries altogether. The outer loop and visited allocation add Θ(V), so time remains Θ(V + E).',
+          'One dfs(start) visits only R reachable vertices and their Aᵣ neighbour entries: its core work is Θ(R + Aᵣ) if visited is ready. But the shown traverse creates boolean[V] each time, so its time in this mode is Θ(V + R + Aᵣ). Even an isolated start does not avoid allocating the whole visited array.',
+          'Recursion depth is at most R, but visited has V slots. PRE and POST hold R entries each. Together this is O(V) additional space; the input adjacency lists take Θ(V + E) separately and are excluded from that bound.',
+        ],
+      },
+    },
+    dfsInput:
+      'This graph: V = {vertices}, neighbour entries A = {adjacency}. For an undirected graph, A = 2E.',
+    dfsFull:
+      'Over the selected complete run: {reached} vertices visited, {scanned} neighbour entries read, {outer} vertices considered by the outer loop, and {slots} visited slots allocated.',
+    dfsPartial:
+      'Over the selected complete run: R = {reached}, Aᵣ = {scanned}, although the input has V = {vertices}. The outer loop is not run; visited still has {slots} slots.',
+    growthTitle: 'How call counts grow with n',
+    growthInput: 'n for the growth calculation',
+    growthCalls: 'Total calls',
+    growthStack: 'Peak frames',
+    growthCache: 'Cache slots',
+    growthNote:
+      'The table is calculated from recurrences and method structure, without running large recursion trees or timing seconds. This n changes only the table; the selected visualisation step stays unchanged.',
+    fibExample:
+      'At n = 6: naive Fibonacci creates {naive} calls and memoisation creates {memoized}; both have peak depth {peak}.',
     historyTitle: 'Algorithm memory and teaching visualisation memory',
-    history: 'The Java method does not store a drawing of every call or copies of every step. The interface keeps these for rewinding, so history and rendering memory are assessed separately. A large tree on screen does not mean all its frames are live on the Java stack at once.',
+    history:
+      'The Java method does not store a drawing of every call or copies of every step. The interface keeps these for rewinding, so history and rendering memory are assessed separately. A large tree on screen does not mean all its frames are live on the Java stack at once.',
   },
   fi: {
     title: 'Rekursio: aika ja muisti',
-    bounds: { factorial: 'Aika Θ(n) · muisti Θ(n)', fibonacci: 'Aika Θ(φⁿ) · muisti Θ(n)', memoized: 'Aika Θ(n) · muisti Θ(n)', comparison: 'Fibonacci: Θ(φⁿ) → Θ(n)', dfs: 'Koko läpikäynti: Θ(V + E) · muisti O(V)', partialDfs: 'traverse: Θ(V + R + Aᵣ) · muisti O(V)' },
-    names: { factorial: 'Kertoma', fibonacci: 'Naiivi Fibonacci', memoized: 'Muistava Fibonacci', dfs: 'Rekursiivinen DFS' },
-    live: 'Valitun suorituksen laskurit', progress: 'Opetusvaihe {step}/{total}',
-    metricLabels: { calls: 'Luodut kutsut', active: 'Kehyksiä nyt', peak: 'Eniten kehyksiä tähän asti', repeated: 'Toistuvat kutsut samalla argumentilla', cacheEntries: 'Täytetyt välimuistipaikat', cacheSlots: 'Memo-paikkoja yhteensä', cacheHits: 'Välimuistiosumat', reached: 'Merkityt solmut', neighborChecks: 'Luetut naapurimerkinnät', outerChecks: 'Ulomman silmukan tutkimat solmut', visitedSlots: 'Varatut visited-paikat', resultEntries: 'PRE + POST -merkinnät' },
-    counterNote: 'Laskurit mittaavat kutsuja, kehyksiä ja rakenteiden alkioita, eivät millisekunteja tai tavuja. Yksi opetusvaihe ei ole yksi Java-operaatio. Lopussa pino on tyhjä, mutta sen suurin syvyys säilyy laskurissa.',
-    previousStep: 'Edellinen analyysivaihe', nextStep: 'Seuraava analyysivaihe', finishRun: 'Suorituksen loppuun',
+    bounds: {
+      factorial: 'Aika Θ(n) · muisti Θ(n)',
+      fibonacci: 'Aika Θ(φⁿ) · muisti Θ(n)',
+      memoized: 'Aika Θ(n) · muisti Θ(n)',
+      comparison: 'Fibonacci: Θ(φⁿ) → Θ(n)',
+      dfs: 'Koko läpikäynti: Θ(V + E) · muisti O(V)',
+      partialDfs: 'traverse: Θ(V + R + Aᵣ) · muisti O(V)',
+    },
+    names: {
+      factorial: 'Kertoma',
+      fibonacci: 'Naiivi Fibonacci',
+      memoized: 'Muistava Fibonacci',
+      dfs: 'Rekursiivinen DFS',
+    },
+    live: 'Valitun suorituksen laskurit',
+    progress: 'Opetusvaihe {step}/{total}',
+    metricLabels: {
+      calls: 'Luodut kutsut',
+      active: 'Kehyksiä nyt',
+      peak: 'Eniten kehyksiä tähän asti',
+      repeated: 'Toistuvat kutsut samalla argumentilla',
+      cacheEntries: 'Täytetyt välimuistipaikat',
+      cacheSlots: 'Memo-paikkoja yhteensä',
+      cacheHits: 'Välimuistiosumat',
+      reached: 'Merkityt solmut',
+      neighborChecks: 'Luetut naapurimerkinnät',
+      outerChecks: 'Ulomman silmukan tutkimat solmut',
+      visitedSlots: 'Varatut visited-paikat',
+      resultEntries: 'PRE + POST -merkinnät',
+    },
+    counterNote:
+      'Laskurit mittaavat kutsuja, kehyksiä ja rakenteiden alkioita, eivät millisekunteja tai tavuja. Yksi opetusvaihe ei ole yksi Java-operaatio. Lopussa pino on tyhjä, mutta sen suurin syvyys säilyy laskurissa.',
+    previousStep: 'Edellinen analyysivaihe',
+    nextStep: 'Seuraava analyysivaihe',
+    finishRun: 'Suorituksen loppuun',
     methodTitle: 'Miten arvio muodostetaan',
     method: [
-      ['Yhden kutsun työ', 'Laske ensin sen oma työ ilman sisempien kutsujen suoritusta. Kertomassa siihen kuuluvat tarkistus, kutsu ja kertolasku; DFS myös käy naapureita läpi.'],
-      ['Työ yhteensä', 'Huomioi sitten kaikki kutsut ja toistuvat osaongelmat. Pelkkä puun syvyys ei kerro työn kokonaismäärää.'],
-      ['Muisti samalla hetkellä', 'Pinolle tarvitaan samanaikaisesti elävien kehysten enimmäismäärä. Lisää välimuisti, visited ja tulokset erikseen. Yhteistä rakennetta ei kopioida kokonaan joka kehykseen.'],
+      [
+        'Yhden kutsun työ',
+        'Laske ensin sen oma työ ilman sisempien kutsujen suoritusta. Kertomassa siihen kuuluvat tarkistus, kutsu ja kertolasku; DFS myös käy naapureita läpi.',
+      ],
+      [
+        'Työ yhteensä',
+        'Huomioi sitten kaikki kutsut ja toistuvat osaongelmat. Pelkkä puun syvyys ei kerro työn kokonaismäärää.',
+      ],
+      [
+        'Muisti samalla hetkellä',
+        'Pinolle tarvitaan samanaikaisesti elävien kehysten enimmäismäärä. Lisää välimuisti, visited ja tulokset erikseen. Yhteistä rakennetta ei kopioida kokonaan joka kehykseen.',
+      ],
     ],
-    model: 'Tässä vertailu, long-laskutoimitukset ja taulukkoindeksointi vievät O(1); ArrayList-lisäys vie amortoidusti O(1). Θ kuvaa kasvuluokkaa vakiokertoimiin asti; O antaa ylärajan. Tämä ei ole tarkka konekäskyjen määrä.',
-    tableTitle: 'Arvioiden vertailu', algorithm: 'Algoritmi', time: 'Aika', memory: 'Lisämuisti',
-    memoryRows: { factorial: 'Θ(n), pino', fibonacci: 'Θ(n), pino', memoized: 'Θ(n), pino ja yksi välimuisti', dfs: 'O(V), pino, visited ja PRE/POST' },
-    tableNote: 'DFS-rivi kuvaa koko graafin läpikäyntiä vieruslistoilla. V on solmujen ja E kaarien määrä. Muisti sisältää tuloslistat mutta ei syötegraafia. Arviot kuvaavat kasvavaa syötettä; n = 0 tai 1 vie vakioajan ja yhden kehyksen.',
-    chapters: {
-      factorial: { title: 'Kertoma: yksi kutsuketju', formula: 'T(n) = T(n − 1) + Θ(1) ⇒ Θ(n)', paragraphs: [
-        'Kun n ≥ 1, ketjussa n → n − 1 → … → 1 on n kutsua. Jokaisen oma työ ilman sisempää rekursiota on vakio. Työn summa on siis lineaarinen.',
-        'Ennen ensimmäistä paluuta kaikki n kehystä ovat pinossa yhtä aikaa. Jokaisessa on vakiomäärä muuttujia: muisti Θ(n). Lopussa kehyksiä on 0, mutta suorituksen muistihuippu ei siksi muutu O(1):ksi.',
-      ] },
-      fibonacci: { title: 'Naiivi Fibonacci: toistuva työ', formula: 'T(n) = T(n − 1) + T(n − 2) + Θ(1) ⇒ Θ(φⁿ)', paragraphs: [
-        'Eri haarat kutsuvat metodia uudelleen samalla n:llä. Samojen argumenttien värit näyttävät toistot puussa. Yhden kutsun oma työ on vakio, mutta kutsujen määrä kasvaa eksponentiaalisesti.',
-        'Tässä φ = (1 + √5) / 2 ≈ 1,618. O(2ⁿ) on kelvollinen yläraja; tarkempi kasvuluokka on Θ(φⁿ). Kutsumäärä toteuttaa C(0) = C(1) = 1 ja C(n) = 1 + C(n − 1) + C(n − 2).',
-        'Vasen haara valmistuu ennen oikean haaran alkamista. Pinossa on vain yksi esivanhempien ketju, jonka syvyys on Θ(n), ei koko eksponentiaalista puuta. Aika on eksponentiaalinen, pinomuisti lineaarinen.',
-      ] },
-      memoized: { title: 'Välitulokset muistiin: laske ja tallenna', formula: 'Θ(n) työ + Θ(n) välimuistin varaus ⇒ Θ(n)', paragraphs: [
-        'Näytetyssä metodissa jokainen tulos, jossa n ≥ 2, lasketaan ja tallennetaan kerran. Myöhempi kutsu samalla argumentilla lukee memo[n]:n ajassa O(1) ilman lapsikutsuja. Perustapaukset palautuvat suoraan eikä niitä tallenneta.',
-        'Kun n ≥ 2, kutsuja on 2n − 1 välimuistiosumat mukaan lukien. Tämä on yhä Θ(n). Long[n + 1] varataan kerran; varaus ja alkuarvot null vaativat myös Θ(n) ajan.',
-        'Ensimmäisen vasemman ketjun syvyys on yhä Θ(n). Pino Θ(n) ja yksi yhteinen välimuisti Θ(n) lasketaan yhteen: Θ(n) + Θ(n) = Θ(n), ei Θ(n²). Täytettyjen paikkojen määrä eroaa varatusta pituudesta n + 1.',
-      ] },
-      dfs: { title: 'DFS: laske solmut ja naapurimerkinnät', formula: 'Σᵥ Θ(1 + degree(v)) = Θ(V + 2E) = Θ(V + E)', paragraphs: [
-        'Yksi dfs(v) tekee omaa työtä Θ(1 + degree(v)) ilman lapsikutsuja. Solmu merkitään ennen rekursiota ja se saa vain yhden kutsun. Jokainen vieruslistan alkio luetaan kerran, vaikka naapuri olisi jo käyty.',
-        'Koko läpikäynti tutkii kaikki V solmua. Suuntaamattomassa graafissa jokainen kaari on kahdessa listassa: yhteensä A = 2E naapurimerkintää. Ulompi silmukka ja visited-varaus lisäävät Θ(V), joten aika on edelleen Θ(V + E).',
-        'Yksi dfs(start) käy vain R saavutettavaa solmua ja niiden Aᵣ naapurimerkintää: ydintyö on Θ(R + Aᵣ), jos visited on jo valmisteltu. Näytetty traverse luo kuitenkin joka kerta boolean[V]:n, joten sen aika tässä tilassa on Θ(V + R + Aᵣ). Myös eristetty aloitussolmu vaatii koko visited-taulukon varaamisen.',
-        'Rekursiosyvyys on enintään R, mutta visited sisältää V paikkaa. PRE ja POST sisältävät kumpikin R merkintää. Yhteensä lisämuisti on O(V); syötteen vieruslistat vievät erikseen Θ(V + E), eikä niitä lasketa tähän arvioon.',
-      ] },
+    model:
+      'Tässä vertailu, long-laskutoimitukset ja taulukkoindeksointi vievät O(1); ArrayList-lisäys vie amortoidusti O(1). Θ kuvaa kasvuluokkaa vakiokertoimiin asti; O antaa ylärajan. Tämä ei ole tarkka konekäskyjen määrä.',
+    tableTitle: 'Arvioiden vertailu',
+    algorithm: 'Algoritmi',
+    time: 'Aika',
+    memory: 'Lisämuisti',
+    memoryRows: {
+      factorial: 'Θ(n), pino',
+      fibonacci: 'Θ(n), pino',
+      memoized: 'Θ(n), pino ja yksi välimuisti',
+      dfs: 'O(V), pino, visited ja PRE/POST',
     },
-    dfsInput: 'Tämä graafi: V = {vertices}, naapurimerkintöjä A = {adjacency}. Suuntaamattomassa graafissa A = 2E.',
-    dfsFull: 'Valittu koko suoritus: {reached} käytyä solmua, {scanned} luettua naapurimerkintää, {outer} ulomman silmukan tutkimaa solmua ja {slots} varattua visited-paikkaa.',
-    dfsPartial: 'Valittu koko suoritus: R = {reached}, Aᵣ = {scanned}, vaikka syötteessä V = {vertices}. Ulompaa silmukkaa ei suoriteta; visited sisältää silti {slots} paikkaa.',
-    growthTitle: 'Miten kutsumäärä kasvaa n:n mukana', growthInput: 'n kasvun laskentaan', growthCalls: 'Kutsuja yhteensä', growthStack: 'Kehyshuippu', growthCache: 'Välimuistipaikat',
-    growthNote: 'Taulukko lasketaan rekurrensseista ja metodien rakenteesta ilman suurten kutsupuiden suorittamista tai sekuntien mittaamista. Tämä n muuttaa vain taulukkoa; visualisoinnin valittu vaihe säilyy.',
-    fibExample: 'Kun n = 6: naiivi Fibonacci luo {naive} kutsua ja muistava versio {memoized}; kummankin suurin syvyys on {peak}.',
+    tableNote:
+      'DFS-rivi kuvaa koko graafin läpikäyntiä vieruslistoilla. V on solmujen ja E kaarien määrä. Muisti sisältää tuloslistat mutta ei syötegraafia. Arviot kuvaavat kasvavaa syötettä; n = 0 tai 1 vie vakioajan ja yhden kehyksen.',
+    chapters: {
+      factorial: {
+        title: 'Kertoma: yksi kutsuketju',
+        formula: 'T(n) = T(n − 1) + Θ(1) ⇒ Θ(n)',
+        paragraphs: [
+          'Kun n ≥ 1, ketjussa n → n − 1 → … → 1 on n kutsua. Jokaisen oma työ ilman sisempää rekursiota on vakio. Työn summa on siis lineaarinen.',
+          'Ennen ensimmäistä paluuta kaikki n kehystä ovat pinossa yhtä aikaa. Jokaisessa on vakiomäärä muuttujia: muisti Θ(n). Lopussa kehyksiä on 0, mutta suorituksen muistihuippu ei siksi muutu O(1):ksi.',
+        ],
+      },
+      fibonacci: {
+        title: 'Naiivi Fibonacci: toistuva työ',
+        formula: 'T(n) = T(n − 1) + T(n − 2) + Θ(1) ⇒ Θ(φⁿ)',
+        paragraphs: [
+          'Eri haarat kutsuvat metodia uudelleen samalla n:llä. Samojen argumenttien värit näyttävät toistot puussa. Yhden kutsun oma työ on vakio, mutta kutsujen määrä kasvaa eksponentiaalisesti.',
+          'Tässä φ = (1 + √5) / 2 ≈ 1,618. O(2ⁿ) on kelvollinen yläraja; tarkempi kasvuluokka on Θ(φⁿ). Kutsumäärä toteuttaa C(0) = C(1) = 1 ja C(n) = 1 + C(n − 1) + C(n − 2).',
+          'Vasen haara valmistuu ennen oikean haaran alkamista. Pinossa on vain yksi esivanhempien ketju, jonka syvyys on Θ(n), ei koko eksponentiaalista puuta. Aika on eksponentiaalinen, pinomuisti lineaarinen.',
+        ],
+      },
+      memoized: {
+        title: 'Välitulokset muistiin: laske ja tallenna',
+        formula: 'Θ(n) työ + Θ(n) välimuistin varaus ⇒ Θ(n)',
+        paragraphs: [
+          'Näytetyssä metodissa jokainen tulos, jossa n ≥ 2, lasketaan ja tallennetaan kerran. Myöhempi kutsu samalla argumentilla lukee memo[n]:n ajassa O(1) ilman lapsikutsuja. Perustapaukset palautuvat suoraan eikä niitä tallenneta.',
+          'Kun n ≥ 2, kutsuja on 2n − 1 välimuistiosumat mukaan lukien. Tämä on yhä Θ(n). Long[n + 1] varataan kerran; varaus ja alkuarvot null vaativat myös Θ(n) ajan.',
+          'Ensimmäisen vasemman ketjun syvyys on yhä Θ(n). Pino Θ(n) ja yksi yhteinen välimuisti Θ(n) lasketaan yhteen: Θ(n) + Θ(n) = Θ(n), ei Θ(n²). Täytettyjen paikkojen määrä eroaa varatusta pituudesta n + 1.',
+        ],
+      },
+      dfs: {
+        title: 'DFS: laske solmut ja naapurimerkinnät',
+        formula: 'Σᵥ Θ(1 + degree(v)) = Θ(V + 2E) = Θ(V + E)',
+        paragraphs: [
+          'Yksi dfs(v) tekee omaa työtä Θ(1 + degree(v)) ilman lapsikutsuja. Solmu merkitään ennen rekursiota ja se saa vain yhden kutsun. Jokainen vieruslistan alkio luetaan kerran, vaikka naapuri olisi jo käyty.',
+          'Koko läpikäynti tutkii kaikki V solmua. Suuntaamattomassa graafissa jokainen kaari on kahdessa listassa: yhteensä A = 2E naapurimerkintää. Ulompi silmukka ja visited-varaus lisäävät Θ(V), joten aika on edelleen Θ(V + E).',
+          'Yksi dfs(start) käy vain R saavutettavaa solmua ja niiden Aᵣ naapurimerkintää: ydintyö on Θ(R + Aᵣ), jos visited on jo valmisteltu. Näytetty traverse luo kuitenkin joka kerta boolean[V]:n, joten sen aika tässä tilassa on Θ(V + R + Aᵣ). Myös eristetty aloitussolmu vaatii koko visited-taulukon varaamisen.',
+          'Rekursiosyvyys on enintään R, mutta visited sisältää V paikkaa. PRE ja POST sisältävät kumpikin R merkintää. Yhteensä lisämuisti on O(V); syötteen vieruslistat vievät erikseen Θ(V + E), eikä niitä lasketa tähän arvioon.',
+        ],
+      },
+    },
+    dfsInput:
+      'Tämä graafi: V = {vertices}, naapurimerkintöjä A = {adjacency}. Suuntaamattomassa graafissa A = 2E.',
+    dfsFull:
+      'Valittu koko suoritus: {reached} käytyä solmua, {scanned} luettua naapurimerkintää, {outer} ulomman silmukan tutkimaa solmua ja {slots} varattua visited-paikkaa.',
+    dfsPartial:
+      'Valittu koko suoritus: R = {reached}, Aᵣ = {scanned}, vaikka syötteessä V = {vertices}. Ulompaa silmukkaa ei suoriteta; visited sisältää silti {slots} paikkaa.',
+    growthTitle: 'Miten kutsumäärä kasvaa n:n mukana',
+    growthInput: 'n kasvun laskentaan',
+    growthCalls: 'Kutsuja yhteensä',
+    growthStack: 'Kehyshuippu',
+    growthCache: 'Välimuistipaikat',
+    growthNote:
+      'Taulukko lasketaan rekurrensseista ja metodien rakenteesta ilman suurten kutsupuiden suorittamista tai sekuntien mittaamista. Tämä n muuttaa vain taulukkoa; visualisoinnin valittu vaihe säilyy.',
+    fibExample:
+      'Kun n = 6: naiivi Fibonacci luo {naive} kutsua ja muistava versio {memoized}; kummankin suurin syvyys on {peak}.',
     historyTitle: 'Algoritmin muisti ja opetusvisualisoinnin muisti',
-    history: 'Java-metodi ei säilytä kuvaa kaikista kutsuista eikä kopioita jokaisesta vaiheesta. Käyttöliittymä säilyttää ne taaksepäin selaamista varten, joten historian ja piirtämisen muisti arvioidaan erikseen. Suuri puu ruudulla ei tarkoita, että kaikki kehykset olisivat yhtä aikaa Java-pinossa.',
+    history:
+      'Java-metodi ei säilytä kuvaa kaikista kutsuista eikä kopioita jokaisesta vaiheesta. Käyttöliittymä säilyttää ne taaksepäin selaamista varten, joten historian ja piirtämisen muisti arvioidaan erikseen. Suuri puu ruudulla ei tarkoita, että kaikki kehykset olisivat yhtä aikaa Java-pinossa.',
   },
 }

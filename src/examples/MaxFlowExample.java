@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 
+/** Edmonds-Karp: repeatedly augment a shortest residual path found by BFS. */
 public class MaxFlowExample {
     public static long maxFlow(int[][] capacity, int source, int sink) {
         if (source == sink) throw new IllegalArgumentException("source equals sink");
@@ -33,11 +34,15 @@ public class MaxFlowExample {
                     queue.add(v);
                 }
             }
+            // No residual route remains, so no further augmentation is possible.
             if (parent[sink] == -1) break;
             long amount = Long.MAX_VALUE;
-            for (int v = sink; v != source; v = parent[v]) amount = Math.min(amount, residual[parent[v]][v]);
+            for (int v = sink; v != source; v = parent[v]) {
+                amount = Math.min(amount, residual[parent[v]][v]);
+            }
             for (int v = sink; v != source; v = parent[v]) {
                 residual[parent[v]][v] -= amount;
+                // Reverse capacity lets a later route undo an earlier allocation.
                 residual[v][parent[v]] += amount;
             }
             total += amount;

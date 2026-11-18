@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+/** Start a new DFS at every unseen vertex to label all undirected components. */
 public class ComponentsExample {
     // Input: an undirected graph with symmetric neighbor lists.
     public static List<List<Integer>> components(int[][] graph) {

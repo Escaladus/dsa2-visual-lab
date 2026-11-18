@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/** Two forward indices combine sorted inputs without repeatedly searching them. */
 public class SortedUnionExample {
     // Inputs: ascending lists of non-null integers. Duplicates are allowed.
     public static List<Integer> union(List<Integer> left, List<Integer> right) {

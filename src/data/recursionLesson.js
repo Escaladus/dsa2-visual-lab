@@ -4,7 +4,8 @@ import { createRecursionTrace } from '../utils/recursionAlgorithms.js'
 export const factorialLessonTrace = createRecursionTrace('factorial', 4)
 export const fibonacciLessonTrace = createRecursionTrace('fibonacci', 4)
 
-const find = (trace, key, n) => trace.findIndex(frame => frame.message.key === key && frame.message.values.n === n)
+const find = (trace, key, n) =>
+  trace.findIndex(frame => frame.message.key === key && frame.message.values.n === n)
 
 export const factorialWalkthrough = [
   { id: 'start', index: 0 },

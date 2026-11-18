@@ -1,27 +1,77 @@
 import { recursionExamples } from '../data/recursion.js'
 
+/** Simulate the displayed Java methods, recording calls, independent locals and returns.
+ * The tree stores every call; stack stores only currently active/waiting calls.
+ * Saved history is visualisation data, not the recursive algorithm's own space complexity.
+ */
 export function createRecursionTrace(kind, input, { memoized = false } = {}) {
-  if (!Object.hasOwn(recursionExamples, kind) || !Number.isInteger(input) || input < 0 || input > recursionExamples[kind].max) throw new Error('Invalid recursion example or input')
-  if (memoized && kind !== 'fibonacci') throw new Error('Memoisation is available for Fibonacci')
-  const frames = [], nodes = [], stack = []
+  if (
+    !Object.hasOwn(recursionExamples, kind) ||
+    !Number.isInteger(input) ||
+    input < 0 ||
+    input > recursionExamples[kind].max
+  ) {
+    throw new Error('Invalid recursion example or input')
+  }
+  if (memoized && kind !== 'fibonacci') {
+    throw new Error('Memoisation is available for Fibonacci')
+  }
+  const frames = []
+  const nodes = []
+  const stack = []
   const cache = {}
-  let result = null, returned = null, maxDepth = 0, cacheHits = 0
-  const snapshot = (key, values = {}, current = null, line = null) => frames.push({
-    nodes: nodes.map(node => ({ ...node, locals: { ...node.locals }, continuation: node.continuation ? { ...node.continuation } : null, returnTo: node.returnTo ? { ...node.returnTo } : null })), stack: [...stack], current, line,
-    message: { key, values }, result, returned: returned ? { ...returned } : null, maxDepth, cache: { ...cache }, cacheHits,
-  })
+  let result = null
+  let returned = null
+  let maxDepth = 0
+  let cacheHits = 0
+  // Deep-copy the mutable frame fields so later recursion never rewrites an earlier step.
+  const snapshot = (key, values = {}, current = null, line = null) =>
+    frames.push({
+      nodes: nodes.map(node => ({
+        ...node,
+        locals: { ...node.locals },
+        continuation: node.continuation ? { ...node.continuation } : null,
+        returnTo: node.returnTo ? { ...node.returnTo } : null,
+      })),
+      stack: [...stack],
+      current,
+      line,
+      message: { key, values },
+      result,
+      returned: returned ? { ...returned } : null,
+      maxDepth,
+      cache: { ...cache },
+      cacheHits,
+    })
   snapshot('ready', { fn: kind, n: input })
 
   function visit(n, parent = null) {
     const id = nodes.length
-    const node = { id, parent, n, status: 'active', result: null, locals: { n }, continuation: null,
-      returnTo: parent === null ? null : { id: parent, line: nodes[parent].continuation.line, target: nodes[parent].continuation.target } }
+    const node = {
+      id,
+      parent,
+      n,
+      status: 'active',
+      result: null,
+      locals: { n },
+      continuation: null,
+      returnTo:
+        parent === null
+          ? null
+          : {
+              id: parent,
+              line: nodes[parent].continuation.line,
+              target: nodes[parent].continuation.target,
+            },
+    }
     nodes.push(node)
     stack.push(id)
     maxDepth = Math.max(maxDepth, stack.length)
     snapshot('enter', { fn: kind, n, call: id + 1 }, id, 1)
     snapshot('testBase', { n }, id, 2)
-    if (memoized && n > 1) snapshot('checkCache', { n }, id, 3)
+    if (memoized && n > 1) {
+      snapshot('checkCache', { n }, id, 3)
+    }
     if (n <= 1) {
       node.result = kind === 'factorial' ? 1 : n
       node.status = 'returning'
@@ -49,6 +99,7 @@ export function createRecursionTrace(kind, input, { memoized = false } = {}) {
       node.locals.left = null
       node.continuation = { line: memoized ? 4 : 3, target: 'left', nextN: n - 1 }
       snapshot('waitLeft', { n, next: n - 1 }, id, memoized ? 4 : 3)
+      // Java evaluates the left call completely before starting the right call.
       node.locals.left = visit(n - 1, id)
       node.status = 'active'
       node.continuation = null
@@ -63,7 +114,12 @@ export function createRecursionTrace(kind, input, { memoized = false } = {}) {
       snapshot('receiveRight', { n, value: node.locals.right }, id, memoized ? 5 : 4)
       node.result = node.locals.left + node.locals.right
       node.status = 'returning'
-      snapshot('add', { left: node.locals.left, right: node.locals.right, value: node.result }, id, memoized ? 6 : 5)
+      snapshot(
+        'add',
+        { left: node.locals.left, right: node.locals.right, value: node.result },
+        id,
+        memoized ? 6 : 5,
+      )
       if (memoized) {
         cache[n] = node.result
         snapshot('storeCache', { n, value: node.result }, id, 7)
@@ -71,8 +127,19 @@ export function createRecursionTrace(kind, input, { memoized = false } = {}) {
     }
     stack.pop()
     node.status = 'done'
-    returned = { from: id, to: parent, value: node.result, line: node.returnTo?.line ?? null, target: node.returnTo?.target ?? null }
-    snapshot(parent === null ? 'returnRoot' : 'return', { fn: kind, n, value: node.result }, id, n <= 1 ? 2 : node.cached ? 3 : memoized ? 8 : kind === 'factorial' ? 4 : 5)
+    returned = {
+      from: id,
+      to: parent,
+      value: node.result,
+      line: node.returnTo?.line ?? null,
+      target: node.returnTo?.target ?? null,
+    }
+    snapshot(
+      parent === null ? 'returnRoot' : 'return',
+      { fn: kind, n, value: node.result },
+      id,
+      n <= 1 ? 2 : node.cached ? 3 : memoized ? 8 : kind === 'factorial' ? 4 : 5,
+    )
     return node.result
   }
 
@@ -82,70 +149,127 @@ export function createRecursionTrace(kind, input, { memoized = false } = {}) {
 }
 
 export function activeRecursionReturn(step) {
-  return ['return', 'returnRoot', 'receiveFactorial', 'receiveLeft', 'receiveRight'].includes(step.message.key) ? step.returned : null
+  return ['return', 'returnRoot', 'receiveFactorial', 'receiveLeft', 'receiveRight'].includes(
+    step.message.key,
+  )
+    ? step.returned
+    : null
 }
 
 export function recursionExpression(node, kind) {
-  if (node.n <= 1) return String(kind === 'factorial' ? 1 : node.n)
-  return kind === 'factorial' ? `${node.n} × ${node.locals.child ?? '?'}` : `${node.locals.left ?? '?'} + ${node.locals.right ?? '?'}`
+  if (node.n <= 1) {
+    return String(kind === 'factorial' ? 1 : node.n)
+  }
+  return kind === 'factorial'
+    ? `${node.n} × ${node.locals.child ?? '?'}`
+    : `${node.locals.left ?? '?'} + ${node.locals.right ?? '?'}`
 }
 
+/** Resolve which call runs now and where its caller will continue after a return. */
 export function getRecursionStepContext(frames, index) {
-  const step = frames[index], next = frames[index + 1]
+  const step = frames[index]
+  const next = frames[index + 1]
   const current = step.nodes[step.current] ?? null
   const transfer = activeRecursionReturn(step)
   let resume = null
-  if (transfer?.to != null) resume = { id: transfer.to, line: transfer.line, target: transfer.target }
-  else if (current?.continuation) resume = { id: current.id, ...current.continuation }
-  else if (current?.returnTo) resume = { ...current.returnTo }
-  return { current, top: step.nodes[step.stack.at(-1)] ?? null, resume,
-    nextAction: next?.message.key ?? 'finished' }
+  if (transfer?.to != null) {
+    resume = { id: transfer.to, line: transfer.line, target: transfer.target }
+  } else if (current?.continuation) {
+    resume = { id: current.id, ...current.continuation }
+  } else if (current?.returnTo) {
+    resume = { ...current.returnTo }
+  }
+  return {
+    current,
+    top: step.nodes[step.stack.at(-1)] ?? null,
+    resume,
+    nextAction: next?.message.key ?? 'finished',
+  }
 }
 
 // Ask before the event is revealed. Rewinding produces the same choices.
 export function createRecursionPrediction(frames, index) {
   const next = frames[index + 1]
-  if (!next) return null
+  if (!next) {
+    return null
+  }
   const { key, values } = next.message
   const call = key === 'enter' && next.nodes[next.current].parent !== null
   const stack = ['return', 'returnRoot'].includes(key)
   const resume = ['receiveFactorial', 'receiveLeft', 'receiveRight'].includes(key)
-  if (!call && !stack && !resume && !['base', 'multiply', 'add', 'cacheHit'].includes(key)) return null
+  if (!call && !stack && !resume && !['base', 'multiply', 'add', 'cacheHit'].includes(key)) {
+    return null
+  }
   const answer = call ? values.n : stack ? next.stack.length : resume ? next.line : values.value
-  const choices = [...new Set([answer, Math.max(0, answer - 1), answer + 1, answer + 2, answer + 3])].slice(0, 4)
+  const choices = [
+    ...new Set([answer, Math.max(0, answer - 1), answer + 1, answer + 2, answer + 3]),
+  ].slice(0, 4)
   const rotate = index % choices.length
   const fn = frames[0].message.values.fn
   const owner = resume ? next.nodes[next.current] : null
-  return { key: call ? 'nextCall' : stack ? 'nextStack' : resume ? 'resumeLine' : 'nextValue',
-    values: { ...values, fn, call: owner ? `${fn}(${owner.n}) #${owner.id + 1}` : values.call }, answer,
-    choices: [...choices.slice(rotate), ...choices.slice(0, rotate)], explanation: next.message,
-    reason: stack ? { key: 'stack', values: { before: frames[index].stack.length, after: next.stack.length } }
-      : resume ? { key: 'resume', values: { call: `${fn}(${owner.n}) #${owner.id + 1}`, line: next.line, target: next.returned.target } } : null }
+  return {
+    key: call ? 'nextCall' : stack ? 'nextStack' : resume ? 'resumeLine' : 'nextValue',
+    values: { ...values, fn, call: owner ? `${fn}(${owner.n}) #${owner.id + 1}` : values.call },
+    answer,
+    choices: [...choices.slice(rotate), ...choices.slice(0, rotate)],
+    explanation: next.message,
+    reason: stack
+      ? { key: 'stack', values: { before: frames[index].stack.length, after: next.stack.length } }
+      : resume
+        ? {
+            key: 'resume',
+            values: {
+              call: `${fn}(${owner.n}) #${owner.id + 1}`,
+              line: next.line,
+              target: next.returned.target,
+            },
+          }
+        : null,
+  }
 }
 
 export function answerRecursionPrediction(answers, index, question, selected) {
-  if (!question || Object.hasOwn(answers, index) || !question.choices.includes(selected)) return answers
+  if (!question || Object.hasOwn(answers, index) || !question.choices.includes(selected)) {
+    return answers
+  }
   return { ...answers, [index]: { selected, correct: selected === question.answer } }
 }
 
+/** Place leaves in separate columns and parents above their children; support multiple roots. */
 export function recursionTreeLayout(nodes) {
   const children = new Map(nodes.map(node => [node.id, []]))
-  for (const node of nodes) if (node.parent !== null) children.get(node.parent).push(node.id)
-  const positions = {}, depths = {}
+  for (const node of nodes) {
+    if (node.parent !== null) {
+      children.get(node.parent).push(node.id)
+    }
+  }
+  const positions = {}
+  const depths = {}
   let leaves = 0
   function place(id, depth) {
     depths[id] = depth
     const nested = children.get(id)
-    for (const child of nested) place(child, depth + 1)
-    positions[id] = { x: nested.length ? (positions[nested[0]].x + positions[nested.at(-1)].x) / 2 : 44 + 84 * leaves++, y: 45 + 112 * depth }
+    for (const child of nested) {
+      place(child, depth + 1)
+    }
+    positions[id] = {
+      x: nested.length
+        ? (positions[nested[0]].x + positions[nested.at(-1)].x) / 2
+        : 44 + 84 * leaves++,
+      y: 45 + 112 * depth,
+    }
   }
   const roots = nodes.filter(node => node.parent === null)
   roots.forEach((node, index) => {
-    if (index) leaves++
+    if (index) {
+      leaves++
+    }
     place(node.id, 0)
   })
   const width = Math.max(320, leaves * 84 + 4)
   const offset = (width - (leaves * 84 + 4)) / 2
-  for (const position of Object.values(positions)) position.x += offset
+  for (const position of Object.values(positions)) {
+    position.x += offset
+  }
   return { positions, width, height: 108 + 112 * Math.max(0, ...Object.values(depths)) }
 }

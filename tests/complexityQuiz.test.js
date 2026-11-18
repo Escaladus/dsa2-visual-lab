@@ -6,7 +6,11 @@ import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 import { complexityQuestions } from '../src/data/complexityQuiz.js'
 import { dictionaries, formatMessage } from '../src/i18n/index.js'
-import { complexityQuizReducer as reduce, initialQuizState, quizScore } from '../src/utils/complexityQuiz.js'
+import {
+  complexityQuizReducer as reduce,
+  initialQuizState,
+  quizScore,
+} from '../src/utils/complexityQuiz.js'
 
 function complete(selections) {
   let state = reduce(initialQuizState(), { type: 'START' })
@@ -34,8 +38,15 @@ test('the quiz has five distinct Java examples and complete translations', () =>
       assert.ok(translated.title && translated.assumptions && translated.explanation)
       assert.ok(translated.explanation.includes(question.choices[question.correctIndex]))
     }
-    for (const [key, params] of [['score', { score: 0, total: 5 }], ['question', { current: 1, total: 5 }], ['progress', { count: 0, total: 5 }]]) {
-      assert.doesNotMatch(formatMessage(dictionary.complexityQuiz[key], params), /\{\w+\}|undefined/)
+    for (const [key, params] of [
+      ['score', { score: 0, total: 5 }],
+      ['question', { current: 1, total: 5 }],
+      ['progress', { count: 0, total: 5 }],
+    ]) {
+      assert.doesNotMatch(
+        formatMessage(dictionary.complexityQuiz[key], params),
+        /\{\w+\}|undefined/,
+      )
     }
   }
 })
@@ -48,7 +59,9 @@ test('answers must be selected and checked before progressing; checked answers c
   assert.equal(state.phase, 'question')
   assert.equal(reduce(state, { type: 'CHECK' }), state)
   assert.equal(reduce(state, { type: 'NEXT' }), state)
-  for (const option of [-1, 4, NaN, 0.5, '1', null]) assert.equal(reduce(state, { type: 'SELECT', option }), state)
+  for (const option of [-1, 4, NaN, 0.5, '1', null]) {
+    assert.equal(reduce(state, { type: 'SELECT', option }), state)
+  }
   const before = state
   state = reduce(state, { type: 'SELECT', option: 0 })
   assert.equal(state.answers[0].selected, 0, 'The first radio option is a valid choice')
@@ -89,11 +102,16 @@ test('scores, final review and retries handle perfect, partial and zero results'
 
 const hasJava = spawnSync('java', ['-version']).status === 0
 
-test('the exact displayed Java methods compile and produce the iteration counts used in the explanations', { skip: hasJava ? false : 'JDK 17+ is required' }, () => {
-  const directory = mkdtempSync(join(tmpdir(), 'dsa2-quiz-'))
-  try {
-    const file = join(directory, 'QuizExamplesCheck.java')
-    writeFileSync(file, `public class QuizExamplesCheck {
+test(
+  'the exact displayed Java methods compile and produce the iteration counts used in the explanations',
+  { skip: hasJava ? false : 'JDK 17+ is required' },
+  () => {
+    const directory = mkdtempSync(join(tmpdir(), 'dsa2-quiz-'))
+    try {
+      const file = join(directory, 'QuizExamplesCheck.java')
+      writeFileSync(
+        file,
+        `public class QuizExamplesCheck {
 ${complexityQuestions.map(question => question.code).join('\n')}
 static void check(boolean value) { if (!value) throw new AssertionError(); }
 public static void main(String[] args) {
@@ -110,9 +128,16 @@ public static void main(String[] args) {
     check(sum(new int[]{}) == 0);
     System.out.println("Quiz examples verified");
 }}
-`)
-    const result = spawnSync('java', ['--source', '17', file], { encoding: 'utf8', timeout: 20000 })
-    assert.equal(result.status, 0, result.stderr)
-    assert.match(result.stdout, /Quiz examples verified/)
-  } finally { rmSync(directory, { recursive: true, force: true }) }
-})
+`,
+      )
+      const result = spawnSync('java', ['--source', '17', file], {
+        encoding: 'utf8',
+        timeout: 20000,
+      })
+      assert.equal(result.status, 0, result.stderr)
+      assert.match(result.stdout, /Quiz examples verified/)
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  },
+)

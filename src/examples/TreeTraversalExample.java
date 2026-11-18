@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/** The position of processing relative to recursion defines pre-, in- and postorder. */
 public class TreeTraversalExample {
     record Node(int value, Node left, Node right) {}
 

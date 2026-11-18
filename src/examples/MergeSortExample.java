@@ -1,5 +1,6 @@
 import java.util.Arrays;
 
+/** Sort the two halves recursively, then merge their sorted results. */
 public class MergeSortExample {
     public static void sort(int[] values) {
         sort(values, new int[values.length], 0, values.length);

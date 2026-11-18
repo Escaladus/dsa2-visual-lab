@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/** Depth-first search with entry and exit processing on an adjacency-list graph. */
 public class DfsExample {
     public record Result(List<Integer> pre, List<Integer> post) {}
 

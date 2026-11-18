@@ -2,6 +2,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+/** A map associates each distinct input value with its occurrence count. */
 public class MapFrequencyExample {
     public static Map<String, Integer> frequencies(Iterable<String> words) {
         Map<String, Integer> counts = new HashMap<>();

@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+/** DFS discovery times and low links identify articulation points and bridges. */
 public class GraphCutsExample {
     public record Result(List<Integer> articulation, List<String> bridges) {}
 
@@ -23,15 +24,20 @@ public class GraphCutsExample {
         discovery[v] = low[v] = ++clock[0];
         int children = 0;
         for (int next : graph[v]) {
+            // The reverse parent record is the same physical edge, not an alternate route.
             if (next == parent) continue;
             if (discovery[next] == 0) {
                 children++;
                 dfs(graph, next, v, discovery, low, clock, cut, bridges);
+                // A child can carry an escape route to an ancestor of v.
                 low[v] = Math.min(low[v], low[next]);
                 if (parent != -1 && low[next] >= discovery[v]) cut[v] = true;
                 if (low[next] > discovery[v]) bridges.add(Math.min(v, next) + "-" + Math.max(v, next));
-            } else low[v] = Math.min(low[v], discovery[next]);
+            } else {
+                low[v] = Math.min(low[v], discovery[next]);
+            }
         }
+        // The root has no parent to disconnect; its separate DFS children are the criterion.
         if (parent == -1 && children > 1) cut[v] = true;
     }
 

@@ -4,5 +4,11 @@ import StudentQuiz from './StudentQuiz.jsx'
 
 export default function ComplexityQuiz() {
   const { text } = useLanguage()
-  return <StudentQuiz questions={complexityQuestions} labels={text.complexityQuiz} id="complexity-quiz" />
+  return (
+    <StudentQuiz
+      questions={complexityQuestions}
+      labels={text.complexityQuiz}
+      id="complexity-quiz"
+    />
+  )
 }

@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 
+/** Contrast indexed list operations with deque operations at the two ends. */
 public class ListDequeExample {
     public static void main(String[] args) {
         List<Integer> values = new ArrayList<>(List.of(1, 2, 3, 4));

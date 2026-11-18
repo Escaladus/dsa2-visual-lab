@@ -10,8 +10,17 @@ export const graphNodes = {
 }
 
 export const graphEdges = [
-  ['A', 'B'], ['A', 'C'], ['B', 'D'], ['B', 'F'], ['C', 'D'],
-  ['C', 'E'], ['D', 'E'], ['D', 'G'], ['E', 'G'], ['F', 'G'], ['G', 'H'],
+  ['A', 'B'],
+  ['A', 'C'],
+  ['B', 'D'],
+  ['B', 'F'],
+  ['C', 'D'],
+  ['C', 'E'],
+  ['D', 'E'],
+  ['D', 'G'],
+  ['E', 'G'],
+  ['F', 'G'],
+  ['G', 'H'],
 ]
 
 export const adjacency = Object.keys(graphNodes).reduce((acc, key) => ({ ...acc, [key]: [] }), {})
@@ -19,7 +28,9 @@ for (const [a, b] of graphEdges) {
   adjacency[a].push(b)
   adjacency[b].push(a)
 }
-for (const key of Object.keys(adjacency)) adjacency[key].sort()
+for (const key of Object.keys(adjacency)) {
+  adjacency[key].sort()
+}
 
 export function createDfsSteps(start) {
   const steps = []
@@ -33,24 +44,40 @@ export function createDfsSteps(start) {
     stack.push(v)
     pre.push(v)
     steps.push({
-      kind: 'enter', current: v, parent,
-      visited: [...visited], pre: [...pre], post: [...post], frontier: [...stack],
+      kind: 'enter',
+      current: v,
+      parent,
+      visited: [...visited],
+      pre: [...pre],
+      post: [...post],
+      frontier: [...stack],
       message: { key: 'dfsEnter', values: { v } },
     })
 
     for (const next of adjacency[v]) {
       steps.push({
-        kind: visited.has(next) ? 'skip' : 'edge', current: v, next,
-        visited: [...visited], pre: [...pre], post: [...post], frontier: [...stack],
+        kind: visited.has(next) ? 'skip' : 'edge',
+        current: v,
+        next,
+        visited: [...visited],
+        pre: [...pre],
+        post: [...post],
+        frontier: [...stack],
         message: { key: visited.has(next) ? 'dfsSkip' : 'dfsEdge', values: { v, next } },
       })
-      if (!visited.has(next)) dfs(next, v)
+      if (!visited.has(next)) {
+        dfs(next, v)
+      }
     }
 
     post.push(v)
     steps.push({
-      kind: 'exit', current: v,
-      visited: [...visited], pre: [...pre], post: [...post], frontier: [...stack],
+      kind: 'exit',
+      current: v,
+      visited: [...visited],
+      pre: [...pre],
+      post: [...post],
+      frontier: [...stack],
       message: { key: 'dfsExit', values: { v } },
     })
     stack.pop()
@@ -69,8 +96,12 @@ export function createBfsSteps(start) {
   const parent = { [start]: null }
 
   steps.push({
-    kind: 'enqueue', current: start, visited: [...visited], frontier: [...queue],
-    order: [...order], distance: { ...distance },
+    kind: 'enqueue',
+    current: start,
+    visited: [...visited],
+    frontier: [...queue],
+    order: [...order],
+    distance: { ...distance },
     message: { key: 'bfsStart', values: { start } },
   })
 
@@ -78,16 +109,25 @@ export function createBfsSteps(start) {
     const v = queue.shift()
     order.push(v)
     steps.push({
-      kind: 'dequeue', current: v, visited: [...visited], frontier: [...queue],
-      order: [...order], distance: { ...distance },
+      kind: 'dequeue',
+      current: v,
+      visited: [...visited],
+      frontier: [...queue],
+      order: [...order],
+      distance: { ...distance },
       message: { key: 'bfsDequeue', values: { v } },
     })
 
     for (const next of adjacency[v]) {
       if (visited.has(next)) {
         steps.push({
-          kind: 'skip', current: v, next, visited: [...visited], frontier: [...queue],
-          order: [...order], distance: { ...distance },
+          kind: 'skip',
+          current: v,
+          next,
+          visited: [...visited],
+          frontier: [...queue],
+          order: [...order],
+          distance: { ...distance },
           message: { key: 'bfsSkip', values: { next } },
         })
         continue
@@ -97,8 +137,13 @@ export function createBfsSteps(start) {
       distance[next] = distance[v] + 1
       queue.push(next)
       steps.push({
-        kind: 'enqueue', current: next, parent: v, visited: [...visited], frontier: [...queue],
-        order: [...order], distance: { ...distance },
+        kind: 'enqueue',
+        current: next,
+        parent: v,
+        visited: [...visited],
+        frontier: [...queue],
+        order: [...order],
+        distance: { ...distance },
         message: { key: 'bfsEnqueue', values: { v, next, distance: distance[next] } },
       })
     }
