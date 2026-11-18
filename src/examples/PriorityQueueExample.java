@@ -5,7 +5,23 @@ import java.util.PriorityQueue;
 
 /** A priority queue returns a minimum element; its iteration order is not sorted. */
 public class PriorityQueueExample {
-    record Task(String id, int priority) {}
+    static final class Task {
+        private final String id;
+        private final int priority;
+
+        Task(String id, int priority) {
+            this.id = id;
+            this.priority = priority;
+        }
+
+        public String id() {
+            return id;
+        }
+
+        public int priority() {
+            return priority;
+        }
+    }
 
     public static void main(String[] args) {
         PriorityQueue<Task> queue = new PriorityQueue<>(

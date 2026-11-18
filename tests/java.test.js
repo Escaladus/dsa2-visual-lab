@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, readdirSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -10,8 +10,8 @@ const hasJdk =
   spawnSync('javac', ['-version']).status === 0 && spawnSync('java', ['-version']).status === 0
 
 test(
-  'Java 17 examples compile, match their displayed outputs and pass algorithm checks',
-  { skip: hasJdk ? false : 'JDK 17+ is required to verify Java examples' },
+  'Java 11 examples compile, match their displayed outputs and pass algorithm checks',
+  { skip: hasJdk ? false : 'JDK 11+ is required to verify Java examples' },
   async t => {
     const directory = mkdtempSync(join(tmpdir(), 'dsa2-java-tests-'))
     try {
@@ -23,7 +23,7 @@ test(
         'javac',
         [
           '--release',
-          '17',
+          '11',
           '-Xlint:all',
           '-d',
           directory,
@@ -34,6 +34,13 @@ test(
       )
       assert.equal(compile.status, 0, compile.stderr)
       assert.equal(compile.stderr, '', 'Compilation should produce no warnings')
+      for (const file of readdirSync(directory).filter(file => file.endsWith('.class'))) {
+        assert.equal(
+          readFileSync(join(directory, file)).readUInt16BE(6),
+          55,
+          `${file} must target Java 11`,
+        )
+      }
       for (const example of javaExamples) {
         await t.test(example.className, () => {
           const run = spawnSync(

@@ -16,13 +16,15 @@ The material is aligned with the supplied `dsaII_handout.pdf` (University of Eas
 
 The site contains 22 topics and 31 standalone Java examples covering Set/Map, `equals`/`hashCode`, lists and queues, traversals, merge sort, Dijkstra/Floyd–Warshall, Prim/Kruskal, articulation points, matching, maximum flow, dynamic programming, strings, and files. Each example includes source code, expected output, complexity, assumptions, and a `.java` download.
 
-Run a downloaded example with JDK 17 or newer:
+Run a downloaded example with JDK 11 or newer:
 
 ```bash
 java SetOperationsExample.java
 ```
 
 Java sources are in `src/examples`, their catalogue is in `src/data/javaExamples.js`, and handout references are in `src/data/handout.js`. Additional lesson translations are in `src/i18n/handout.fi.js`, `src/i18n/handout.ru.js`, and `src/i18n/handout.en.js`. The handout PDF is not bundled with the site.
+
+Three **additional TRA examples** are in [`src/tra-examples`](src/tra-examples/README.md): `TraGraphExample` (DiGraph/Graph construction and colours), `TraDfsExample` (recursive DFS, PRE/POST, parents and a forest), and `TraBfsExample` (TRA `LinkedQueue`, distances and shortest paths). They appear in a separate TRA section on related topics and leave the original 31 examples in place. The downloadable `tra-graphs.zip` includes all three sources, the supplied `traj.jar`, expected output and RU/FI/EN instructions. Extract the archive and run, for example, `java -Dfile.encoding=UTF-8 -cp traj.jar TraDfsExample.java` with JDK 11+.
 
 ## Features
 
@@ -45,6 +47,7 @@ Java sources are in `src/examples`, their catalogue is in `src/data/javaExamples
 - A collapsed **Practice: applications and DFS/BFS comparison** block below the main workspace retains the advanced shared-graph lab, five examples, common start/scope/neighbour order and separately saved DFS/BFS positions. Opening practice does not replace the basic illustration.
 - Guided graph moments, optional tree/back/forward/cross labels, the undirected parent-edge exception, a full-results comparison, target/path highlighting and five application scenarios cover reachability, shortest unweighted paths, undirected components, cycle witnesses and topological order. Other BFS forest roots retain infinite distance from the original start. Directed traversal trees are not presented as SCCs. Working memory is O(V); storing all edge classes adds O(E) output. `GraphTraversalExample.java` matches the displayed DFS/BFS methods; the older `RecursiveDfsExample.java` remains a simpler boolean-visited example.
 - A separate 12-question graph quiz uses fixed visual states, explanations for each wrong choice and post-check edge classification. Previous questions, pending choices, checked answers and results survive language changes. The original 15-question recursion review remains in the recursion topic.
+- The DFS topic includes a downloadable Java coding task: implement one recursive method that counts distinct reachable vertices using the course's `traj.jar`. The ZIP contains a starter, a portable JDK 11+ checker and RU/FI/EN instructions. Checks run locally with `java -Dfile.encoding=UTF-8 Check.java en` (or `ru` / `fi`), explain failed cases and can be rerun freely after edits. The website shows the task and graph; it does not execute submitted Java. Existing visualisations and quizzes are preserved.
 - Connected components, cycles, shortest paths, and topological ordering.
 - Java tools: Iterator, Comparable, Comparator, and generics.
 
@@ -58,6 +61,8 @@ npm run dev
 ```
 
 Open the local URL printed in the terminal.
+
+The `predev` and `prebuild` steps run `package:java-downloads` to prepare `public/exercises/dfs-reachable.zip` from [`exercises/dfs-reachable`](exercises/dfs-reachable/README.md) and `public/examples/tra-graphs.zip` from [`src/tra-examples`](src/tra-examples/README.md). Both include the supplied JAR unchanged. Node generates the archives without extra build dependencies. Regenerate both with `npm run package:java-downloads`, or one with `npm run package:graph-exercise` / `npm run package:tra-examples`.
 
 Create and preview a production build:
 
@@ -74,4 +79,8 @@ Run translation, quiz state, recursion and complexity, graph traversal, sorting 
 npm test
 ```
 
-The Java checks require JDK 17 or newer and are explicitly skipped when a JDK is unavailable. They compile the examples and compare their actual output with the output displayed on the site. Additional algorithm checks cover boundary cases and comparisons with reference results.
+The Java checks require JDK 11 or newer and are explicitly skipped when a JDK is unavailable. They compile every example with `--release 11`, verify Java 11 class-file versions and compare actual output with the output displayed on the site. Additional algorithm checks cover boundary cases and comparisons with reference results.
+
+The graph coding task tests also extract the actual download, compile and run student-code fixtures with the supplied JAR, verify all three feedback languages and exercise incorrect counts, colours, duplicate labels, graph changes, stack overflow, compilation errors, time limits and correction followed by a successful retry. These are local checks, separate from the Pages deployment.
+
+The TRA example checks extract their own ZIP, compile for Java 11, execute each file in source mode and compare output with the site. An independent reference checks DFS/BFS on 80 directed/undirected graphs with every start and traversal scope, including cycles, self-loops, duplicate labels, empty graphs, shortest paths, invalid starts, colour resets and repeat runs.

@@ -3,7 +3,23 @@ import java.util.List;
 
 /** Depth-first search with entry and exit processing on an adjacency-list graph. */
 public class DfsExample {
-    public record Result(List<Integer> pre, List<Integer> post) {}
+    public static final class Result {
+        private final List<Integer> pre;
+        private final List<Integer> post;
+
+        public Result(List<Integer> pre, List<Integer> post) {
+            this.pre = pre;
+            this.post = post;
+        }
+
+        public List<Integer> pre() {
+            return pre;
+        }
+
+        public List<Integer> post() {
+            return post;
+        }
+    }
 
     public static Result traverse(int[][] graph) {
         boolean[] visited = new boolean[graph.length];

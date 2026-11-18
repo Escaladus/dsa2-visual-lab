@@ -1,3 +1,4 @@
+import java.util.stream.Collectors;
 import java.util.Arrays;
 
 /** All-pairs shortest paths: allow one additional intermediate vertex per outer iteration. */
@@ -29,6 +30,6 @@ public class FloydWarshallExample {
 
     public static void main(String[] args) {
         long[][] weights = {{0, 5, INF}, {INF, 0, -2}, {INF, INF, 0}};
-        for (long[] row : distances(weights)) System.out.println(Arrays.stream(row).mapToObj(value -> value == INF ? "INF" : Long.toString(value)).toList());
+        for (long[] row : distances(weights)) System.out.println(Arrays.stream(row).mapToObj(value -> value == INF ? "INF" : Long.toString(value)).collect(Collectors.toList()));
     }
 }

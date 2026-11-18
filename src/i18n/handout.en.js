@@ -4,7 +4,7 @@ export default {
     handoutPages: 'pp.',
     javaExamples: 'Java examples',
     javaNote:
-      'Standalone examples for JDK 17+. Download the file and run the command below. The course TRA library is not required.',
+      'Standalone examples for JDK 11+. Download the file and run the command below. The course TRA library is not required.',
     runJava: 'Run',
     expectedOutput: 'Expected output',
     downloadJava: 'Download .java',

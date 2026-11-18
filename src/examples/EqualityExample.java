@@ -13,7 +13,10 @@ public class EqualityExample {
         Student(int id, String name) { this.id = id; this.name = name; }
 
         @Override public boolean equals(Object other) {
-            return this == other || other instanceof Student student && id == student.id;
+            if (this == other) return true;
+            if (!(other instanceof Student)) return false;
+            Student student = (Student) other;
+            return id == student.id;
         }
 
         @Override public int hashCode() { return Objects.hash(id); }

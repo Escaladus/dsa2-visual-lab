@@ -1,3 +1,4 @@
+import java.util.stream.Collectors;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -23,8 +24,8 @@ public class ExamplesChecks {
                 int found = BinarySearchExample.search(a, target);
                 check(found == -1 ? Arrays.binarySearch(a, target) < 0 : a[found] == target, "binary search");
             }
-            List<Integer> left = new LinkedList<>(Arrays.stream(a).boxed().toList());
-            List<Integer> right = new ArrayList<>(RANDOM.ints(RANDOM.nextInt(20), -5, 6).sorted().boxed().toList());
+            List<Integer> left = new LinkedList<>(Arrays.stream(a).boxed().collect(Collectors.toList()));
+            List<Integer> right = new ArrayList<>(RANDOM.ints(RANDOM.nextInt(20), -5, 6).sorted().boxed().collect(Collectors.toList()));
             TreeSet<Integer> union = new TreeSet<>(left);
             union.addAll(right);
             check(SortedUnionExample.union(left, right).equals(new ArrayList<>(union)), "sorted union");

@@ -3,7 +3,29 @@ import java.util.List;
 
 /** The position of processing relative to recursion defines pre-, in- and postorder. */
 public class TreeTraversalExample {
-    record Node(int value, Node left, Node right) {}
+    static final class Node {
+        private final int value;
+        private final Node left;
+        private final Node right;
+
+        Node(int value, Node left, Node right) {
+            this.value = value;
+            this.left = left;
+            this.right = right;
+        }
+
+        public int value() {
+            return value;
+        }
+
+        public Node left() {
+            return left;
+        }
+
+        public Node right() {
+            return right;
+        }
+    }
 
     static void traverse(Node node, List<Integer> pre, List<Integer> in, List<Integer> post) {
         if (node == null) return;

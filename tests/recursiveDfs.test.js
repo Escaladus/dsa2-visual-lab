@@ -239,7 +239,7 @@ const hasJdk =
   spawnSync('javac', ['-version']).status === 0 && spawnSync('java', ['-version']).status === 0
 test(
   'the downloadable Java methods match all displayed graph/start/scope combinations',
-  { skip: hasJdk ? false : 'JDK 17+ required' },
+  { skip: hasJdk ? false : 'JDK 11+ required' },
   () => {
     const directory = mkdtempSync(join(tmpdir(), 'dsa2-dfs-parity-'))
     try {
@@ -266,7 +266,7 @@ test(
         'javac',
         [
           '--release',
-          '17',
+          '11',
           '-Xlint:all',
           '-d',
           directory,

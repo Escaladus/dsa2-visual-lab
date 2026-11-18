@@ -145,7 +145,7 @@ const hasJava = spawnSync('java', ['-version']).status === 0
 
 test(
   'the exact displayed Java fragments return the work predicted by each recurrence',
-  { skip: hasJava ? false : 'JDK 17+ is required' },
+  { skip: hasJava ? false : 'JDK 11+ is required' },
   () => {
     const directory = mkdtempSync(join(tmpdir(), 'dsa2-recurrences-'))
     try {
@@ -167,7 +167,7 @@ public static void main(String[] args) {
 }}
 `,
       )
-      const result = spawnSync('java', ['--source', '17', file], {
+      const result = spawnSync('java', ['--source', '11', file], {
         encoding: 'utf8',
         timeout: 20000,
       })

@@ -17,7 +17,9 @@ const RecursionLab = lazy(() => import('./components/RecursionLab.jsx'))
 const RecursionQuiz = lazy(() => import('./components/RecursionQuiz.jsx'))
 const GraphQuiz = lazy(() => import('./components/GraphQuiz.jsx'))
 const JavaExamples = lazy(() => import('./components/JavaExamples.jsx'))
+const TraJavaExamples = lazy(() => import('./components/TraJavaExamples.jsx'))
 const RecurrenceTreeLab = lazy(() => import('./components/RecurrenceTreeLab.jsx'))
+const GraphCodingExercise = lazy(() => import('./components/GraphCodingExercise.jsx'))
 
 function Code({ children }) {
   return (
@@ -112,6 +114,11 @@ function Lesson({ topic, onOpen }) {
       {(id === 'graph-dfs' || id === 'graph-bfs') && (
         <GraphLab initialMode={id === 'graph-dfs' ? 'dfs' : 'bfs'} />
       )}
+      {id === 'graph-dfs' && (
+        <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
+          <GraphCodingExercise />
+        </Suspense>
+      )}
 
       {id !== 'recursion' && (
         <div className={grid}>
@@ -167,6 +174,7 @@ function Lesson({ topic, onOpen }) {
       {id !== 'overview' && (
         <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
           <JavaExamples topicId={id} />
+          <TraJavaExamples topicId={id} />
         </Suspense>
       )}
       {id === 'complexity' && <ComplexityQuiz />}

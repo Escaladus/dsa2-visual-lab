@@ -7,7 +7,22 @@ import java.util.Queue;
 
 /** Breadth-first search: discover each vertex once and find unweighted shortest paths. */
 public class BfsExample {
-    public record Result(int[] distance, int[] parent) {
+    public static final class Result {
+        private final int[] distance;
+        private final int[] parent;
+
+        public Result(int[] distance, int[] parent) {
+            this.distance = distance;
+            this.parent = parent;
+        }
+
+        public int[] distance() {
+            return distance;
+        }
+
+        public int[] parent() {
+            return parent;
+        }
         public List<Integer> pathTo(int target) {
             if (distance[target] == -1) return List.of();
             List<Integer> path = new ArrayList<>();

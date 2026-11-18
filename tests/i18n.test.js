@@ -164,3 +164,10 @@ test('every lesson has a handout reference and every practical lesson has runnab
 test('message interpolation preserves zero distances', () => {
   assert.equal(formatMessage('distance = {distance}', { distance: 0 }), 'distance = 0')
 })
+
+test('all Java download instructions advertise the verified Java 11 baseline', () => {
+  for (const { code } of languages) {
+    assert.match(dictionaries[code].ui.javaNote, /JDK 11/)
+    assert.doesNotMatch(JSON.stringify(dictionaries[code]), /(?:JDK|Java)\s*17\b/)
+  }
+})

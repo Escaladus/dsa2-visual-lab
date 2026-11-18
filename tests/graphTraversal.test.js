@@ -398,7 +398,7 @@ const hasJava = spawnSync('javac', ['-version']).status === 0
 
 test(
   'displayed Java methods match source and Java/visualisation agree for all graph/start/scope/order/algorithm cases',
-  { skip: hasJava ? false : 'JDK 17+ required' },
+  { skip: hasJava ? false : 'JDK 11+ required' },
   () => {
     const source = readFileSync('src/examples/GraphTraversalExample.java', 'utf8').replace(
       /\s+/g,
@@ -458,7 +458,7 @@ public static void main(String[] args){${rows.join('\n')}}}`,
         'javac',
         [
           '--release',
-          '17',
+          '11',
           '-Xlint:all',
           '-d',
           directory,

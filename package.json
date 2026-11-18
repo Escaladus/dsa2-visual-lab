@@ -4,8 +4,13 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "predev": "npm run package:java-downloads",
     "dev": "vite",
+    "prebuild": "npm run package:java-downloads",
     "build": "vite build",
+    "package:graph-exercise": "node scripts/package-graph-exercise.mjs",
+    "package:tra-examples": "node scripts/package-tra-examples.mjs",
+    "package:java-downloads": "node scripts/package-java-downloads.mjs",
     "test": "npm run check:java-snippets && node --test",
     "preview": "vite preview",
     "format": "prettier --write src tests scripts vite.config.js eslint.config.js package.json .prettierrc.json",

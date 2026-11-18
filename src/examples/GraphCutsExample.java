@@ -4,7 +4,23 @@ import java.util.TreeSet;
 
 /** DFS discovery times and low links identify articulation points and bridges. */
 public class GraphCutsExample {
-    public record Result(List<Integer> articulation, List<String> bridges) {}
+    public static final class Result {
+        private final List<Integer> articulation;
+        private final List<String> bridges;
+
+        public Result(List<Integer> articulation, List<String> bridges) {
+            this.articulation = articulation;
+            this.bridges = bridges;
+        }
+
+        public List<Integer> articulation() {
+            return articulation;
+        }
+
+        public List<String> bridges() {
+            return bridges;
+        }
+    }
 
     // Input: a simple undirected graph; every edge appears in both neighbor lists.
     public static Result find(int[][] graph) {

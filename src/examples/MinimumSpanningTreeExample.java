@@ -5,7 +5,29 @@ import java.util.PriorityQueue;
 
 /** Kruskal grows a forest; Prim grows one tree. Both choose safe minimum-weight edges. */
 public class MinimumSpanningTreeExample {
-    public record Edge(int from, int to, int weight) {}
+    public static final class Edge {
+        private final int from;
+        private final int to;
+        private final int weight;
+
+        public Edge(int from, int to, int weight) {
+            this.from = from;
+            this.to = to;
+            this.weight = weight;
+        }
+
+        public int from() {
+            return from;
+        }
+
+        public int to() {
+            return to;
+        }
+
+        public int weight() {
+            return weight;
+        }
+    }
     private static final class UnionFind {
         private final int[] parent, rank;
         UnionFind(int size) {

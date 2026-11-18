@@ -6,8 +6,40 @@ import java.util.PriorityQueue;
 
 /** Shortest paths with non-negative weights and a minimum-priority queue. */
 public class DijkstraExample {
-    public record Edge(int to, int weight) {}
-    private record State(int vertex, long distance) {}
+    public static final class Edge {
+        private final int to;
+        private final int weight;
+
+        public Edge(int to, int weight) {
+            this.to = to;
+            this.weight = weight;
+        }
+
+        public int to() {
+            return to;
+        }
+
+        public int weight() {
+            return weight;
+        }
+    }
+    private static final class State {
+        private final int vertex;
+        private final long distance;
+
+        State(int vertex, long distance) {
+            this.vertex = vertex;
+            this.distance = distance;
+        }
+
+        public int vertex() {
+            return vertex;
+        }
+
+        public long distance() {
+            return distance;
+        }
+    }
 
     public static long[] distances(List<List<Edge>> graph, int start) {
         for (List<Edge> edges : graph) {

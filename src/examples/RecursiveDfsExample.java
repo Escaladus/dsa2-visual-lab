@@ -3,7 +3,23 @@ import java.util.List;
 
 /** Each recursive call owns its neighbour index; visited and result lists are shared. */
 public class RecursiveDfsExample {
-    public record Result(List<Integer> pre, List<Integer> post) {}
+    public static final class Result {
+        private final List<Integer> pre;
+        private final List<Integer> post;
+
+        public Result(List<Integer> pre, List<Integer> post) {
+            this.pre = pre;
+            this.post = post;
+        }
+
+        public List<Integer> pre() {
+            return pre;
+        }
+
+        public List<Integer> post() {
+            return post;
+        }
+    }
 
     // Vertices are array indices. The given neighbour order is preserved.
     // For a nonempty graph, start must be a valid vertex index.

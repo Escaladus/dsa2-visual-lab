@@ -18,6 +18,9 @@ The project separates the algorithm being taught from playback and rendering. A 
 | Execution panels, memoisation comparison and predictions     | `RecursionExecution`, `RecursionComparison` and `RecursionPrediction` in `src/components`                      |
 | Recurrence work/geometry and its viewport                    | `src/utils/recurrenceTree.js`, `RecurrenceTreeLab` and `RecurrenceTreeViewport`                                |
 | Runnable Java sources                                        | `src/examples`                                                                                                 |
+| Additional ready-to-run TRA examples and their catalogue | `src/tra-examples`, `src/data/traJavaExamples.js`, `TraJavaExamples` and `src/i18n/traJavaExamples.js` |
+| Downloadable DFS coding task, supplied JAR and local checker | `exercises/dfs-reachable` |
+| Coding task page and archive builder | `GraphCodingExercise`, `src/i18n/graphCodingExercise.js` and `scripts/package-graph-exercise.mjs` |
 | Translated UI and event explanations                         | `src/i18n`                                                                                                     |
 
 ## How a visualisation step works
@@ -40,6 +43,12 @@ The basic, colour and edge-type panels remain mounted after their first visit. T
 
 ## Editing Java and highlighted lines
 
+The DFS coding task is a separate download supporting JDK 11 and newer. Its `Solution.java` is deliberately unfinished and is not part of the 31 runnable examples. `GraphCodingExercise` imports that exact starter as text. `Check.java` uses the JDK compiler with `--release 11`, a fresh temporary build and one worker process per check group. `GraphChecks.java` constructs inputs, computes an independent BFS reference from integer edges and checks the student's returned count, colours and graph structure. Each worker has a timeout and bounded heap/stack; this is a local teaching tool, not a sandbox service for public submissions. Results are not persisted, and rerunning after edits always starts fresh. The exercise tests compile every delivered Java file for release 11; set `GRAPH_EXERCISE_JDK` to a JDK directory to run `node --test tests/graphCodingExercise.test.js` with that runtime and compiler.
+
+`predev`/`prebuild` generate the ignored ZIP in `public/exercises` using the source files in `exercises/dfs-reachable`. The Node-only ZIP builder stores entries with deterministic timestamps. Keep the supplied JAR unchanged; its hash and package choice are documented in the included readmes. The browser uses Vite's base URL for the download, including repository Pages paths. Source changes require regenerating the ZIP before testing a download.
+
+Additional TRA examples live separately from the original standalone catalogue. `package-java-downloads.mjs` now prepares both the task ZIP and `public/examples/tra-graphs.zip`; the latter reuses the canonical JAR from the task folder and generates `expected-output.txt` from the TRA catalogue. `TraJavaExamples` displays related sources, commands and output after the original examples. Keep the two catalogues separate: their classpaths differ. Each TRA file runs independently with the supplied JAR on JDK 11+. Traversal results use vertex identity and fresh containers per call; resetting colours does not rewrite previously returned lists or maps. Tests compile the actual archive, compare source-mode output and check graph algorithms against integer reference traversals.
+
 `GraphTraversalExample.java` is the source of truth for the extended traversal's displayed Java methods:
 
 ```bash
@@ -53,7 +62,7 @@ Some teaching events group related metadata assignments, such as assigning a chi
 
 The basic DFS and factorial/Fibonacci use short teaching snippets in `src/data/recursiveDfs.js` and `src/data/recursion.js`. Their trace builders refer to snippet-relative line numbers. Change those snippets, the matching Java source and line references together. The tests compare source, traces, continuations and results.
 
-Java examples target JDK 17. Comments use English to keep source code consistent across the three interface languages. Explain contracts and decisions, such as excluding a parent edge or rejecting a stale queue entry, rather than narrating every assignment.
+Java examples target JDK 11. Comments use English to keep source code consistent across the three interface languages. Explain contracts and decisions, such as excluding a parent edge or rejecting a stale queue entry, rather than narrating every assignment.
 
 ## Checks before finishing a change
 

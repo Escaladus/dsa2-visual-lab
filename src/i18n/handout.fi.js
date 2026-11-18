@@ -4,7 +4,7 @@ export default {
     handoutPages: 's.',
     javaExamples: 'Java-esimerkit',
     javaNote:
-      'Itsenäisiä esimerkkejä JDK 17:lle tai uudemmalle. Lataa tiedosto ja suorita alla oleva komento. Kurssin TRA-kirjastoa ei tarvita.',
+      'Itsenäisiä esimerkkejä JDK 11:lle tai uudemmalle. Lataa tiedosto ja suorita alla oleva komento. Kurssin TRA-kirjastoa ei tarvita.',
     runJava: 'Suoritus',
     expectedOutput: 'Odotettu tuloste',
     downloadJava: 'Lataa .java',

@@ -960,6 +960,16 @@ summary:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 3px;
 }
+.tra-kit-download {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+.tra-java-examples .tra-run-command {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .java-result-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -4759,4 +4769,87 @@ summary:focus-visible {
 }
 .traversal-state-table tr[aria-current='true'] {
   background: #20354e;
+}
+
+/* The coding task is a separate download, below the existing graph workspace. */
+.graph-coding-exercise {
+  min-width: 0;
+}
+.graph-coding-exercise p,
+.graph-coding-exercise li {
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.coding-task-example {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+  margin: 18px 0;
+}
+.coding-example-graph {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #0b1120;
+}
+.coding-example-answer {
+  color: var(--accent-2);
+}
+.coding-download {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+.coding-chapter {
+  margin: 18px 0;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  min-width: 0;
+}
+.coding-chapter summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  line-height: 1.7;
+}
+.coding-chapter ol,
+.coding-chapter ul {
+  padding-left: 22px;
+}
+.coding-chapter li + li {
+  margin-top: 10px;
+}
+.coding-chapter .code-block {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.coding-chapter .coding-run-command {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.coding-api dt {
+  overflow-wrap: anywhere;
+}
+.coding-api dd {
+  margin: 4px 0 16px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.coding-note {
+  color: var(--muted);
+  font-size: 13px;
+}
+.coding-hint {
+  margin: 16px 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--line);
+}
+@media (max-width: 768px) {
+  .coding-task-example {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
 }
