@@ -17,6 +17,7 @@ const base = {
     examples: 'React- ja Java-esimerkit',
     footer: 'Tekijä:',
     courseCredit: 'Perustuu UEF:n Tietorakenteet ja algoritmit II -kurssin materiaaleihin.',
+    aiCredit: 'Kehitetty OpenAI Codexin avustuksella.',
     description: 'DSA2 Visual Lab — opi tietorakenteita ja algoritmeja vuorovaikutteisesti',
     back: '← Takaisin',
     next: 'Seuraava askel →',
@@ -148,7 +149,8 @@ const base = {
     },
     trees: {
       title: 'Esi-, sisä- ja jälkijärjestys',
-      intro: 'Ero on siinä, milloin nykyinen solmu käsitellään suhteessa sen lapsiin.',
+      intro:
+        'Binääripuu esitetään TRA-kirjaston BTree- ja BTreeNode-luokilla. PRE, IN ja POST eroavat nykyisen solmun käsittelyhetkessä.',
       cards: [
         ['PRE', 'Juuri → Vasen alipuu → Oikea alipuu. Käsittele solmu heti saapuessasi.'],
         [
@@ -161,11 +163,11 @@ const base = {
     heap: {
       title: 'Keko ja PriorityQueue',
       intro:
-        'Keko takaa nopean pääsyn tärkeimpään alkioon pitämättä kaikkia alkioita täysin järjestettyinä.',
+        'Keko antaa nopean pääsyn tärkeimmän prioriteetin alkioon. Java-esimerkki käyttää fi.uef.cs.tra.PriorityQueue-luokkaa; kuva selittää minimikeon operaatiot.',
       cards: [
         [
           'Minimikeko',
-          'Jokaisen vanhemman arvo on ≤ sen lasten arvot. Minimi on juuressa ja saadaan ajassa O(1). Lisäys ja juuren poisto vaativat O(log n) työtä kekoehdon palauttamiseksi.',
+          'Vanhempi ≤ lapsensa; minimi on juuressa. peek vie O(1), kekoehdon palautus lisäyksessä/poistossa O(log n). Satunnainen taulukon kasvatus mukaan lukien offer on amortoidusti O(log n); poll on O(log n).',
         ],
         [
           'Milloin sitä tarvitaan',
@@ -182,16 +184,19 @@ const base = {
     'graph-basics': {
       title: 'Mikä on verkko?',
       intro:
-        'Verkko koostuu solmuista ja niiden välisistä kaarista. Olennaista on solmujen naapuruusrakenne.',
+        'Verkko koostuu solmuista ja kaarista. Tässä oppitunnissa TRA-kirjaston Graph ja DiGraph tallentavat ne Vertex- ja Edge-olioina.',
       cards: [
-        ['Suuntaamaton verkko', 'Kaari A—B tarkoittaa, että A on B:n naapuri ja B on A:n naapuri.'],
         [
-          'Suunnattu verkko',
-          'Kaarella A→B on suunta. Vastakkaiseen suuntaan ei välttämättä ole yhteyttä.',
+          'Suuntaamaton verkko — Graph',
+          'Kaari A—B tekee A:sta ja B:stä toistensa naapurit. Lisää se `Graph`-verkkoon kerran kutsulla `a.addEdge(b)`: kirjasto muodostaa molemmat naapuruussuunnat.',
         ],
         [
-          'Vieruslista',
-          'Harvoille verkoille tämä on yleensä vierusmatriisia kätevämpi: tallennetaan vain olemassa olevat kaaret.',
+          'Suunnattu verkko — DiGraph',
+          'Kaarella A→B on suunta. `a.addEdge(b)` luo sen; `b.addEdge(a)` loisi erillisen vastakkaissuuntaisen kaaren.',
+        ],
+        [
+          'Naapurien lukeminen',
+          'Silmukka `for (Vertex next : v.neighbors())` luettelee lähtevät naapurit. Järjestystä ei automaattisesti lajitella nimien mukaan. `graph.vertices()` sisältää myös eristetyt solmut.',
         ],
       ],
     },
@@ -223,23 +228,24 @@ const base = {
     },
     'graph-apps': {
       title: 'DFS:n ja BFS:n sovelluksia',
-      intro: 'Moni ongelma helpottuu, kun ymmärrät itse läpikäynnin.',
+      intro:
+        'Sovella DFS:ää ja BFS:ää TRA:n Graph/DiGraph-olioihin: polut, komponentit, syklit ja järjestys.',
       cards: [
         [
           'Yhtenäiset komponentit',
-          'Aloita DFS/BFS solmusta, jossa ei ole käyty. Kaikki sen saavuttamat solmut muodostavat yhden komponentin. Toista toisesta käymättömästä solmusta.',
+          'Alusta suuntaamattoman TRA `Graph` -graafin värit kerran WHITEksi ja käy läpi `vertices()`. Aloita DFS/BFS jokaisesta WHITE-solmusta: kaikki uudet saavutetut solmut kuuluvat samaan komponenttiin. Eristetty solmu on oma komponenttinsa; tyhjällä graafilla ei ole komponentteja.',
         ],
         [
           'Lyhin polku painottomassa verkossa',
-          'Käytä BFS:ää sekä `parent`- ja `distance`-tietoja. Kun tavoite saavutetaan, rakenna polku seuraamalla parent-linkkejä taaksepäin.',
+          'Tallenna `parent`, kun TRA `Vertex` löydetään. Seuraa vanhempia kohteesta alkuun ja käännä lista. DFS antaa löydetyn polun, BFS lyhimmän kaarimäärän mukaan. Saavuttamaton kohde antaa tyhjän polun; alku → alku sisältää nolla kaarta.',
         ],
         [
           'Syklin tunnistus',
-          'Suuntaamattomassa verkossa DFS:n on erotettava vanhempaan palaava kaari kaaresta toiseen jo käytyyn solmuun.',
+          '`DiGraph`-graafissa lähtevä kaari GREY-esivanhempaan todistaa syklin, myös silmukan. `Graph`-graafissa ohita sama fyysinen vanhempi-`Edge` käänteiseen suuntaan. Koko graafin syklittömyys edellyttää kaikkien juurien tutkimista.',
         ],
         [
           'Topologinen järjestys',
-          'Vain suunnatuille syklittömille verkoille (DAG). Kerää DFS:n solmut POST-järjestyksessä ja käännä tulos.',
+          'Suorita `DiGraph`-graafille koko DFS syklitarkistuksineen. Käännä POST vasta kaikkien juurien onnistuneen valmistumisen jälkeen. Sykli missä tahansa estää koko järjestyksen; eristetyt solmut sisältyvät tulokseen. Kelvollisia järjestyksiä voi olla useita.',
         ],
       ],
     },
@@ -282,6 +288,7 @@ const base = {
     dfsExit:
       'Solmun {v} kaikki naapurit on käsitelty. Tämä on POST-tapahtuma: poistutaan solmusta {v}.',
     bfsStart: 'Merkitään {start} käydyksi heti, kun se lisätään jonoon.',
+    bfsProcessed: 'Kaikki solmun {v} naapurit on tutkittu. Solmun käsittely on valmis.',
     bfsDequeue: 'Poistetaan {v} jonon alusta. Tarkastellaan nyt sen kaikkia naapureita.',
     bfsSkip: 'Solmu {next} on jo löydetty — sitä ei lisätä jonoon uudelleen.',
     bfsEnqueue:

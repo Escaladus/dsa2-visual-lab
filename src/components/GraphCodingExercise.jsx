@@ -87,6 +87,7 @@ export default function GraphCodingExercise() {
     <section className="lab-shell graph-coding-exercise" aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`}>{labels.title}</h2>
       <p>{labels.intro}</p>
+      <p className="coding-note">{labels.rules[1]}</p>
       <div className="coding-task-example">
         <ExampleGraph id={`${id}-arrow`} label={labels.graph} />
         <div>

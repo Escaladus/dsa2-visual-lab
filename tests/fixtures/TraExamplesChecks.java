@@ -1,6 +1,7 @@
 import fi.uef.cs.tra.AbstractGraph;
 import fi.uef.cs.tra.DiGraph;
 import fi.uef.cs.tra.Graph;
+import fi.uef.cs.tra.Edge;
 import fi.uef.cs.tra.Vertex;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -77,9 +78,26 @@ public class TraExamplesChecks {
         Map<Vertex, Integer> index = new IdentityHashMap<>();
         for (int v = 0; v < vertices.length; v++) index.put(vertices[v], v);
         int[][] input = adjacency(vertices, index);
+        for (Vertex vertex : vertices) vertex.setColor(AbstractGraph.RED);
+        Map<Vertex, Integer> counts = TraGraphDataExample.outgoingCounts(graph);
+        check(counts.size() == vertices.length, "One count per vertex, even with duplicate labels");
+        for (int v = 0; v < vertices.length; v++) {
+            check(counts.get(vertices[v]) == input[v].length, "Outgoing count matches graph topology");
+            check(vertices[v].getColor() == AbstractGraph.RED, "Counting must preserve colours");
+        }
+        check(Arrays.deepEquals(input, adjacency(vertices, index)), "Counting must preserve edges");
         for (int start = 0; start < Math.max(1, vertices.length); start++) {
             Vertex first = vertices.length == 0 ? null : vertices[start];
             for (boolean all : new boolean[]{false, true}) {
+                for (Vertex vertex : vertices) vertex.setColor(AbstractGraph.RED);
+                TraRecursiveDfsExample.Result basic = TraRecursiveDfsExample.traverse(graph, Arrays.asList(vertices), first, all);
+                int[] basicParents = new int[vertices.length]; Arrays.fill(basicParents, -1);
+                List<Integer> basicPre = new ArrayList<>(), basicPost = new ArrayList<>();
+                dfs(input, vertices.length == 0 ? -1 : start, all, basicParents, basicPre, basicPost, new ArrayList<>());
+                check(indices(basic.pre(), index).equals(basicPre), "Basic TRA PRE");
+                check(indices(basic.post(), index).equals(basicPost), "Basic TRA POST");
+                for (Vertex vertex : vertices) check(vertex.getColor() == AbstractGraph.RED, "Basic visited map leaves colours intact");
+
                 for (Vertex vertex : vertices) vertex.setColor(AbstractGraph.RED);
                 List<Integer> pre = new ArrayList<>();
                 List<Integer> post = new ArrayList<>();
@@ -150,7 +168,66 @@ public class TraExamplesChecks {
         }
     }
 
+    private static void printLessonGraph() {
+        DiGraph graph = TraGraphExample.createDirectedGraph();
+        List<String> vertices = new ArrayList<>();
+        List<String> edges = new ArrayList<>();
+        for (Vertex vertex : graph.vertices()) vertices.add("\"" + vertex.getLabel() + "\"");
+        for (Edge edge : graph.edges()) {
+            edges.add("{\"from\":\"" + edge.getStartPoint().getLabel()
+                    + "\",\"to\":\"" + edge.getEndPoint().getLabel()
+                    + "\",\"weight\":" + edge.getWeight() + "}");
+        }
+        System.out.println("{\"vertices\":[" + String.join(",", vertices)
+                + "],\"edges\":[" + String.join(",", edges) + "]}");
+    }
+
+    private static void extendedContracts() {
+        DiGraph graph = new DiGraph();
+        List<Vertex> vertices = new ArrayList<>();
+        for (int i = 0; i < 5; i++) vertices.add(graph.addVertex("same"));
+        vertices.get(0).addEdge(vertices.get(1));
+        vertices.get(0).addEdge(vertices.get(2));
+        vertices.get(1).addEdge(vertices.get(2));
+        Edge back = vertices.get(2).addEdge(vertices.get(0));
+        TraTraversalExample.State cyclic = TraTraversalExample.traverse(graph, vertices, vertices.get(0), true, false, false);
+        rejects(() -> TraTraversalExample.topological(cyclic));
+        check(!cyclic.cycle.isEmpty(), "Real TRA cycle witness");
+        for (int i = 1; i < cyclic.cycle.size(); i++) {
+            check(cyclic.cycle.get(i - 1).isAdjacent(cyclic.cycle.get(i)), "Witness follows real arcs");
+        }
+        Map<Vertex, Integer> oldColors = new IdentityHashMap<>(cyclic.color);
+        List<Vertex> oldPre = new ArrayList<>(cyclic.pre);
+        TraTraversalExample.State isolated = TraTraversalExample.traverse(graph, vertices, vertices.get(3), false, true, false);
+        check(isolated.pre.size() == 1 && isolated.distance.get(vertices.get(3)) == 0, "Isolated BFS start");
+        check(cyclic.color.equals(oldColors) && cyclic.pre.equals(oldPre), "Earlier results survive colour resets");
+        check(TraTraversalExample.path(isolated, vertices.get(0)).isEmpty(), "Unreachable TRA path");
+        rejects(() -> TraTraversalExample.topological(isolated));
+        vertices.get(2).removeEdge(back);
+        TraTraversalExample.State dag = TraTraversalExample.traverse(graph, vertices, vertices.get(0), true, false, true);
+        List<Vertex> order = TraTraversalExample.topological(dag);
+        for (Edge edge : graph.edges()) {
+            check(order.indexOf(edge.getStartPoint()) < order.indexOf(edge.getEndPoint()), "Every TRA DAG arc respects order");
+        }
+        TraTraversalExample.State partial = TraTraversalExample.traverse(graph, vertices, vertices.get(2), false, false, false);
+        rejects(() -> TraTraversalExample.topological(partial));
+        TraTraversalExample.State bfs = TraTraversalExample.traverse(graph, vertices, vertices.get(0), true, true, false);
+        check(bfs.distance.get(vertices.get(2)) == 1, "BFS shortest direct path");
+        check(bfs.distance.get(vertices.get(3)) == -1 && bfs.depth.get(vertices.get(3)) == 0,
+                "Other forest roots do not gain distance from original start");
+        rejects(() -> TraTraversalExample.topological(bfs));
+        Vertex foreign = new DiGraph().addVertex("same");
+        rejects(() -> TraTraversalExample.traverse(graph, vertices, foreign, false, false, false));
+        rejects(() -> TraRecursiveDfsExample.traverse(graph, vertices, foreign, false));
+        List<Vertex> duplicate = new ArrayList<>(vertices);
+        duplicate.set(1, duplicate.get(0));
+        rejects(() -> TraTraversalExample.traverse(graph, duplicate, vertices.get(0), false, false, false));
+        rejects(() -> TraRecursiveDfsExample.traverse(graph, duplicate, vertices.get(0), false));
+    }
+
     public static void main(String[] args) {
+        printLessonGraph();
+        extendedContracts();
         Random random = new Random(20261118);
         for (boolean directed : new boolean[]{true, false}) {
             for (int test = 0; test < 40; test++) {

@@ -17,6 +17,7 @@
     "format:check": "prettier --check src tests scripts vite.config.js eslint.config.js package.json .prettierrc.json",
     "sync:java-snippets": "node scripts/sync-java-snippets.mjs",
     "check:java-snippets": "node scripts/sync-java-snippets.mjs --check",
+    "check:tra-library": "node scripts/tra-library.mjs",
     "lint": "eslint src tests scripts vite.config.js eslint.config.js"
   },
   "dependencies": {

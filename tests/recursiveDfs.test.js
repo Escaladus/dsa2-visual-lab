@@ -3,8 +3,10 @@ import test from 'node:test'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
+import { traLibraryPath } from '../scripts/tra-library.mjs'
+import { delimiter } from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { dfsCode, dfsDriverCode, dfsExamples } from '../src/data/recursiveDfs.js'
+import { dfsCode, dfsDriverCode, dfsExamples, dfsLine } from '../src/data/recursiveDfs.js'
 import { dfsLessonTrace, dfsWalkthrough } from '../src/data/recursiveDfsLesson.js'
 import { createRecursiveDfsTrace, dfsContinuation } from '../src/utils/recursiveDfs.js'
 import { recursionTreeLayout } from '../src/utils/recursionAlgorithms.js'
@@ -133,7 +135,7 @@ for (const [name, example] of Object.entries(dfsExamples)) {
           const continuation = dfsContinuation(frame)
           if (continuation?.method === 'dfs') {
             assert.ok(frame.stack.includes(continuation.id))
-            assert.equal(continuation.line, 7)
+            assert.equal(continuation.line, dfsLine('dfs', 'dfs(next,'))
             assert.ok(Number.isInteger(continuation.nextI))
           }
           for (const labels of Object.values(recursiveDfsTranslations)) {
@@ -157,11 +159,19 @@ test('returns resume the saved loop rather than restarting a vertex', () => {
   const resumed = frames[index]
   const parent = resumed.nodes[resumed.current]
   assert.deepEqual(parent.locals, { v: 0, i: 0, next: 1 })
-  assert.equal(resumed.line, 7)
-  assert.deepEqual(dfsContinuation(resumed), { id: parent.id, method: 'dfs', line: 7, nextI: 1 })
-  assert.equal(frames[index + 1].line, 4)
+  assert.equal(resumed.line, dfsLine('dfs', 'dfs(next,'))
+  assert.deepEqual(dfsContinuation(resumed), {
+    id: parent.id,
+    method: 'dfs',
+    line: dfsLine('dfs', 'dfs(next,'),
+    nextI: 1,
+  })
+  assert.equal(frames[index + 1].line, dfsLine('dfs', 'for (int i'))
   assert.equal(frames[index + 1].nodes[parent.id].locals.i, 1)
-  assert.deepEqual(frames[index + 2].nodes[parent.id].locals, { v: 0, i: 1, next: 2 })
+  assert.deepEqual(
+    frames.slice(index + 1).find(step => step.message.key === 'neighbor').nodes[parent.id].locals,
+    { v: 0, i: 1, next: 2 },
+  )
 })
 
 test('disconnected and isolated vertices form a call forest only when requested', () => {
@@ -230,7 +240,10 @@ test('guided moments point to the complete branching example and its real return
   const final = dfsLessonTrace.at(-1)
   assert.deepEqual(final.pre, [0, 1, 3, 2])
   assert.deepEqual(final.post, [3, 1, 2, 0])
-  const source = readFileSync('src/examples/RecursiveDfsExample.java', 'utf8').replace(/\s+/g, ' ')
+  const source = readFileSync('src/tra-examples/TraRecursiveDfsExample.java', 'utf8').replace(
+    /\s+/g,
+    ' ',
+  )
   assert.ok(source.includes(dfsCode.replace(/\s+/g, ' ')))
   assert.ok(source.includes(dfsDriverCode.replace(/\s+/g, ' ')))
 })
@@ -249,9 +262,7 @@ test(
         for (let start = 0; start < Math.max(1, graph.length); start++) {
           for (const all of [false, true]) {
             const literal = '{' + graph.map(row => '{' + row.join(',') + '}').join(',') + '}'
-            cases.push(
-              `{ var r = RecursiveDfsExample.traverse(new int[][]${literal}, ${start}, ${all}); System.out.println(r.pre()); System.out.println(r.post()); }`,
-            )
+            cases.push(`run(new int[][]${literal}, ${start}, ${all});`)
             const frame = createRecursiveDfsTrace(graph, start, all).at(-1)
             expected.push(frame.pre, frame.post)
           }
@@ -260,7 +271,16 @@ test(
       const harness = join(directory, 'DfsParity.java')
       writeFileSync(
         harness,
-        `public class DfsParity { public static void main(String[] args) { ${cases.join('\n')} } }`,
+        `import fi.uef.cs.tra.*; import java.util.*;
+public class DfsParity {
+static void run(int[][] input,int start,boolean all){
+Graph graph=new Graph(); List<Vertex> vertices=new ArrayList<>();
+for(int i=0;i<input.length;i++)vertices.add(graph.addVertex(String.valueOf(i)));
+for(int u=0;u<input.length;u++)for(int v:input[u])if(u<v)vertices.get(u).addEdge(vertices.get(v));
+var result=TraRecursiveDfsExample.traverse(graph,vertices,vertices.isEmpty()?null:vertices.get(start),all);
+System.out.println(ids(vertices,result.pre()));System.out.println(ids(vertices,result.post()));}
+static List<Integer> ids(List<Vertex> vertices,List<Vertex> order){List<Integer> ids=new ArrayList<>();for(Vertex v:order)ids.add(vertices.indexOf(v));return ids;}
+public static void main(String[] args) { ${cases.join('\n')} } }`,
       )
       const compile = spawnSync(
         'javac',
@@ -268,16 +288,18 @@ test(
           '--release',
           '11',
           '-Xlint:all',
+          '-cp',
+          traLibraryPath,
           '-d',
           directory,
-          resolve('src/examples/RecursiveDfsExample.java'),
+          resolve('src/tra-examples/TraRecursiveDfsExample.java'),
           harness,
         ],
         { encoding: 'utf8', timeout: 30000 },
       )
       assert.equal(compile.status, 0, compile.stderr)
       assert.equal(compile.stderr, '')
-      const run = spawnSync('java', ['-cp', directory, 'DfsParity'], {
+      const run = spawnSync('java', ['-cp', directory + delimiter + traLibraryPath, 'DfsParity'], {
         encoding: 'utf8',
         timeout: 10000,
       })

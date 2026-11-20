@@ -1,5 +1,5 @@
 import fi.uef.cs.tra.AbstractGraph;
-import fi.uef.cs.tra.DiGraph;
+import fi.uef.cs.tra.Graph;
 import fi.uef.cs.tra.LinkedQueue;
 import fi.uef.cs.tra.Vertex;
 import java.util.ArrayList;
@@ -95,28 +95,35 @@ public class TraBfsExample {
         return labels;
     }
 
-    public static void main(String[] args) {
-        DiGraph graph = new DiGraph();
-        Vertex[] vertices = new Vertex[5];
-        for (int i = 0; i < vertices.length; i++) {
-            vertices[i] = graph.addVertex(String.valueOf(i));
+    /** The same A–H undirected graph as the basic BFS drawing. */
+    public static Graph createBasicGraph() {
+        Graph graph = new Graph();
+        String[] names = {"A", "B", "C", "D", "E", "F", "G", "H"};
+        Vertex[] vertices = new Vertex[names.length];
+        for (int i = 0; i < names.length; i++) {
+            vertices[i] = graph.addVertex(names[i]);
         }
-        vertices[0].addEdge(vertices[1]);
-        vertices[0].addEdge(vertices[2]);
-        vertices[0].addEdge(vertices[3]);
-        vertices[1].addEdge(vertices[2]);
-        vertices[2].addEdge(vertices[0]);
-        vertices[3].addEdge(vertices[2]);
+        // Endpoint numbers index the explicit names array above.
+        int[][] edges = {
+            {0, 1}, {0, 2}, {1, 3}, {1, 5}, {2, 3}, {2, 4},
+            {3, 4}, {3, 6}, {4, 6}, {5, 6}, {6, 7}
+        };
+        for (int[] edge : edges) {
+            vertices[edge[0]].addEdge(vertices[edge[1]]);
+        }
+        return graph;
+    }
 
-        Result result = search(graph, vertices[0]);
+    public static void main(String[] args) {
+        Graph graph = createBasicGraph();
+        List<Vertex> vertices = new ArrayList<>();
+        for (Vertex vertex : graph.vertices()) vertices.add(vertex);
+        Result result = search(graph, vertices.get(0));
         System.out.println("Discovered: " + labels(result.discovered()));
         List<Integer> distances = new ArrayList<>();
-        for (Vertex vertex : vertices) {
-            distances.add(result.distanceTo(vertex));
-        }
+        for (Vertex vertex : vertices) distances.add(result.distanceTo(vertex));
         System.out.println("Distances: " + distances);
-        System.out.println("Path to 2: " + labels(result.pathTo(vertices[2])));
-        System.out.println("Path to 4: " + labels(result.pathTo(vertices[4])));
-        System.out.println("isolated WHITE: " + (vertices[4].getColor() == AbstractGraph.WHITE));
+        System.out.println("Path to H: " + labels(result.pathTo(vertices.get(7))));
+        // search also supports DiGraph, empty graphs and unreachable targets.
     }
 }

@@ -58,27 +58,19 @@ export const graphQuizQuestions = [
     'bfsGrey',
     2,
     createQuestionContext('branching', 'bfs', 'dequeue', s => s.vertex === 0),
-    traversalExcerpt(
-      bfsTraversalCode,
-      'state.color[start] = GREY',
-      'if (state.color[next] != WHITE)',
-    ),
+    traversalExcerpt(bfsTraversalCode, 'start.setColor(GREY)', 'if (next.getColor() != WHITE)'),
   ),
   createQuestion(
     'post',
     1,
     createQuestionContext('branching', 'dfs', 'post', s => s.vertex === 3),
-    traversalExcerpt(dfsTraversalCode, 'state.post.add(v)', 'state.color[v] = BLACK'),
+    traversalExcerpt(dfsTraversalCode, 'state.post.add(v)', 'v.setColor(BLACK)'),
   ),
   createQuestion(
     'tree',
     0,
     createQuestionContext('directed', 'dfs', 'check', matchesEdge(0, 1)),
-    traversalExcerpt(
-      dfsTraversalCode,
-      'if (state.color[next] == WHITE)',
-      'dfs(graph, next, state);',
-    ),
+    traversalExcerpt(dfsTraversalCode, 'if (next.getColor() == WHITE)', 'dfs(next, state);'),
   ),
   createQuestion(
     'back',
@@ -114,7 +106,7 @@ export const graphQuizQuestions = [
     'shortest',
     0,
     createQuestionContext('dag', 'bfs', 'done'),
-    traversalExcerpt(bfsTraversalCode, 'state.parent[next] = v', 'queue.add(next)'),
+    traversalExcerpt(bfsTraversalCode, 'state.parent.put(next, v', 'queue.offer(next)'),
   ),
   createQuestion(
     'topological',

@@ -25,6 +25,8 @@ The project separates the algorithm being taught from playback and rendering. A 
 
 ## How a visualisation step works
 
+For the planned graph/tree transition, start with [TRA_MIGRATION.md](TRA_MIGRATION.md): it maps every affected lesson, source, trace, question and test to its migration stage. [TRA_CONTRACTS.md](TRA_CONTRACTS.md) records the verified API, ordering rules, empty inputs and Java commands. `scripts/tra-library.mjs` owns the canonical JAR pin and supplies verified bytes to both ZIP builders. Keep the library in its existing exercise folder; do not maintain another source copy.
+
 1. A pure trace builder runs the algorithm and records a complete history. It does not read the DOM or start timers.
 2. The playback controller selects a history index. Back, forward and play select existing snapshots; they do not partially execute the algorithm again.
 3. Rendering components read the selected snapshot and translated labels.
@@ -47,9 +49,9 @@ The DFS coding task is a separate download supporting JDK 11 and newer. Its `Sol
 
 `predev`/`prebuild` generate the ignored ZIP in `public/exercises` using the source files in `exercises/dfs-reachable`. The Node-only ZIP builder stores entries with deterministic timestamps. Keep the supplied JAR unchanged; its hash and package choice are documented in the included readmes. The browser uses Vite's base URL for the download, including repository Pages paths. Source changes require regenerating the ZIP before testing a download.
 
-Additional TRA examples live separately from the original standalone catalogue. `package-java-downloads.mjs` now prepares both the task ZIP and `public/examples/tra-graphs.zip`; the latter reuses the canonical JAR from the task folder and generates `expected-output.txt` from the TRA catalogue. `TraJavaExamples` displays related sources, commands and output after the original examples. Keep the two catalogues separate: their classpaths differ. Each TRA file runs independently with the supplied JAR on JDK 11+. Traversal results use vertex identity and fresh containers per call; resetting colours does not rewrite previously returned lists or maps. Tests compile the actual archive, compare source-mode output and check graph algorithms against integer reference traversals.
+Additional TRA examples live separately from the original standalone catalogue. `package-java-downloads.mjs` now prepares both the task ZIP and `public/examples/tra-graphs.zip`; the latter reuses the canonical JAR from the task folder and generates `expected-output.txt` from the TRA catalogue. `TraJavaExamples` displays primary TRA sources first on migrated topics; standalone graph variants are optional collapsed comparisons. Keep the two catalogues separate: their classpaths differ. Each TRA file runs independently with the supplied JAR on JDK 11+. Traversal results use vertex identity and fresh containers per call; resetting colours does not rewrite previously returned lists or maps. Tests compile the actual archive, compare source-mode output and check graph algorithms against integer reference traversals.
 
-`GraphTraversalExample.java` is the source of truth for the extended traversal's displayed Java methods:
+`TraTraversalExample.java` is the source of truth for the extended traversal's displayed Java methods:
 
 ```bash
 npm run sync:java-snippets
@@ -60,7 +62,7 @@ The script produces `src/data/graphTraversalCode.js`; do not edit that generated
 
 Some teaching events group related metadata assignments, such as assigning a child's parent, root, depth and distance. Their highlight points to the first statement in that group. Keep the event explanation consistent with the whole group when changing it.
 
-The basic DFS and factorial/Fibonacci use short teaching snippets in `src/data/recursiveDfs.js` and `src/data/recursion.js`. Their trace builders refer to snippet-relative line numbers. Change those snippets, the matching Java source and line references together. The tests compare source, traces, continuations and results.
+Basic DFS is generated from `TraRecursiveDfsExample.java` into `recursiveDfsCode.js`; basic BFS is generated from `TraBfsExample.java` into `basicBfsCode.js`. `data/recursiveDfs.js` exposes statement-based line lookup. Factorial/Fibonacci keep their existing snippets in `data/recursion.js`. Change each source, matching selectors and explanations together. Basic DFS has an actual per-call `Iterator<Vertex>` and a scoped i counter; next() advances the iterator before a child call, while the for-loop increments i after that child returns. Extended DFS uses i in an explicitly prepared Java List. Neither is Vertex.index.
 
 Java examples target JDK 11. Comments use English to keep source code consistent across the three interface languages. Explain contracts and decisions, such as excluding a parent edge or rejecting a stale queue entry, rather than narrating every assignment.
 
@@ -77,3 +79,61 @@ npm run build
 Prettier owns layout; ESLint checks undefined variables, unreachable code and duplicate object keys. Both checks run before a Pages build. They are development dependencies and add no browser runtime libraries.
 
 Tests include execution of Java examples when a JDK is available. They do not replace a browser check for rendering changes. For visualisation refactors, check playback, rewinding, language preservation, mobile tabs, internal scrolling and the position of the bottom controls. New layout components should retain the existing DOM classes and accessibility relationships unless the layout itself is intentionally changing.
+
+## Graph basics after migration stage 2
+
+`GraphBasicsLesson` renders `data/graphBasics.js` and extracts its construction method directly from `TraGraphExample.java`; its copy and class links are in `i18n/graphBasics.js`. The Java reference emits the real factory's topology/weights for comparison to that drawing. `TraGraphDataExample` keeps outgoing counts in an IdentityHashMap without changing the input.
+
+`primaryTopics` in the TRA catalogue puts that block first for migrated topics; `comparisonTopics` in the standalone catalogue moves the old custom graph to an optional collapsed group. Keep ordinary Map examples visible. Dependency notes must describe the particular source group, not every example on the page. Existing DFS/BFS snippets are not migrated by this placement change.
+
+## TRA traversal after migration stage 3
+
+Vertex IDs in browser snapshots are stable visual identifiers; runnable algorithms use real TRA Vertex references and identity-keyed metadata. Extended classification keys the physical Edge and excludes its reverse parent view. State captures final colours so a later run resetting vertices cannot rewrite earlier results. Generated snapshots still retain their own nested data for rewinding.
+
+The A–H BFS retains its drawing and queue layout, adds the currently processed vertex separately from the newly discovered focus, and records BLACK only after all neighbours. Its code details highlight statements extracted from TraBfsExample. The expanded colour/edge/practice workspace retains independent cursors, mobile tabs, code expansion and bottom controls. Preparation details expose the actual State constructor and sorting cost.
+
+`tests/traTraversalEvents.test.js` injects observation calls into temporary copies of exact source statements. It compares real intermediate Vertex colours, metadata, queue contents, PRE/POST and waiting/resuming i values with the JS trace. The downloadable sources contain no observation hooks. Full-result tests cover every lesson graph/start/scope/order/algorithm combination; native/basic helpers also run on generated graphs.
+
+## Trees and priority queues after migration stage 4
+
+`data/treeTraversal.js` owns the four presets; `utils/treeTraversal.js` produces one immutable snapshot per processing event. `TreeTraversalLab` keeps the original A–G geometry and controls, shows edge height/depth and paths, and handles the null root without a fake processed node. Its displayed method, construction, size/height and general-tree examples are generated from `TraTreeExample.java` by the same sync script. The combined Java method appends PRE/IN/POST in one run; the selected view filters to its append events. Node frames exclude short null calls; Java's actual maximum includes one more frame.
+
+`TraPriorityQueueExample.java` is the heap topic's primary runnable source. Preserve the educational heap renderer/reducer; compare its completed operations to actual TRA values/results, never its exact internal array. `tests/treeTraversal.test.js` uses an iterative independent reference, the real BTree factories, generated trees with repeated values and real PriorityQueue sequences. `TraTreeQueueChecks.java` checks structure preservation, first-child/sibling links, comparator copies, duplicate/extreme priorities and null rejection.
+
+## Traversal applications after migration stage 5
+
+`GraphApplicationsLab` mounts the existing `GraphTraversalLab` only after its details is opened. Five buttons pick `graphTraversalTasks`; `initialTask` sets the initial graph, mode and scope in `useGraphTraversal`. Choosing another problem starts a new walkthrough, while language changes preserve the current one. Closing details stops playback without discarding its step. The original DFS/BFS views and bottom controls retain their behaviour.
+
+`TraComponentsExample` is a standalone undirected Graph lesson: component DFS plus a separate cycle DFS that skips the identical parent Edge. It iterates Edge directly to avoid repeated linear `Vertex.getEdge` searches. `TraTopologicalExample` performs a full DiGraph DFS, throws on a GREY neighbour and exposes reverse POST only on success. Its error contract permits interrupted colours, reset on the next run. Both use native iteration, Θ(V + E) time and O(V) additional space.
+
+The shared `TraTraversalExample.State` now prepares aligned neighbour and outgoing Edge lists. DFS indexes both by its saved i, keeping source/trace alignment while eliminating the old per-neighbour linear edge lookup. Preparation still includes sorting and takes O(V + E + Σ d(v) log(d(v) + 1)) time and O(V + E) space. Update its Java source, regenerate snippets and keep the preparation explanation in all languages aligned.
+
+`tests/traApplications.test.js` compiles the actual sources and `TraApplicationsChecks.java` for release 11. Independent Floyd-style reachability/distances, Kahn cycle checks and the forest edge-count property validate components, paths, cycle witnesses and orders on 240 generated graphs. Tests accept any valid result and verify actual factory topology against the three diagram presets, duplicate labels, empty/single inputs, disconnected cycles, self-loops, repeated runs and structure preservation.
+
+## Weighted paths after migration stage 6a
+
+`TraDijkstraExample` keeps distances/parents in private IdentityHashMaps and uses immutable QueueEntry objects in an explicitly imported TRA PriorityQueue. Always validate all weights, including unreachable edges; use the capacity-plus-comparator constructor. Improvements offer a new entry, and stale entries must be skipped before examining outgoing Edge objects. Do not mutate Vertex.weight to represent a queued priority. Result queries reject foreign vertices; source null is valid only for an empty input.
+
+`TraFloydWarshallExample.Result` assigns external indices to actual Vertex references and builds distance/next-hop matrices from outgoing Edge objects. DiGraph directions are preserved; Graph supplies both adjacency directions. The k loop is outermost, infinity subpaths are skipped, and a negative diagonal rejects the entire result before it escapes. Distances alone do not reconstruct a path: keep next-hop updates aligned with each improvement. Empty/self/unreachable path conventions and the global rejection policy are shared across source comments, output, descriptions and the three lesson supplements.
+
+Weights are finite float input, summed in double. The examples use strict improvement comparisons; numeric error tolerances belong in independent verification, not in queue comparator equality. Expected O(1) identity-map access is assumed in the published bounds. `tests/traShortestPaths.test.js` compiles the actual sources for release 11 and runs `TraShortestPathsChecks.java`: Bellman-Ford references, 340 generated weighted inputs, actual path sums, equal alternatives/zero cycles, disconnected negative cycles, direction/identity, all input fields, repeat ownership, non-finite rejection, subnormal/large float sums and decimal-representation cases.
+
+## Spanning forests after migration stage 6b
+
+`TraMinimumSpanningTreeExample` is one independently runnable source containing both Prim and Kruskal. Its Graph parameter deliberately excludes DiGraph. Result owns read-only Vertex/Edge lists, component count and a double weight snapshot; list elements remain actual input objects, not deep copies. Empty means zero components and is not named a tree; a single vertex is a zero-edge tree. Forest outputs cover all components with V-C selected physical edges.
+
+Prim stores actual crossing Edge objects in TRA PriorityQueue using the capacity-plus-comparator constructor. `addBoundary` visits a fresh vertex and offers only edges to unreached endpoints. Each physical edge is offered at most once, but a queued edge can become stale; skip it when both endpoints have been reached. Drain the queue before starting another root, including isolated vertices. Do not assume stored Edge endpoint order identifies the new vertex, or change weights while queued.
+
+Kruskal copies Graph.edges(), sorts by weight and uses external IdentityHashMap indices into private DisjointSets arrays. The arrays implement rank/compression; Vertex.index, colours, weights, labels and graph topology stay unchanged. Ties may produce different forests, so do not compare exact selected edge lists except the fixed sample output.
+
+`tests/traSpanningForests.test.js` compiles for release 11 and runs `TraSpanningForestChecks.java`. Independent BFS connectivity and subset enumeration check coverage/acyclicity/count/minimum weight; a maximum-on-tree-path exchange check validates minimum forests on larger inputs, including all-negative paths. The suite covers all 76 labelled topologies through four vertices, 320 generated graphs, endpoint storage reversal, duplicate labels, ties/zero/negative weights, isolated/empty vertices, non-finite rejection, float extremes, read-only lists and repeat/input preservation. A real Dijkstra run confirms the same-triangle contrast with a shortest-path tree.
+
+## Graph analysis after migration stage 6c
+
+`TraGraphCutsExample.find(Graph)` owns identity tin/low maps, cut vertices and physical bridge Edge references. Its DFS skips the identical parent edge, uses a visited neighbour's tin and a returning child's low, and treats root child count separately. The result snapshots times and read-only output lists. Weights/colours are irrelevant, and every component is visited. Entry-only tin differs from the earlier two-event tin/tout counter. Expected core cost O(V + E) time/O(V) space; console label sorting is separate.
+
+`TraBipartiteMatchingExample.match(Graph, left)` validates distinct member left vertices and every crossing edge; right is the graph complement. It does not compute a bipartition automatically. Fresh seen-right state per left search and recursive owner reassignment produce maximum cardinality. Actual Edge pairs and symmetric Vertex partners are returned; unmatched members give null, foreign queries fail. Weights are ignored. Expected cost O(V + E + L E) time/O(V) space, assuming expected O(1) identity operations.
+
+`TraMaxFlowExample.maxFlow(DiGraph, source, sink)` validates distinct member terminals and stored float capacities as finite integers in [0, 1_000_000_000]. This is a deliberate teaching policy, not a restriction of TRA Edge itself. Validated capacities, flow and residual amounts are exact longs with checked additions. ResidualArc is private cancellation bookkeeping referring to real Vertex/Edge objects; it is not a replacement input graph class. Each original Edge has a distinct forward/reverse pair, so original antiparallel arcs remain independent. No graph edge is inserted or mutated. LinkedQueue BFS allocates discovered-parent state only for reached vertices per round. Expected O(V + E + V E²) time/O(V + E) space includes initial/final full-input passes. Results snapshot per-Edge capacities/flows and a min-cut witness. No full augmentation history is stored; reverseSteps is only a counter.
+
+`tests/traGraphAnalysis.test.js` compiles all three real sources for release 11 and runs TraGraphAnalysisChecks. Independent references remove vertices/edges, enumerate matching choices and enumerate source-side cuts. They check actual edge identity, capacity bounds, conservation, cut equality, repeats and preserved fields on 160 graphs per algorithm plus boundaries. Cases include duplicate labels, ignored NaN weights for topology algorithms, invalid partitions/capacities/terminals, zero/antiparallel/loop flow edges, real residual cancellation and a 3-billion flow. Keep these algorithms' different input contracts explicit; do not propagate flow's capacity restriction to unweighted cuts/matching.

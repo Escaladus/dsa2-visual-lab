@@ -17,6 +17,7 @@ export default function TraversalPractice({
   target,
   onTargetChange,
   onLaunch,
+  showTaskLauncher = true,
 }) {
   const roots = [...new Set(step.root.filter(vertex => vertex >= 0))]
   const topo = traversalTopological(step)
@@ -66,20 +67,22 @@ export default function TraversalPractice({
           </table>
         </div>
       </details>
-      <details className="traversal-details traversal-applications">
-        <summary>{labels.applications}</summary>
-        <div className="traversal-task-grid">
-          {Object.entries(labels.tasks).map(([key, [title, body]]) => (
-            <section key={key}>
-              <h4>{title}</h4>
-              <p>{body}</p>
-              <button onClick={() => onLaunch(key)} data-task={key}>
-                {labels.launch}
-              </button>
-            </section>
-          ))}
-        </div>
-      </details>
+      {showTaskLauncher && (
+        <details className="traversal-details traversal-applications">
+          <summary>{labels.applications}</summary>
+          <div className="traversal-task-grid">
+            {Object.entries(labels.tasks).map(([key, [title, body]]) => (
+              <section key={key}>
+                <h4>{title}</h4>
+                <p>{body}</p>
+                <button onClick={() => onLaunch(key)} data-task={key}>
+                  {labels.launch}
+                </button>
+              </section>
+            ))}
+          </div>
+        </details>
+      )}
       <section className="traversal-result" aria-label={labels.result}>
         <h3>{labels.result}</h3>
         {!complete ? (
@@ -87,14 +90,20 @@ export default function TraversalPractice({
         ) : (
           <>
             {['reach', 'shortest'].includes(task) && (
-              <p>
-                {labels.path}: <strong>{path.length ? sequence(path) : labels.unreachable}</strong>
-                {path.length > 0 && ` · ${labels.pathLength}: ${path.length - 1}`}
-              </p>
+              <>
+                {task === 'shortest' && mode !== 'bfs' && <p>{labels.shortestNeedsBfs}</p>}
+                <p>
+                  {labels.path}:{' '}
+                  <strong>{path.length ? sequence(path) : labels.unreachable}</strong>
+                  {path.length > 0 && ` · ${labels.pathLength}: ${path.length - 1}`}
+                </p>
+              </>
             )}
             {task === 'components' && (
               <>
                 <h4>{example.directed ? labels.forest : labels.components}</h4>
+                {step.colors.some(color => color === 'WHITE') && <p>{labels.partialComponents}</p>}
+                {example.directed && <p>{labels.directedForest}</p>}
                 {roots.map(r => (
                   <p key={r}>
                     {r}: {step.root.flatMap((root, v) => (root === r ? [v] : [])).join(', ')}

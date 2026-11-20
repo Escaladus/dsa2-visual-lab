@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { adjacency, createBfsSteps, graphEdges, graphNodes } from '../utils/graphAlgorithms.js'
 
+import { basicBfsCode } from '../data/basicBfsCode.js'
+import { graphLearningTranslations } from '../i18n/graphLearning.js'
+import ExecutionCode from './ExecutionCode.jsx'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
 
 const nodeKeys = Object.keys(graphNodes)
@@ -43,7 +46,8 @@ function GraphSvg({ step }) {
 }
 
 export default function BasicBfsLab({ active = true }) {
-  const { text, message } = useLanguage()
+  const { text, message, language } = useLanguage()
+  const labels = graphLearningTranslations[language]
   const [start, setStart] = useState('A')
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -77,6 +81,7 @@ export default function BasicBfsLab({ active = true }) {
 
   return (
     <div className="lab-shell basic-bfs-lab" data-step={index}>
+      <p className="recursion-description">{labels.bfsIntro}</p>
       <div className="lab-toolbar">
         <label>
           {text.ui.start}
@@ -130,14 +135,23 @@ export default function BasicBfsLab({ active = true }) {
             {text.ui.step} {index + 1} / {steps.length}
           </div>
           <h3>{text.ui.bfsQueue}</h3>
-          <div className="frontier">
+          <p className="hint">{labels.queueEnds}</p>
+          <div className="frontier" role="list" aria-label={labels.queueEnds}>
             {(step?.frontier ?? []).length ? (
-              (step.frontier ?? []).map((v, i) => <span key={`${v}-${i}`}>{v}</span>)
+              (step.frontier ?? []).map((v, i) => (
+                <span key={`${v}-${i}`} role="listitem">
+                  {v}
+                </span>
+              ))
             ) : (
               <em>{text.ui.empty}</em>
             )}
           </div>
 
+          <div className="state-row">
+            <strong>{labels.processing}</strong>
+            <code>{step.processing ?? '—'}</code>
+          </div>
           <div className="state-row">
             <strong>visited</strong>
             <code>{(step?.visited ?? []).join(' → ') || '—'}</code>
@@ -185,6 +199,28 @@ export default function BasicBfsLab({ active = true }) {
         <button onClick={reset}>{text.ui.reset}</button>
       </div>
 
+      <details className="adjacency-box basic-bfs-code">
+        <summary>{labels.bfsJava}</summary>
+        <ExecutionCode
+          code={basicBfsCode}
+          line={
+            basicBfsCode.split('\n').findIndex(line =>
+              line.includes(
+                {
+                  dequeue: 'Vertex vertex = queue.remove()',
+                  skip: 'if (next.getColor() ==',
+                  processed: 'vertex.setColor(AbstractGraph.BLACK)',
+                  enqueue:
+                    step.current === start && index === 0
+                      ? 'queue.offer(start)'
+                      : 'queue.offer(next)',
+                }[step.kind],
+              ),
+            ) + 1
+          }
+          label={labels.bfsJava}
+        />
+      </details>
       <details className="adjacency-box">
         <summary>{text.ui.adjacency}</summary>
         <pre>

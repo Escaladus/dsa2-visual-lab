@@ -5,21 +5,28 @@ import { createGraphTraversalTrace, traversalContinuation } from '../utils/graph
 import { recursionTreeLayout } from '../utils/recursionAlgorithms.js'
 
 /** Own traversal inputs and playback. Translated text belongs to the rendering components. */
-export default function useGraphTraversal({ initialMode, colorsOnly, edgesOnly, active }) {
-  const [preset, setPreset] = useState(edgesOnly ? 'directed' : 'branching')
+export default function useGraphTraversal({
+  initialMode,
+  initialTask,
+  colorsOnly,
+  edgesOnly,
+  active,
+}) {
+  const initial = initialTask ? graphTraversalTasks[initialTask] : null
+  const [preset, setPreset] = useState(initial?.preset ?? (edgesOnly ? 'directed' : 'branching'))
   const [start, setStart] = useState(0)
-  const [all, setAll] = useState(false)
+  const [all, setAll] = useState(initial?.traverseAll ?? false)
   const [reverse, setReverse] = useState(false)
-  const [mode, setMode] = useState(initialMode)
+  const [mode, setMode] = useState(initial?.algorithm ?? initialMode)
   const [indices, setIndices] = useState({ dfs: 0, bfs: 0 })
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(850)
   const [panel, setPanel] = useState('tree')
   const [view, setView] = useState('graph')
   const [wideCode, setWideCode] = useState(false)
-  const [classification, setClassification] = useState(edgesOnly)
+  const [classification, setClassification] = useState(edgesOnly || initialTask === 'cycle')
   const [target, setTarget] = useState(2)
-  const [task, setTask] = useState('reach')
+  const [task, setTask] = useState(initialTask ?? 'reach')
   const stage = useRef(null)
   const lesson = useRef(null)
   const example = traversalExamples[preset]

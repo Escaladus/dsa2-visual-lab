@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { mkdtempSync, readFileSync, writeFileSync, copyFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { traLibraryPath } from '../scripts/tra-library.mjs'
+import { join, resolve, delimiter } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import {
   traversalExamples,
@@ -400,7 +401,7 @@ test(
   'displayed Java methods match source and Java/visualisation agree for all graph/start/scope/order/algorithm cases',
   { skip: hasJava ? false : 'JDK 11+ required' },
   () => {
-    const source = readFileSync('src/examples/GraphTraversalExample.java', 'utf8').replace(
+    const source = readFileSync('src/tra-examples/TraTraversalExample.java', 'utf8').replace(
       /\s+/g,
       ' ',
     )
@@ -414,18 +415,14 @@ test(
     }
     const directory = mkdtempSync(join(tmpdir(), 'dsa2-graph-traversal-'))
     try {
-      copyFileSync(
-        'src/examples/GraphTraversalExample.java',
-        join(directory, 'GraphTraversalExample.java'),
-      )
       const expected = []
       const rows = []
       const arr = a => '[' + a.join(', ') + ']'
       for (const c of cases) {
         const final = createGraphTraversalTrace(c.graph, c).at(-1)
-        const graph = orderedTraversalGraph(c.graph, c.reverse)
+        const graph = c.graph
         rows.push(
-          `print(GraphTraversalExample.traverse(new int[][]{${graph.map(row => '{' + row.join(',') + '}').join(',')}},${c.start},${c.all},${c.directed},${c.algorithm === 'bfs'}));`,
+          `run(new int[][]{${graph.map(row => '{' + row.join(',') + '}').join(',')}},${c.start},${c.all},${c.directed},${c.algorithm === 'bfs'},${c.reverse});`,
         )
         expected.push(
           [
@@ -450,8 +447,18 @@ test(
       }
       writeFileSync(
         join(directory, 'TraversalCheck.java'),
-        `import java.util.Arrays; public class TraversalCheck {
-static void print(GraphTraversalExample.State s){System.out.println(s.pre+"|"+s.post+"|"+Arrays.toString(s.color)+"|"+Arrays.toString(s.parent)+"|"+Arrays.toString(s.root)+"|"+Arrays.toString(s.depth)+"|"+Arrays.toString(s.distance)+"|"+Arrays.toString(s.tin)+"|"+Arrays.toString(s.tout)+"|"+s.types+"|"+s.cycle+"|"+s.neighborChecks);}
+        `import fi.uef.cs.tra.*; import java.util.*;
+public class TraversalCheck {
+static <T> List<T> values(TraTraversalExample.State s,Map<Vertex,T> map){List<T> list=new ArrayList<>();for(Vertex v:s.vertices)list.add(map.get(v));return list;}
+static List<Integer> links(TraTraversalExample.State s,Map<Vertex,Vertex> map){List<Integer> list=new ArrayList<>();for(Vertex v:s.vertices)list.add(map.get(v)==null?-1:s.id.get(map.get(v)));return list;}
+static void run(int[][] input,int start,boolean all,boolean directed,boolean breadth,boolean reverse){
+AbstractGraph graph=directed?new DiGraph():new Graph();List<Vertex> vertices=new ArrayList<>();
+for(int i=0;i<input.length;i++)vertices.add(graph.addVertex("same"));
+for(int u=0;u<input.length;u++)for(int v:input[u])if(directed||u<v)vertices.get(u).addEdge(vertices.get(v));
+var s=TraTraversalExample.traverse(graph,vertices,vertices.isEmpty()?null:vertices.get(start),all,breadth,reverse);
+List<Integer> colors=new ArrayList<>();for(Vertex v:vertices){int color=s.color.get(v);colors.add(color==AbstractGraph.WHITE?0:color==AbstractGraph.GREY?1:2);}
+System.out.println(TraTraversalExample.ids(s,s.pre)+"|"+TraTraversalExample.ids(s,s.post)+"|"+colors+"|"+links(s,s.parent)+"|"+links(s,s.root)+"|"+values(s,s.depth)+"|"+values(s,s.distance)+"|"+values(s,s.tin)+"|"+values(s,s.tout)+"|"+TraTraversalExample.edgeDescriptions(s)+"|"+TraTraversalExample.ids(s,s.cycle)+"|"+s.neighborChecks);
+}
 public static void main(String[] args){${rows.join('\n')}}}`,
       )
       const compile = spawnSync(
@@ -460,19 +467,25 @@ public static void main(String[] args){${rows.join('\n')}}}`,
           '--release',
           '11',
           '-Xlint:all',
+          '-cp',
+          traLibraryPath,
           '-d',
           directory,
-          join(directory, 'GraphTraversalExample.java'),
+          resolve('src/tra-examples/TraTraversalExample.java'),
           join(directory, 'TraversalCheck.java'),
         ],
         { encoding: 'utf8', timeout: 30000 },
       )
       assert.equal(compile.status, 0, compile.stderr)
       assert.equal(compile.stderr, '')
-      const run = spawnSync('java', ['-cp', directory, 'TraversalCheck'], {
-        encoding: 'utf8',
-        timeout: 10000,
-      })
+      const run = spawnSync(
+        'java',
+        ['-cp', directory + delimiter + traLibraryPath, 'TraversalCheck'],
+        {
+          encoding: 'utf8',
+          timeout: 10000,
+        },
+      )
       assert.equal(run.status, 0, run.stderr)
       assert.deepEqual(run.stdout.trim().split(/\r?\n/), expected)
     } finally {

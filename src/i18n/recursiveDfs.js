@@ -25,7 +25,7 @@ export const recursiveDfsTranslations = {
       ],
     },
     order:
-      'Соседи перечислены по возрастанию. Сначала обходим стартовую вершину; в режиме «Весь граф» затем проверяем вершины от 0 до последней.',
+      'В этих примерах рёбра добавлены так, что приложенный JAR перечисляет соседей по возрастанию ID. Это не общая гарантия сортировки neighbors(). Сначала идёт старт, затем явный список остальных корней.',
     graph: 'Граф',
     calls: 'Дерево вызовов',
     rightView: 'Представление обхода',
@@ -39,11 +39,11 @@ export const recursiveDfsTranslations = {
     post: 'POST: порядок выхода',
     visitedEntry: 'Вершина {v}: visited = {value}',
     none: '—',
-    nextIndex: 'После возврата: строка 7 → цикл на строке 4, i = {i}',
+    nextIndex: 'После возврата: продолжить тот же итератор, i = {i}',
     localNote:
-      'v — вершина этого вызова; i — индекс соседа с 0; next — выбранный сосед. Отсутствующий next ещё не выбран или уже вышел из области видимости.',
+      'v и next — ссылки на объекты Vertex этого вызова; i — число уже обработанных соседей. У каждого кадра свой Iterator<Vertex>. next() передвигает итератор при выборе соседа; после возврата ребёнка i увеличивается, и тот же итератор продолжает работу.',
     resume: 'Продолжение',
-    resumeDfs: 'dfs({v}) #{call}: строка 7, затем строка 4 с i = {i}',
+    resumeDfs: 'dfs({v}) #{call}: продолжить после вызова ребёнка, затем цикл с i = {i}',
     resumeDriver: 'traverse: строка {line}',
     control: 'возврат управления',
     active: 'Текущий шаг',
@@ -63,19 +63,19 @@ export const recursiveDfsTranslations = {
     points: [
       [
         'Общее состояние и собственные переменные',
-        'В Java аргументы передаются по значению: для массивов и списков копируется ссылка на тот же объект. Поэтому все вызовы видят общие graph, visited, pre и post. Числа v, i и next принадлежат каждому вызову отдельно.',
+        'Java копирует значения ссылок: все кадры используют общие visited, pre и post. visited — IdentityHashMap<Vertex, Boolean>, поэтому одинаковые метки не объединяют вершины. У каждого вызова собственные ссылки v/next, счётчик i и итератор neighbors.',
       ],
       [
         'Сначала помечаем, затем вызываем',
-        'Строка 2 устанавливает visited[v] = true до обхода соседей. Строка 6 пропускает посещённых. Даже при цикле новая рекурсия запускается только для ещё не посещённой вершины.',
+        'visited.put(v, true) выполняется до чтения соседей. Проверка visited.get(next) пропускает уже обнаруженные вершины, включая переходы по циклу. Цвета Vertex этот базовый пример не меняет.',
       ],
       [
         'Ожидание и продолжение цикла',
-        'На строке 7 родитель ждёт ребёнка, сохраняя v, i и next. После возврата продолжается тот же вызов: цикл увеличивает i и проверяет следующего соседа. Обход родителя не начинается заново.',
+        'Родитель ждёт на строке dfs(next, ...), сохраняя свой итератор, i и next. После возврата увеличивается i и проверяется neighbors.hasNext(). Тот же вызов продолжается, а не запускается заново.',
       ],
       [
         'Где условие завершения?',
-        'Когда i достигает graph[v].length, больше соседей нет. Выполняется POST, затем метод заканчивается. Отдельное if для базового случая не обязательно: завершение задаёт конец цикла. Новые вызовы открывают только непосещённые вершины конечного графа.',
+        'Когда neighbors.hasNext() возвращает false, соседи закончились. Выполняется POST и метод возвращает управление. Новые вызовы открывают только ещё не посещённые вершины конечного графа.',
       ],
       [
         'PRE, POST и void',
@@ -89,7 +89,10 @@ export const recursiveDfsTranslations = {
     walkthrough: 'Разбери пример с разветвлением',
     show: 'Показать момент',
     moments: {
-      mark: ['Вход в 0', 'Сначала помечаем visited[0]. PRE ещё будет записан следующим шагом.'],
+      mark: [
+        'Вход в 0',
+        'Сначала помечаем visited.get(v0). PRE ещё будет записан следующим шагом.',
+      ],
       descend: [
         '1 ждёт 3',
         'dfs(0) ждёт dfs(1), а dfs(1) вызывает dfs(3). В каждом кадре сохранены свои i и next.',
@@ -100,15 +103,15 @@ export const recursiveDfsTranslations = {
       ],
       return: [
         'Возврат 3 → 1',
-        'Кадр dfs(3) снят. Он возвращает управление в dfs(1) на строку 7, без числового ответа.',
+        'dfs(3) завершён и снят со стека. Управление возвращается в ожидающий dfs(1) к месту вызова ребёнка.',
       ],
       resume: [
         'Продолжение dfs(0)',
-        'Ветка через 1 уже завершена. dfs(0) продолжает строку 7 при i = 0; затем цикл увеличит i до 1.',
+        'Родитель ждёт на строке dfs(next, ...), сохраняя свой итератор, i и next. После возврата увеличивается i и проверяется neighbors.hasNext(). Тот же вызов продолжается, а не запускается заново.',
       ],
       nextNeighbor: [
         'Следующий сосед — 2',
-        'Родитель не перезапущен: теперь его i = 1, и из graph[0][1] выбран сосед 2.',
+        'Родитель не перезапущен: теперь его i = 1, и из neighbors.next() выбран сосед 2.',
       ],
       done: [
         'Порядок входа и выхода',
@@ -119,23 +122,25 @@ export const recursiveDfsTranslations = {
     recursionLink: 'К объяснению рекурсии →',
     messages: {
       ready: 'Начнём с вершины {start}. Следующий шаг подготовит общие структуры.',
-      initializeVisited: 'Создаём один общий массив visited, изначально все значения false.',
+      initializeVisited:
+        'Создаём общую IdentityHashMap: для каждого объекта Vertex начальное значение visited равно false.',
       initializeOrders:
         'Создаём общие списки pre и post. Рекурсивные вызовы будут дописывать в эти же списки.',
-      start: 'traverse вызывает dfs({start}) на строке 4 и ждёт завершения рекурсии.',
+      start: 'traverse вызывает dfs({start}) и ждёт завершения рекурсии.',
       enter: 'Входим в dfs({v}), вызов №{call}. Создан кадр с собственным v = {v}.',
-      mark: 'Помечаем visited[{v}] = true до перехода к соседям, чтобы не войти сюда повторно через цикл.',
+      mark: 'Помечаем объект вершины {v} в visited до обхода соседей, чтобы не войти в него повторно по циклу.',
       pre: 'PRE: записываем вход в вершину {v}.',
-      loop: 'dfs({v}): проверяем i = {i} < {length}. Если условие ложно, все соседи рассмотрены.',
-      neighbor: 'dfs({v}): сосед с индексом i = {i} — next = {next}.',
-      skip: 'Ребро {v} → {next}: visited[{next}] уже true. Пропускаем его без нового вызова.',
+      loop: 'dfs({v}): проверяем neighbors.hasNext(). Уже обработано i = {i}, всего соседей на рисунке {length}.',
+      neighbor:
+        'dfs({v}): neighbors.next() выбрал вершину {next}; счётчик обработанных соседей пока i = {i}.',
+      skip: 'Ребро {v} → {next}: объект соседа уже помечен в visited. Пропускаем без нового вызова.',
       check: 'Ребро {v} → {next}: сосед ещё не посещён. Можно создать дочерний вызов.',
-      wait: 'dfs({v}) ждёт dfs({next}) на строке 7, сохраняя свой i = {i}.',
+      wait: 'dfs({v}) ждёт dfs({next}), сохраняя свой итератор и i = {i}.',
       resume:
         'Возвращаемся в dfs({v}) после dfs({next}). Пока i = {i}; далее цикл увеличит i до {nextI}, а не начнётся заново.',
       post: 'Все соседи вершины {v} рассмотрены. POST: записываем выход; кадр пока остаётся в стеке.',
       return:
-        'dfs({v}) завершён и снят со стека. Управление возвращается в dfs({parent}) на строку 7.',
+        'dfs({v}) завершён и снят со стека. Управление возвращается в ожидающий dfs({parent}) к месту вызова ребёнка.',
       returnRoot:
         'Корневой dfs({v}) завершён. Управление возвращается внешнему traverse, а не другой вершине.',
       rootResume: 'traverse продолжает работу после завершения корневого dfs({v}).',
@@ -146,6 +151,10 @@ export const recursiveDfsTranslations = {
       rootSkip: 'Вершина {v} уже посещена. Внешний цикл не создаёт повторный вызов.',
       root: 'Вершина {v} ещё не посещена. Начинаем новый корневой вызов для её компоненты.',
       done: 'Обход завершён: посещено {count} из {total} вершин. Стек рекурсивных вызовов пуст.',
+      iterator:
+        'dfs({v}) создаёт собственный Iterator<Vertex>; ни один другой кадр не двигает этот итератор.',
+      advance:
+        'dfs({v}): сосед с номером {i} обработан; увеличиваем i до {nextI} и продолжаем свой итератор.',
     },
   },
   en: {
@@ -174,7 +183,7 @@ export const recursiveDfsTranslations = {
       ],
     },
     order:
-      'Neighbours are listed in ascending order. Visit the starting vertex first; Whole graph then checks vertices from 0 to the last index.',
+      'These fixtures insert edges so the supplied JAR enumerates neighbours in ascending ID order. This is not a general sorting guarantee of neighbors(). Visit the selected start first, then the explicit root list.',
     graph: 'Graph',
     calls: 'Call tree',
     rightView: 'Traversal view',
@@ -188,11 +197,11 @@ export const recursiveDfsTranslations = {
     post: 'POST: exit order',
     visitedEntry: 'Vertex {v}: visited = {value}',
     none: '—',
-    nextIndex: 'After return: line 7 → loop on line 4, i = {i}',
+    nextIndex: 'After return: continue the same iterator, i = {i}',
     localNote:
-      'v is this call’s vertex; i is a neighbour index starting at 0; next is the selected neighbour. An absent next has not been selected yet or has left scope.',
+      'v and next are this call’s Vertex references; i counts completed neighbours. Each frame owns an Iterator<Vertex>. next() advances it when selecting a neighbour; after the child returns, i increases and that same iterator continues.',
     resume: 'Continuation',
-    resumeDfs: 'dfs({v}) #{call}: line 7, then line 4 with i = {i}',
+    resumeDfs: 'dfs({v}) #{call}: resume after the child call, then the loop with i = {i}',
     resumeDriver: 'traverse: line {line}',
     control: 'returning control',
     active: 'Current step',
@@ -212,19 +221,19 @@ export const recursiveDfsTranslations = {
     points: [
       [
         'Shared state and local variables',
-        'Java passes arguments by value: for arrays and lists, the copied value is a reference to the same object. All calls therefore share graph, visited, pre and post. The numbers v, i and next belong to each call separately.',
+        'Java copies reference values: every frame shares visited, pre and post. visited is an IdentityHashMap<Vertex, Boolean>, so equal labels do not merge vertices. Each call owns its v/next references, i counter and neighbors iterator.',
       ],
       [
         'Mark first, recurse second',
-        'Line 2 sets visited[v] = true before scanning neighbours. Line 6 skips visited vertices. Even in a cycle, a new recursive call is made only for an unseen vertex.',
+        'visited.put(v, true) runs before reading neighbours. visited.get(next) skips discovered vertices, including around a cycle. This basic example leaves Vertex colours unchanged.',
       ],
       [
         'Waiting and resuming the loop',
-        'On line 7, the caller waits for its child, keeping v, i and next. After the return, that same call continues: the loop increments i and checks the next neighbour. The caller’s traversal does not restart.',
+        'The parent waits at dfs(next, ...), keeping its iterator, i and next. After the return, i increases and neighbors.hasNext() is tested. That same call continues rather than restarting.',
       ],
       [
         'Where does the call stop?',
-        'When i reaches graph[v].length, no neighbours remain. POST runs and the method ends. A separate base-case if is unnecessary: the loop ending provides termination. New calls discover only unseen vertices in the finite graph.',
+        'When neighbors.hasNext() is false, no neighbours remain. Record POST and return control. New calls discover only previously unseen vertices of the finite graph.',
       ],
       [
         'PRE, POST and void',
@@ -238,7 +247,7 @@ export const recursiveDfsTranslations = {
     walkthrough: 'Walk through the branching example',
     show: 'Show moment',
     moments: {
-      mark: ['Enter 0', 'Mark visited[0] first. PRE will be recorded in the next step.'],
+      mark: ['Enter 0', 'Mark visited.get(v0) first. PRE will be recorded in the next step.'],
       descend: [
         '1 waits for 3',
         'dfs(0) waits for dfs(1), and dfs(1) calls dfs(3). Each frame keeps its own i and next.',
@@ -249,15 +258,15 @@ export const recursiveDfsTranslations = {
       ],
       return: [
         'Return 3 → 1',
-        'The dfs(3) frame has left the stack. It returns control to line 7 of dfs(1), without a numeric answer.',
+        'dfs(3) has finished and left the stack. Control resumes waiting dfs(1) at the child-call site.',
       ],
       resume: [
         'Resume dfs(0)',
-        'The branch through 1 has finished. dfs(0) resumes line 7 with i = 0; the loop will then increment i to 1.',
+        'The parent waits at dfs(next, ...), keeping its iterator, i and next. After the return, i increases and neighbors.hasNext() is tested. That same call continues rather than restarting.',
       ],
       nextNeighbor: [
         'Next neighbour: 2',
-        'The caller has not restarted: now its i = 1, and graph[0][1] selects neighbour 2.',
+        'The caller has not restarted: now its i = 1, and neighbors.next() selects neighbour 2.',
       ],
       done: [
         'Entry and exit order',
@@ -268,23 +277,25 @@ export const recursiveDfsTranslations = {
     recursionLink: 'Recursion explained →',
     messages: {
       ready: 'Start at vertex {start}. The next step prepares the shared structures.',
-      initializeVisited: 'Create one shared visited array, initially all false.',
+      initializeVisited:
+        'Create one shared IdentityHashMap: visited initially maps each Vertex object to false.',
       initializeOrders:
         'Create shared pre and post lists. Recursive calls append to these same lists.',
-      start: 'traverse calls dfs({start}) on line 4 and waits for the recursion to finish.',
+      start: 'traverse calls dfs({start}) and waits for the recursion to finish.',
       enter: 'Enter dfs({v}), call #{call}. Create a frame with its own v = {v}.',
-      mark: 'Set visited[{v}] = true before visiting neighbours, preventing another entry through a cycle.',
+      mark: 'Mark Vertex {v} in visited before scanning neighbours, preventing re-entry around a cycle.',
       pre: 'PRE: record entry into vertex {v}.',
-      loop: 'dfs({v}): test i = {i} < {length}. If false, all neighbours have been considered.',
-      neighbor: 'dfs({v}): neighbour at index i = {i} is next = {next}.',
-      skip: 'Edge {v} → {next}: visited[{next}] is already true. Skip it without a new call.',
+      loop: 'dfs({v}): test neighbors.hasNext(). Completed count i = {i}; the drawing has {length} neighbours.',
+      neighbor:
+        'dfs({v}): neighbors.next() selected vertex {next}; the completed-neighbour count is still i = {i}.',
+      skip: 'Edge {v} → {next}: the neighbour object is already marked in visited. Skip it without a new call.',
       check: 'Edge {v} → {next}: the neighbour is unseen. A child call can be created.',
-      wait: 'dfs({v}) waits for dfs({next}) on line 7, keeping its own i = {i}.',
+      wait: 'dfs({v}) waits for dfs({next}), keeping its own iterator and i = {i}.',
       resume:
         'Resume dfs({v}) after dfs({next}). i is still {i}; next the loop increments i to {nextI} instead of restarting.',
       post: 'All neighbours of vertex {v} have been considered. POST records exit; the frame remains on the stack for now.',
       return:
-        'dfs({v}) has finished and left the stack. Control returns to line 7 of dfs({parent}).',
+        'dfs({v}) has finished and left the stack. Control resumes waiting dfs({parent}) at the child-call site.',
       returnRoot:
         'Root dfs({v}) has finished. Control returns to the outer traverse method, not another vertex.',
       rootResume: 'traverse resumes after root dfs({v}) has finished.',
@@ -295,6 +306,10 @@ export const recursiveDfsTranslations = {
       rootSkip: 'Vertex {v} is already visited. The outer loop creates no repeated call.',
       root: 'Vertex {v} is unseen. Start a new root call for its component.',
       done: 'Traversal complete: {count} of {total} vertices visited. The recursive call stack is empty.',
+      iterator:
+        'dfs({v}) creates its own Iterator<Vertex>; other frames do not advance this iterator.',
+      advance:
+        'dfs({v}): neighbour number {i} is complete; increment i to {nextI} and continue this iterator.',
     },
   },
   fi: {
@@ -323,7 +338,7 @@ export const recursiveDfsTranslations = {
       ],
     },
     order:
-      'Naapurit ovat nousevassa järjestyksessä. Aloitussolmu käydään ensin; Koko graafi tarkistaa sen jälkeen solmut indeksistä 0 viimeiseen.',
+      'Näissä esimerkeissä kaaret lisätään niin, että mukana tuleva JAR luettelee naapurit kasvavassa ID-järjestyksessä. neighbors() ei yleisesti takaa lajittelua. Valittu aloitus käsitellään ensin, sitten eksplisiittinen juurilista.',
     graph: 'Graafi',
     calls: 'Kutsupuu',
     rightView: 'Läpikäynnin näkymä',
@@ -337,11 +352,11 @@ export const recursiveDfsTranslations = {
     post: 'POST: poistumisjärjestys',
     visitedEntry: 'Solmu {v}: visited = {value}',
     none: '—',
-    nextIndex: 'Paluun jälkeen: rivi 7 → silmukka rivillä 4, i = {i}',
+    nextIndex: 'Paluun jälkeen: jatka samaa iteraattoria, i = {i}',
     localNote:
-      'v on tämän kutsun solmu; i on naapurin indeksi alkaen nollasta; next on valittu naapuri. Puuttuvaa next-arvoa ei ole vielä valittu tai se on poistunut näkyvyysalueelta.',
+      'v ja next ovat tämän kutsun Vertex-viitteet; i laskee käsitellyt naapurit. Jokaisella kehyksellä on oma Iterator<Vertex>. next() siirtää iteraattoria naapuria valittaessa; lapsen palattua i kasvaa ja sama iteraattori jatkaa.',
     resume: 'Jatkokohta',
-    resumeDfs: 'dfs({v}) #{call}: rivi 7, sitten rivi 4 arvolla i = {i}',
+    resumeDfs: 'dfs({v}) #{call}: jatka lapsikutsun jälkeen, sitten silmukka arvolla i = {i}',
     resumeDriver: 'traverse: rivi {line}',
     control: 'suorituksen paluu',
     active: 'Nykyinen vaihe',
@@ -361,19 +376,19 @@ export const recursiveDfsTranslations = {
     points: [
       [
         'Yhteinen tila ja paikalliset muuttujat',
-        'Java välittää argumentit arvoina: taulukoiden ja listojen kohdalla kopioitu arvo on viite samaan olioon. Siksi graph, visited, pre ja post ovat yhteisiä kaikille kutsuille. Luvut v, i ja next ovat kunkin kutsun omia.',
+        'Java kopioi viitearvot: visited, pre ja post ovat yhteisiä. visited on IdentityHashMap<Vertex, Boolean>, joten samannimiset solmut eivät yhdisty. Jokaisella kutsulla on omat v/next-viitteensä, i-laskurinsa ja neighbors-iteraattorinsa.',
       ],
       [
         'Ensin merkintä, sitten rekursio',
-        'Rivi 2 asettaa visited[v] = true ennen naapurien tutkimista. Rivi 6 ohittaa käydyt solmut. Myös syklissä uusi rekursiivinen kutsu tehdään vain käymättömään solmuun.',
+        'visited.put(v, true) suoritetaan ennen naapurien lukemista. visited.get(next) ohittaa löydetyt solmut myös syklissä. Tämä perusesimerkki säilyttää Vertex-oliot väreineen.',
       ],
       [
         'Odottaminen ja silmukan jatkaminen',
-        'Rivillä 7 kutsuja odottaa lapsikutsua ja säilyttää v:n, i:n ja next:n. Paluun jälkeen sama kutsu jatkuu: silmukka kasvattaa i:tä ja tarkistaa seuraavan naapurin. Kutsujan läpikäynti ei ala alusta.',
+        'Vanhempi odottaa kohdassa dfs(next, ...) säilyttäen iteraattorin, i:n ja nextin. Paluun jälkeen i kasvaa ja neighbors.hasNext() tarkistetaan. Sama kutsu jatkuu alkamisen sijaan alusta.',
       ],
       [
         'Missä kutsu päättyy?',
-        'Kun i saavuttaa arvon graph[v].length, naapureita ei enää ole. Suoritetaan POST ja metodi päättyy. Erillistä perustapauksen if-ehtoa ei tarvita: silmukan loppuminen päättää kutsun. Uudet kutsut löytävät vain äärellisen graafin käymättömiä solmuja.',
+        'Kun neighbors.hasNext() on false, naapureita ei enää ole. Kirjaa POST ja palauta suoritus. Uudet kutsut löytävät vain aiemmin käymättömiä äärellisen verkon solmuja.',
       ],
       [
         'PRE, POST ja void',
@@ -389,7 +404,7 @@ export const recursiveDfsTranslations = {
     moments: {
       mark: [
         'Saapuminen solmuun 0',
-        'Merkitään ensin visited[0]. PRE kirjataan vasta seuraavassa vaiheessa.',
+        'Merkitään ensin visited.get(v0). PRE kirjataan vasta seuraavassa vaiheessa.',
       ],
       descend: [
         '1 odottaa solmua 3',
@@ -401,15 +416,15 @@ export const recursiveDfsTranslations = {
       ],
       return: [
         'Paluu 3 → 1',
-        'dfs(3):n kehys on poistunut pinosta. Suoritus palaa dfs(1):n riville 7 ilman numeerista vastausta.',
+        'dfs(3) päättyi ja poistui pinosta. Suoritus palaa odottavaan dfs(1)-kutsuun lapsikutsun kohdalle.',
       ],
       resume: [
         'Jatketaan kutsua dfs(0)',
-        'Haara solmun 1 kautta on valmis. dfs(0) jatkaa rivillä 7 arvolla i = 0; silmukka kasvattaa i:n sitten arvoon 1.',
+        'Vanhempi odottaa kohdassa dfs(next, ...) säilyttäen iteraattorin, i:n ja nextin. Paluun jälkeen i kasvaa ja neighbors.hasNext() tarkistetaan. Sama kutsu jatkuu alkamisen sijaan alusta.',
       ],
       nextNeighbor: [
         'Seuraava naapuri: 2',
-        'Kutsuja ei aloittanut alusta: nyt i = 1, ja graph[0][1] valitsee naapuriksi solmun 2.',
+        'Kutsuja ei aloittanut alusta: nyt i = 1, ja neighbors.next() valitsee naapuriksi solmun 2.',
       ],
       done: [
         'Saapumis- ja poistumisjärjestys',
@@ -420,22 +435,25 @@ export const recursiveDfsTranslations = {
     recursionLink: 'Rekursion selitykseen →',
     messages: {
       ready: 'Aloitetaan solmusta {start}. Seuraava vaihe valmistelee yhteiset rakenteet.',
-      initializeVisited: 'Luodaan yksi yhteinen visited-taulukko, aluksi kaikki arvot false.',
+      initializeVisited:
+        'Luo yhteinen IdentityHashMap: jokaisen Vertex-olion visited-arvo on aluksi false.',
       initializeOrders:
         'Luodaan yhteiset pre- ja post-listat. Rekursiiviset kutsut lisäävät näihin samoihin listoihin.',
-      start: 'traverse kutsuu dfs({start}):a rivillä 4 ja odottaa rekursion valmistumista.',
+      start: 'traverse kutsuu dfs({start}) ja odottaa rekursion päättymistä.',
       enter: 'Saavutaan kutsuun dfs({v}), kutsu #{call}. Luodaan kehys, jonka oma v = {v}.',
-      mark: 'Asetetaan visited[{v}] = true ennen naapurien tutkimista, jotta sykli ei johda uuteen saapumiseen.',
+      mark: 'Merkitse Vertex {v} visited-kuvaukseen ennen naapureita, jotta sykli ei aiheuta uutta sisäänmenoa.',
       pre: 'PRE: kirjataan saapuminen solmuun {v}.',
-      loop: 'dfs({v}): testataan i = {i} < {length}. Jos ehto on epätosi, kaikki naapurit on tutkittu.',
-      neighbor: 'dfs({v}): indeksin i = {i} naapuri on next = {next}.',
-      skip: 'Kaari {v} → {next}: visited[{next}] on jo true. Ohitetaan ilman uutta kutsua.',
+      loop: 'dfs({v}): tarkista neighbors.hasNext(). Käsiteltyjä i = {i}; kuvassa naapureita on {length}.',
+      neighbor:
+        'dfs({v}): neighbors.next() valitsi solmun {next}; käsiteltyjen laskuri on vielä i = {i}.',
+      skip: 'Kaari {v} → {next}: naapuriolio on jo merkitty visited-kuvaukseen. Ohita ilman uutta kutsua.',
       check: 'Kaari {v} → {next}: naapuri on käymätön. Lapsikutsu voidaan luoda.',
-      wait: 'dfs({v}) odottaa kutsua dfs({next}) rivillä 7 ja säilyttää oman i:n arvon {i}.',
+      wait: 'dfs({v}) odottaa kutsua dfs({next}) säilyttäen oman iteraattorin ja arvon i = {i}.',
       resume:
         'Jatketaan kutsua dfs({v}) kutsun dfs({next}) jälkeen. i on yhä {i}; seuraavaksi silmukka kasvattaa sen arvoon {nextI}, eikä ala alusta.',
       post: 'Kaikki solmun {v} naapurit on tutkittu. POST kirjaa poistumisen; kehys on vielä pinossa.',
-      return: 'dfs({v}) valmistui ja poistui pinosta. Suoritus palaa dfs({parent}):n riville 7.',
+      return:
+        'dfs({v}) päättyi ja poistui pinosta. Suoritus palaa odottavaan dfs({parent})-kutsuun lapsikutsun kohdalle.',
       returnRoot:
         'Juurikutsu dfs({v}) valmistui. Suoritus palaa ulompaan traverse-metodiin, ei toiseen solmuun.',
       rootResume: 'traverse jatkuu juurikutsun dfs({v}) valmistuttua.',
@@ -446,6 +464,9 @@ export const recursiveDfsTranslations = {
       rootSkip: 'Solmu {v} on jo käyty. Ulompi silmukka ei luo uutta kutsua.',
       root: 'Solmu {v} on käymätön. Aloitetaan uusi juurikutsu sen komponentille.',
       done: 'Läpikäynti valmis: {count}/{total} solmua käyty. Rekursiivinen kutsupino on tyhjä.',
+      iterator: 'dfs({v}) luo oman Iterator<Vertex>-iteraattorin; muut kehykset eivät siirrä sitä.',
+      advance:
+        'dfs({v}): naapuri numero {i} on käsitelty; kasvata i arvoon {nextI} ja jatka omaa iteraattoria.',
     },
   },
 }

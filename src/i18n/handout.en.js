@@ -5,6 +5,9 @@ export default {
     javaExamples: 'Java examples',
     javaNote:
       'Standalone examples for JDK 11+. Download the file and run the command below. The course TRA library is not required.',
+    javaComparison: 'Optional: standalone JDK versions',
+    javaComparisonNote:
+      'The TRA examples appear above. These optional comparisons use arrays or JDK collections and run with JDK 11+ without traj.jar.',
     runJava: 'Run',
     expectedOutput: 'Expected output',
     downloadJava: 'Download .java',
@@ -74,16 +77,24 @@ export default {
     trees: {
       cards: [
         [
-          'A binary tree is not automatically a BST',
-          'Inorder yields sorted values only when the binary-search-tree invariant holds. Every traversal visits n nodes in O(n) time and uses O(h) recursive stack space for height h. A skewed tree can have h = n.',
+          'Height and recursion space',
+          'Height counts edges: empty −1, leaf 0, chain of n nodes n − 1. Levels are h + 1. Traversal takes Θ(n) time and O(h + 1) stack for a nonempty tree, plus O(n) output lists. Null-base calls add one short frame.',
+        ],
+        [
+          'Binary and general TRA trees',
+          '`BTree`/`BTreeNode` use left and right children; IN is sorted only for a BST. `Tree`/`TreeNode` use first child and next sibling. See the expanded lesson for the real APIs and examples.',
         ],
       ],
     },
     heap: {
       cards: [
         [
-          'Java PriorityQueue pitfalls',
-          'Iterating over a PriorityQueue does not produce sorted order; repeatedly use `poll` instead. `peek` is O(1), `offer`/`poll` are O(log n), and `contains`/`remove(Object)` are O(n). Changing an object’s priority does not automatically restore the heap.',
+          'The TRA priority queue',
+          'Use an explicit `fi.uef.cs.tra.PriorityQueue` import. It extends JDK PriorityQueue; a custom comparator needs `new PriorityQueue<>(11, comparator)`. Equal values are retained. Empty `peek`/`poll` return null; inserting null is rejected.',
+        ],
+        [
+          'Priority and iteration',
+          'Use repeated `poll` for priority order; iterator order is unspecified. `contains`/`remove(Object)` take O(n). Mutating a queued priority does not repair an ordinary queue. The drawing illustrates a heap, while an individual queue may have another valid internal layout.',
         ],
       ],
     },
@@ -95,7 +106,15 @@ export default {
         ],
         [
           'The course graph API',
-          'The handout uses `DiGraph`, `Vertex`, `Edge`, `vertices()` and `neighbors()` from a teaching library. They are not JDK classes. Our runnable alternative uses a generic adjacency map. Directed edges are stored once; an undirected edge must be represented in both directions.',
+          'The main examples use `fi.uef.cs.tra`: create `Graph` or `DiGraph`, add vertices with `addVertex`, and connect their returned `Vertex` objects with `addEdge`. Read `vertices()`, `neighbors()` and `edges()`; `Edge.getWeight()` returns a float.',
+        ],
+        [
+          'Labels, identity and colours',
+          'A label from `getLabel()` is display data: two distinct Vertex objects may have the same label. `getColor()` and `setColor(...)` store traversal state. Initialise colours explicitly with `AbstractGraph.WHITE`; GREY and BLACK will be explained in the traversal lessons.',
+        ],
+        [
+          'Loops and supported inputs',
+          'A self-loop connects a vertex to itself. This TRA version permits it in `DiGraph`, but `Graph` rejects it. The lesson examples use no parallel edges. An isolated vertex still belongs to `vertices()` and has an empty neighbour list.',
         ],
       ],
     },
@@ -111,7 +130,7 @@ export default {
       cards: [
         [
           'Restore a path and handle unreachable vertices',
-          'Keep `parent[next] = v` when discovering a vertex. Follow parents backwards from the target and reverse the result. An unreachable target has no path. BFS finds shortest paths by edge count, and only gives weighted shortest paths when all edge weights are equal.',
+          'Keep `parent[next] = v` when discovering a vertex. Follow parents backwards from the target and reverse the result. An unreachable target has no path. BFS finds shortest paths by edge count; equal non-negative edge weights also make these minimum-weight paths.',
         ],
       ],
     },
@@ -120,6 +139,14 @@ export default {
         [
           'Direction changes connectivity',
           'Connected components apply directly to undirected graphs. For a directed graph, distinguish weak connectivity (ignore edge directions) from strong connectivity (each vertex can reach every other). A single DFS forest does not compute strongly connected components.',
+        ],
+        [
+          'Full traversal does not create a path',
+          'In the TRA parent/root maps, only vertices under the original start have a path from that start. Later BFS roots keep distance -1 (∞ in the table), even when their own forest depth is zero. Follow outgoing neighbours in DiGraph: reachability in one direction need not hold in reverse.',
+        ],
+        [
+          'Cost and result checks',
+          'TraComponentsExample and TraTopologicalExample use native neighbours: Θ(V + E) time, O(V) additional space, including outputs and stack. Colours reset per run; topology stays intact. Validate paths by their edges, components by coverage and connectivity, and topological orders by every u→v constraint, rather than requiring one exact listing. The shared animation prepares sorted neighbours separately.',
         ],
         [
           'Further course algorithms',
@@ -204,56 +231,76 @@ export default {
         ],
         [
           'Map and graphs',
-          'The handout suggests a mapping from vertices to application data. A Map can hold distances, parents, labels, or external objects without changing the graph’s vertex class. A Set of visited vertices and a Map of parent links serve different purposes.',
+          'TRA stores the vertices and edges. Use `Map<Vertex, Integer>` for extra counts or distances and `Map<Vertex, Vertex>` for parents. `IdentityHashMap` keeps distinct vertex objects separate even if their labels match. The runnable TRA example counts outgoing neighbours; Map does not replace the graph.',
         ],
       ],
     },
     'shortest-paths': {
       title: 'Dijkstra and Floyd–Warshall',
       intro:
-        'For weighted graphs, shortest means minimum total edge weight. Select an algorithm that matches the allowed weights and required sources.',
+        'Use real TRA Graph/DiGraph, Vertex and Edge objects. Shortest means minimum total edge weight: Dijkstra answers from one start, Floyd–Warshall for all pairs. BFS remains suitable when all edge weights are equal and non-negative.',
       cards: [
         [
           'Dijkstra: non-negative weights',
-          'Repeatedly choose the vertex with the smallest known distance and relax its outgoing edges. Negative edges invalidate the greedy guarantee. The example validates weights, adds immutable queue entries for improvements, and skips stale entries.',
+          'Validate every Edge weight, including unreachable parts: it must be finite and non-negative. Extract the smallest current distance and relax outgoing edges. In TraDijkstraExample, A→B costs 10, but A→C→B costs 1 + 2 = 3; continuing B→D gives 4. A negative weight violates this method’s contract.',
         ],
         [
-          'Priority updates in standard Java',
-          'Java PriorityQueue has no decrease-key operation. Mutating a priority used by its comparator does not reorder the heap. The example therefore inserts a fresh `(vertex, distance)` entry. Its bound is O(V + E log(E + 1)) with O(V + E) working space, rather than assuming a specialised indexed heap.',
+          'Priority updates with TRA PriorityQueue',
+          'Import fi.uef.cs.tra.PriorityQueue and construct it with capacity plus comparator. Offer a new immutable (Vertex, distance) entry after an improvement; skip an extracted entry whose saved distance is no longer current. Old B:10 and D:9 entries do not trigger another scan. This implementation takes O(V + E log(E + 1)) time and O(V + E) additional space. Changing a queued Vertex field does not repair the heap; no decrease-key is assumed.',
         ],
         [
-          'Floyd–Warshall: all pairs',
-          'For each intermediate vertex k, try `d[i][k] + d[k][j]`. The k loop must be outermost, and every i and j starts at zero. Time is O(V³), space O(V²). Negative edges are allowed, but negative cycles make finite shortest distances undefined for affected paths.',
+          'Floyd–Warshall: derive the matrix from TRA',
+          'Enumerate vertices(), assign external identity-based indices, and copy outgoing Edge weights into a matrix. Use zero on the diagonal and +∞ where no edge exists. For each intermediate k, test d[i][k] + d[k][j], with k outermost and all i/j included. In TraFloydWarshallExample, A→B→C costs 5 − 2 = 3, beating the direct weight 10. Time O(V³ + E), additional space O(V²).',
         ],
         [
-          'Infinity and paths',
-          'Do not add infinity sentinels. The examples distinguish unreachable vertices and detect negative cycles in Floyd–Warshall. For actual paths, keep predecessor information in addition to distances. BFS remains the simpler choice for unweighted graphs.',
+          'Negative edges and cycles',
+          'Floyd allows finite negative edges. A negative diagonal reveals a negative cycle; mathematically, only pairs that can pass through such a cycle lose a finite shortest distance. This example deliberately rejects the whole result if any negative cycle exists, even in a disconnected part. Adding C→A with weight −4 closes a cycle of weight −1. A negative undirected edge also permits an unbounded back-and-forth walk. No partial matrix or path is returned on rejection.',
+        ],
+        [
+          'Infinity and actual paths',
+          'Unreachable distance is Double.POSITIVE_INFINITY, printed as INF; its path is empty. Skip infinite subpaths before adding Floyd distances. Dijkstra stores parent links; Floyd stores a next-hop matrix. Use result.pathTo(target) or result.path(from, to). A vertex to itself returns [vertex] with zero edges. Foreign query vertices are rejected. Equal-cost paths may differ, so check their edges and total weight rather than one listing.',
+        ],
+        [
+          'Weights, identity and arithmetic',
+          'Read Edge.getWeight(), not Vertex.getWeight(). Write addEdge(v, 5.0f): an int second argument selects colour in TRA. The examples validate finite float weights and accumulate in double; NaN and either infinity are invalid inputs. Floating-point arithmetic is approximate: 0.1f is not an exact decimal tenth. The teaching weights are small and exactly representable. Neither algorithm changes colours, labels, Vertex.index or topology; duplicate labels remain separate objects.',
         ],
       ],
     },
     mst: {
       title: 'Minimum spanning trees: Prim and Kruskal',
       intro:
-        'An MST connects every vertex of a connected undirected weighted graph with V − 1 edges and minimum total weight. It is different from a shortest-path tree.',
+        'Use undirected TRA Graph and real Edge weights. A connected input gives a minimum spanning tree; a disconnected input gives a minimum spanning forest, one tree per component.',
       cards: [
         [
           'Prim',
-          'Grow a single tree by choosing the cheapest edge crossing from reached to unreached vertices. The example uses a lazy edge priority queue and ignores edges whose destination has already been reached.',
+          'Start at an unreached Vertex and add its boundary edges to TRA PriorityQueue. Repeatedly take the lightest edge crossing to an unreached endpoint. Skip a queued edge when both endpoints are already reached. When the queue empties, start again at another unreached vertex. Do not assume Edge.getEndPoint() is always the new vertex: Graph has no arrow direction.',
         ],
         [
           'Kruskal and union–find',
-          'Sort edges by weight and accept an edge only when its endpoints belong to different components. Union–find uses path compression and union by rank to manage those components.',
+          'Copy Graph.edges(), which lists each physical undirected Edge once, and sort by weight. Accept an edge only when union–find joins two different sets; otherwise it would close a cycle. Path compression and union by rank affect only private arrays. IdentityHashMap maps actual Vertex objects to external set indices, preserving labels and Vertex.index.',
         ],
         [
-          'Conditions and costs',
-          'Negative edge weights are allowed. Equal weights may yield several valid MSTs. These examples reject disconnected input instead of presenting a partial tree as an MST. Both implementations take O(V + E log(E + 1)) time; Kruskal also uses O(V + E) space for sets and a sorted copy.',
+          'Tree, forest and isolated vertices',
+          'The result contains vertices(), edges(), components() and totalWeight(). With V vertices and C connected components, a spanning forest has V − C edges. An isolated vertex is a component with no selected edge. Empty input gives C = 0 and weight 0; one vertex gives C = 1 and a zero-edge tree. isSpanningTree() is true only for nonempty connected input.',
+        ],
+        [
+          'Read the example',
+          'A—B:1, B—C:2, A—C:5, C—D:1 give an MST of weight 4 with three edges. Add isolated E and F—G:-2: both algorithms return a forest with three components, four edges and total weight 2. Negative edges are valid because a spanning forest selects edges without cycles; it is not a problem of repeating walks to reduce a distance.',
+        ],
+        [
+          'MST versus shortest-path tree',
+          'For A—B:2, A—C:2, B—C:1, an MST weighs 3. A shortest-path tree from A uses A—B and A—C, with total weight 4, so both target distances are 2. The MST’s route from A to one target costs 3. The objectives differ: minimise all chosen-edge weights versus distances from one start.',
+        ],
+        [
+          'Weights, ties and costs',
+          'Finite negative and zero weights are allowed; NaN and either infinity are rejected, even in another component. Equal weights may give different minimum forests; Prim and Kruskal need not select the same edges or order. Float weights accumulate in double, with approximate arithmetic. Both implementations take O(V + E log(E + 1)) time and O(V + E) extra space, assuming expected O(1) identity-map/set access. Results contain actual Edge references in read-only lists; all graph fields stay intact, and weights remain fixed during a run.',
         ],
       ],
     },
     'graph-analysis': {
       title: 'Cycles, connectivity, cuts, matching and flow',
       intro:
-        'The handout builds new graph algorithms by adding carefully defined state to DFS and BFS.',
+        'Use real TRA vertices and edges to study cuts, maximum bipartite matching and flow. Algorithm-owned maps, partitions and residual entries leave the input graph unchanged.',
       cards: [
         [
           'Directed cycles and topological order',
@@ -265,19 +312,27 @@ export default {
         ],
         [
           'Articulation points and bridges',
-          'In a simple undirected graph, compute discovery times and low values in DFS. A non-root v is an articulation point when a child w has `low[w] >= discovery[v]`. The root needs at least two DFS children. Edge v–w is a bridge when `low[w] > discovery[v]`.',
+          'TraGraphCutsExample accepts Graph and runs DFS over every component. tin counts entries only. low[v] is the earliest entry reachable down its DFS subtree and then through at most one non-parent back edge. After a child returns, propagate low[child]; for a visited neighbour use tin[neighbour], not its low. A non-root v is a cut vertex if low[child] >= tin[v]; the tree edge is a bridge if low[child] > tin[v]. Weights are irrelevant. Expected O(V + E) time and O(V) extra space.',
+        ],
+        [
+          'Root children and the physical parent edge',
+          'Skip only the identical parent Edge when examining the other adjacency direction. The DFS root is a cut vertex only with at least two DFS children, not merely two neighbours. In triangle 0–1–2 with tail 1–3–4 and isolated 5, root 0 has two neighbours but one DFS child: cuts are 1/3 and bridges 1–3/3–4. Results return real Vertex/Edge objects. Empty and disconnected graphs are supported.',
         ],
         [
           'Bipartite graphs and matching',
-          'A bipartite graph has two vertex groups and edges only between groups. A matching uses each vertex at most once. Augmenting paths alternate unused and used edges: flipping them increases the matching by one. Maximum means largest possible cardinality; merely maximal is a weaker condition.',
+          'Pass Graph and a duplicate-free list of member vertices for the left side; the right side is the remaining vertices, including isolated ones. Every edge must cross that supplied partition, otherwise the method rejects it. This method does not discover the partition automatically. Alternating paths can reassign partners: L0 moves from R0 to R1 so L1 can take R0. Fresh seen state is required for each left root. Maximum means largest cardinality; maximal only means no single edge can be added without changing existing pairs. Weights are ignored.',
         ],
         [
           'Maximum flow and residual edges',
-          'Maintain remaining capacities, find an s→t augmenting path, and add its bottleneck flow. Every augmentation also increases reverse residual capacity, allowing earlier decisions to be undone. Flow must be conserved at intermediate vertices.',
+          'TraMaxFlowExample accepts DiGraph and distinct member source/sink. BFS with TRA LinkedQueue finds an augmenting residual path; add its bottleneck to the total. Each original Edge flow stays between zero and its capacity, and intermediate vertices conserve flow. When the sink is unreachable in the residual network, the reached source side defines a minimum cut. The example returns both per-Edge flow and cut edges/capacity: value 5 equals cut capacity 5.',
         ],
         [
-          'Implementation choices',
-          'The flow example uses BFS (Edmonds–Karp), an adjacency list for searching, and a residual capacity matrix. This is a concrete variant of the handout’s augmenting-path method. The cuts example assumes no parallel edges; the matching example receives the left-to-right adjacency lists of an already bipartite graph.',
+          'Cancellation is not an input reverse edge',
+          'Each physical input Edge gets its own forward/cancellation pair in private residual lists. This keeps actual opposite input arcs independent. In the rerouting example BFS first uses s→a→x→t, then s→b→x→a→y→t; x→a cancels the earlier a→x allocation although x→a is absent from DiGraph. Final flow is 2 and a→x carries 0. No input edge, weight or colour is changed.',
+        ],
+        [
+          'Capacities, queries and costs',
+          'Flow reads stored float Edge weights as capacities: only finite integers in [0, 1 000 000 000] are accepted, including unreachable parts. Write addEdge(v, 3.0f); an int argument selects colour. Fractional, negative, non-finite or oversized capacities are rejected without rounding; validated capacities and flows use exact long arithmetic with overflow checks. Expected bounds: matching O(V + E + L·E) time/O(V) space, L = left-side size; flow O(V + E + V·E²) time/O(V + E) space. Identity-map/set access is assumed O(1). Querying foreign objects is an error; an unmatched matching member has null partner. Empty cuts/matching are valid, but flow needs two distinct vertices. Result lists are read-only references to input objects.',
         ],
       ],
     },

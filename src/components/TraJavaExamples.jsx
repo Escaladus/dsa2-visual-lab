@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import { traJavaExamples } from '../data/traJavaExamples.js'
+import { hasPrimaryTraExamples, traJavaExamples } from '../data/traJavaExamples.js'
 import { traJavaExampleTranslations } from '../i18n/traJavaExamples.js'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
 
@@ -18,15 +18,39 @@ export default function TraJavaExamples({ topicId }) {
   const { language, text } = useLanguage()
   const labels = traJavaExampleTranslations[language]
   const id = useId()
-  const examples = traJavaExamples.filter(example => example.topics.includes(topicId))
+  const examples = traJavaExamples
+    .filter(example => example.topics.includes(topicId))
+    .sort(
+      (a, b) =>
+        Number(b.primaryTopics?.includes(topicId) ?? false) -
+        Number(a.primaryTopics?.includes(topicId) ?? false),
+    )
+  const primary = hasPrimaryTraExamples(topicId)
   if (examples.length === 0) {
     return null
   }
+  const notesByTopic = {
+    trees: labels.treeNote,
+    heap: labels.queueNote,
+    'graph-apps': labels.applicationsNote,
+    'shortest-paths': labels.weightedNote,
+    mst: labels.mstNote,
+    'graph-analysis': labels.analysisNote,
+  }
+  const note =
+    notesByTopic[topicId] ??
+    (examples.every(example => ['graph', 'graphData'].includes(example.id))
+      ? labels.basicOrder
+      : labels.order)
 
   return (
-    <section className="java-examples tra-java-examples" aria-labelledby={`${id}-title`}>
-      <h2 id={`${id}-title`}>{labels.title}</h2>
-      <p className="java-note tra-java-note">{labels.intro}</p>
+    <section
+      className="java-examples tra-java-examples"
+      data-primary={primary}
+      aria-labelledby={`${id}-title`}
+    >
+      <h2 id={`${id}-title`}>{primary ? labels.primaryTitle : labels.title}</h2>
+      <p className="java-note tra-java-note">{primary ? labels.primaryIntro : labels.intro}</p>
       <a
         className="java-download tra-kit-download"
         href={`${import.meta.env.BASE_URL}examples/tra-graphs.zip`}
@@ -35,12 +59,17 @@ export default function TraJavaExamples({ topicId }) {
         {labels.download}
       </a>
       <p className="java-note">{labels.setup}</p>
-      {examples.map(example => {
+      {examples.map((example, index) => {
         const filename = `${example.className}.java`
         const key = `../tra-examples/${filename}`
         const [title, description, complexity] = labels.examples[example.id]
         return (
-          <details className="java-example" key={example.id} data-tra-example={example.id}>
+          <details
+            className="java-example"
+            key={example.id}
+            data-tra-example={example.id}
+            open={primary && index === 0}
+          >
             <summary>
               <span>{title}</span>
               <code>{filename} · traj.jar</code>
@@ -74,7 +103,7 @@ export default function TraJavaExamples({ topicId }) {
           </details>
         )
       })}
-      <p className="java-note">{labels.order}</p>
+      <p className="java-note">{note}</p>
     </section>
   )
 }

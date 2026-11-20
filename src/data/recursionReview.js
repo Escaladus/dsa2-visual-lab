@@ -1,8 +1,13 @@
 import { memoizedFibonacciCode, recursionExamples, recursionQuestions } from './recursion.js'
 import { dfsCode, dfsDriverCode, dfsExamples } from './recursiveDfs.js'
 
-const graphDeclaration = preset =>
-  `int[][] graph = {${dfsExamples[preset].graph.map(row => `{${row.join(', ')}}`).join(', ')}};`
+const graphDeclaration = preset => {
+  const graph = dfsExamples[preset].graph
+  const edges = graph.flatMap((row, v) =>
+    row.filter(next => v < next).map(next => `vertices.get(${v}).addEdge(vertices.get(${next}));`),
+  )
+  return `Graph graph = new Graph();\nList<Vertex> vertices = new ArrayList<>();\nfor (int id = 0; id < ${graph.length}; id++) vertices.add(graph.addVertex(String.valueOf(id)));\n${edges.join('\n')}`
+}
 const branching = graphDeclaration('branching')
 const disconnected = graphDeclaration('disconnected')
 const dfsExample = graph => `${graph}\n\n${dfsCode}`

@@ -39,21 +39,21 @@ test('named guided moments resolve to actual events and have labels in every lan
 
 test('quiz Java excerpts retain the statement they explain after Java formatting changes', () => {
   const expectedStatements = {
-    resume: 'dfs(graph, next, state);',
-    dfsGrey: 'state.color[v] = GREY;',
-    bfsGrey: 'int v = queue.remove();',
+    resume: 'dfs(next, state);',
+    dfsGrey: 'v.setColor(GREY);',
+    bfsGrey: 'Vertex v = queue.remove();',
     post: 'state.post.add(v);',
     tree: 'state.types.put(',
-    parent: '!state.directed && state.parent[v] == next',
-    forest: 'for (int v',
-    shortest: 'state.distance[next] =',
+    parent: '!state.directed && edge == state.parentEdge.get(v)',
+    forest: 'for (Vertex v',
+    shortest: 'state.distance.put(next',
     topological: 'state.cycle.isEmpty()',
   }
   for (const [id, statement] of Object.entries(expectedStatements)) {
     assert.ok(graphQuizQuestions.find(question => question.id === id).code.includes(statement), id)
   }
   assert.throws(() => traversalExcerpt(dfsTraversalCode, 'missing', 'state.pre.add(v)'))
-  assert.throws(() => traversalExcerpt(bfsTraversalCode, 'queue.add(next)', 'static void bfs'))
+  assert.throws(() => traversalExcerpt(bfsTraversalCode, 'queue.offer(next)', 'static void bfs'))
 })
 
 test('continuation captions resolve real caller frames in every language and presentation', () => {

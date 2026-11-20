@@ -4,13 +4,15 @@ import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve, delimiter } from 'node:path'
 import test from 'node:test'
-import { traJavaExamples } from '../src/data/traJavaExamples.js'
+import { hasPrimaryTraExamples, traJavaExamples } from '../src/data/traJavaExamples.js'
+import { graphBasicsExample, graphConstructionExcerpt } from '../src/data/graphBasics.js'
 import { traJavaExampleTranslations } from '../src/i18n/traJavaExamples.js'
 import { javaExamples } from '../src/data/javaExamples.js'
 import { topics } from '../src/data/topics.js'
 import { packageTraExamples, traExampleSourceFiles } from '../scripts/package-tra-examples.mjs'
+import { readTraLibrary } from '../scripts/tra-library.mjs'
 
-test('TRA examples are additional files with complete descriptions in three languages', () => {
+test('TRA examples have complete descriptions and a deliberate main/comparison placement', () => {
   assert.equal(javaExamples.length, 31, 'The original standalone catalogue stays intact')
   assert.deepEqual(
     readdirSync('src/tra-examples')
@@ -33,12 +35,27 @@ test('TRA examples are additional files with complete descriptions in three lang
   }
   for (const [language, labels] of Object.entries(traJavaExampleTranslations)) {
     assert.match(labels.intro, /JDK 11/)
-    assert.equal(Object.keys(labels.examples).length, 3)
+    assert.equal(Object.keys(labels.examples).length, traJavaExamples.length)
     for (const example of traJavaExamples) {
       assert.equal(labels.examples[example.id].length, 3)
       assert.ok(labels.examples[example.id].every(text => text.trim()))
     }
-    for (const key of ['title', 'download', 'setup', 'order']) assert.ok(labels[key].trim())
+    for (const key of [
+      'title',
+      'primaryTitle',
+      'primaryIntro',
+      'download',
+      'setup',
+      'order',
+      'basicOrder',
+      'treeNote',
+      'queueNote',
+      'applicationsNote',
+      'weightedNote',
+      'mstNote',
+      'analysisNote',
+    ])
+      assert.ok(labels[key].trim())
     if (language !== 'ru') assert.doesNotMatch(JSON.stringify(labels), /[а-яё]/i)
     const readme = readFileSync(
       `src/tra-examples/${language === 'en' ? 'README.md' : `README.${language}.md`}`,
@@ -47,6 +64,41 @@ test('TRA examples are additional files with complete descriptions in three lang
     for (const example of traJavaExamples)
       assert.ok(readme.includes(`-cp traj.jar ${example.className}.java`))
   }
+  for (const topic of ['graph-basics', 'maps']) {
+    assert.ok(hasPrimaryTraExamples(topic))
+    assert.ok(
+      traJavaExamples.some(
+        example => example.topics.includes(topic) && example.primaryTopics?.includes(topic),
+      ),
+    )
+    assert.ok(
+      javaExamples
+        .find(example => example.id === 'graphRepresentation')
+        .comparisonTopics.includes(topic),
+    )
+  }
+  assert.equal(hasPrimaryTraExamples('graph-dfs'), true)
+  for (const [topic, id] of [
+    ['trees', 'treeTraversal'],
+    ['heap', 'priorityQueue'],
+    ['graph-apps', 'components'],
+    ['graph-apps', 'topological'],
+    ['graph-analysis', 'topological'],
+    ['shortest-paths', 'dijkstra'],
+    ['shortest-paths', 'floyd'],
+    ['mst', 'mst'],
+    ['graph-analysis', 'cuts'],
+    ['graph-analysis', 'matching'],
+    ['graph-analysis', 'flow'],
+  ]) {
+    assert.ok(hasPrimaryTraExamples(topic))
+    assert.ok(javaExamples.find(example => example.id === id).comparisonTopics.includes(topic))
+  }
+  const snippet = graphConstructionExcerpt(
+    readFileSync('src/tra-examples/TraGraphExample.java', 'utf8'),
+  )
+  assert.match(snippet, /public static DiGraph createDirectedGraph\(\)/)
+  assert.match(snippet, /return graph;/)
 })
 
 const hasJdk = ['java', 'javac', 'jar'].every(name => spawnSync(name, ['--version']).status === 0)
@@ -66,10 +118,7 @@ test(
           readFileSync(join(work, name)),
           readFileSync(resolve('src/tra-examples', name)),
         )
-      assert.deepEqual(
-        readFileSync(join(work, 'traj.jar')),
-        readFileSync('exercises/dfs-reachable/traj.jar'),
-      )
+      assert.deepEqual(readFileSync(join(work, 'traj.jar')), readTraLibrary())
       const compile = spawnSync(
         'javac',
         [
@@ -125,6 +174,20 @@ test(
           )
           assert.equal(result.status, 0, result.stdout + result.stderr)
           assert.match(result.stdout, /All TRA graph checks passed/)
+          const graph = JSON.parse(
+            result.stdout.split('\n').find(line => line.startsWith('{"vertices"')),
+          )
+          assert.deepEqual(
+            graph.vertices.sort(),
+            graphBasicsExample.vertices.map(vertex => vertex.label).sort(),
+          )
+          const sortedEdges = edges =>
+            [...edges].sort((a, b) => `${a.from}:${a.to}`.localeCompare(`${b.from}:${b.to}`))
+          assert.deepEqual(
+            sortedEdges(graph.edges),
+            sortedEdges(graphBasicsExample.edges),
+            'The rendered drawing must describe the actual Java factory, including weights',
+          )
         },
       )
     } finally {

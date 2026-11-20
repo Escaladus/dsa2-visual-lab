@@ -1,4 +1,6 @@
-/** Basic boolean-visited DFS. Each snapshot owns its data so playback can safely rewind.
+import { dfsLine } from '../data/recursiveDfs.js'
+
+/** Basic TRA iterator DFS with an identity-keyed visited map. Each snapshot owns its data so playback can safely rewind.
  * Call IDs identify stack frames; v identifies a graph vertex. Java line numbers refer to dfsCode.
  */
 export function createRecursiveDfsTrace(graph, start = 0, all = false) {
@@ -51,7 +53,7 @@ export function createRecursiveDfsTrace(graph, start = 0, all = false) {
       message: { key, values },
     })
   }
-  function visit(v, parent = null, driverLine = 4) {
+  function visit(v, parent = null, driverLine = dfsLine('traverse', 'if (start != null)')) {
     const id = nodes.length
     const node = {
       id,
@@ -65,21 +67,27 @@ export function createRecursiveDfsTrace(graph, start = 0, all = false) {
       returnTo:
         parent === null
           ? { method: 'traverse', line: driverLine, id: null }
-          : { method: 'dfs', line: 7, id: parent, nextI: nodes[parent].locals.i + 1 },
+          : {
+              method: 'dfs',
+              line: dfsLine('dfs', 'dfs(next,'),
+              id: parent,
+              nextI: nodes[parent].locals.i + 1,
+            },
     }
     nodes.push(node)
     stack.push(id)
     maxDepth = Math.max(maxDepth, stack.length)
-    snapshot('enter', { v, call: id + 1 }, id, 1)
+    snapshot('enter', { v, call: id + 1 }, id, dfsLine('dfs', 'static void dfs'))
     visited[v] = true
-    snapshot('mark', { v }, id, 2)
+    snapshot('mark', { v }, id, dfsLine('dfs', 'visited.put(v, true)'))
     pre.push(v)
-    snapshot('pre', { v }, id, 3)
+    snapshot('pre', { v }, id, dfsLine('dfs', 'pre.add(v)'))
+    snapshot('iterator', { v }, id, dfsLine('dfs', 'Iterator<Vertex> neighbors ='))
     // Show the final failed loop test before completing the call.
     for (let i = 0; i <= graph[v].length; i++) {
       node.locals.i = i
       delete node.locals.next
-      snapshot('loop', { v, i, length: graph[v].length }, id, 4)
+      snapshot('loop', { v, i, length: graph[v].length }, id, dfsLine('dfs', 'for (int i'))
       if (i === graph[v].length) {
         break
       }
@@ -87,24 +95,47 @@ export function createRecursiveDfsTrace(graph, start = 0, all = false) {
       node.locals.next = next
       const edge = { from: v, to: next }
       neighborChecks++
-      snapshot('neighbor', { v, i, next }, id, 5, 'dfs', edge)
-      snapshot(visited[next] ? 'skip' : 'check', { v, next }, id, 6, 'dfs', edge)
+      snapshot('neighbor', { v, i, next }, id, dfsLine('dfs', 'Vertex next ='), 'dfs', edge)
+      snapshot(
+        visited[next] ? 'skip' : 'check',
+        { v, next },
+        id,
+        dfsLine('dfs', 'if (!visited.get(next))'),
+        'dfs',
+        edge,
+      )
       if (!visited[next]) {
         // The parent resumes at the call site, then increments its saved neighbour index.
         node.status = 'waiting'
-        node.continuation = { method: 'dfs', line: 7, nextLine: 4, nextI: i + 1, child: next }
-        snapshot('wait', { v, next, i }, id, 7, 'dfs', edge)
+        node.continuation = {
+          method: 'dfs',
+          line: dfsLine('dfs', 'dfs(next,'),
+          nextLine: dfsLine('dfs', 'for (int i'),
+          nextI: i + 1,
+          child: next,
+        }
+        snapshot('wait', { v, next, i }, id, dfsLine('dfs', 'dfs(next,'), 'dfs', edge)
         visit(next, id)
         node.status = 'active'
         node.continuation = null
-        snapshot('resume', { v, next, i, nextI: i + 1 }, id, 7, 'dfs', edge)
+        snapshot(
+          'resume',
+          { v, next, i, nextI: i + 1 },
+          id,
+          dfsLine('dfs', 'dfs(next,'),
+          'dfs',
+          edge,
+        )
       }
+      node.locals.i = i + 1
+      delete node.locals.next
+      snapshot('advance', { v, i, nextI: i + 1 }, id, dfsLine('dfs', 'for (int i'))
     }
     delete node.locals.i
     delete node.locals.next
     post.push(v)
     node.status = 'returning'
-    snapshot('post', { v }, id, 10)
+    snapshot('post', { v }, id, dfsLine('dfs', 'post.add(v)'))
     stack.pop()
     node.status = 'done'
     returned = {
@@ -120,32 +151,56 @@ export function createRecursiveDfsTrace(graph, start = 0, all = false) {
       parent === null ? 'returnRoot' : 'return',
       { v, parent: parent === null ? 'traverse' : nodes[parent].v },
       id,
-      11,
+      dfsLine('dfs', 'post.add(v)') + 1,
     )
   }
 
   snapshot('ready', { start }, null, null, 'traverse')
   visitedSlots = graph.length
-  snapshot('initializeVisited', {}, null, 2, 'traverse')
-  snapshot('initializeOrders', {}, null, 3, 'traverse')
+  snapshot(
+    'initializeVisited',
+    {},
+    null,
+    dfsLine('traverse', 'Map<Vertex, Boolean> visited ='),
+    'traverse',
+  )
+  snapshot('initializeOrders', {}, null, dfsLine('traverse', 'List<Vertex> pre ='), 'traverse')
   if (graph.length) {
-    snapshot('start', { start }, null, 4, 'traverse')
+    snapshot('start', { start }, null, dfsLine('traverse', 'if (start != null)'), 'traverse')
     visit(start)
-    snapshot('rootResume', { v: start }, null, 4, 'traverse')
+    snapshot(
+      'rootResume',
+      { v: start },
+      null,
+      dfsLine('traverse', 'if (start != null)'),
+      'traverse',
+    )
   }
-  snapshot(all ? 'all' : 'reachable', {}, null, 5, 'traverse')
+  snapshot(all ? 'all' : 'reachable', {}, null, dfsLine('traverse', 'if (all)'), 'traverse')
   if (all) {
     for (let v = 0; v < graph.length; v++) {
       outerChecks++
-      snapshot('outerLoop', { v }, null, 6, 'traverse')
-      snapshot(visited[v] ? 'rootSkip' : 'root', { v }, null, 7, 'traverse')
+      snapshot('outerLoop', { v }, null, dfsLine('traverse', 'for (Vertex v'), 'traverse')
+      snapshot(
+        visited[v] ? 'rootSkip' : 'root',
+        { v },
+        null,
+        dfsLine('traverse', 'if (!visited.get(v))'),
+        'traverse',
+      )
       if (!visited[v]) {
-        visit(v, null, 7)
-        snapshot('rootResume', { v }, null, 7, 'traverse')
+        visit(v, null, dfsLine('traverse', 'if (!visited.get(v))'))
+        snapshot('rootResume', { v }, null, dfsLine('traverse', 'if (!visited.get(v))'), 'traverse')
       }
     }
   }
-  snapshot('done', { count: pre.length, total: graph.length }, null, 10, 'traverse')
+  snapshot(
+    'done',
+    { count: pre.length, total: graph.length },
+    null,
+    dfsLine('traverse', 'return new Result'),
+    'traverse',
+  )
   return frames
 }
 

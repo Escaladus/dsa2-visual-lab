@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { readTraLibrary } from './tra-library.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 export const exercisePackageFiles = [
@@ -72,7 +73,10 @@ export function createStoredZip(files) {
 export function packageGraphExercise(output = resolve(root, 'public/exercises/dfs-reachable.zip')) {
   const files = exercisePackageFiles.map(name => ({
     name: `dfs-reachable/${name}`,
-    data: readFileSync(resolve(root, 'exercises/dfs-reachable', name)),
+    data:
+      name === 'traj.jar'
+        ? readTraLibrary()
+        : readFileSync(resolve(root, 'exercises/dfs-reachable', name)),
   }))
   mkdirSync(dirname(output), { recursive: true })
   writeFileSync(output, createStoredZip(files))

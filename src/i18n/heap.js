@@ -8,11 +8,11 @@ export const heapTranslations = {
     peek: 'Katso pienin (peek)',
     poll: 'Poista pienin (poll)',
     tree: 'Minimikeko puuna',
-    array: 'Keon sisäinen taulukko',
+    array: 'Opetuskeon taulukko',
     queue: 'PriorityQueue',
     order: 'Poistumisjärjestys toistuvilla poll-kutsuilla',
     queueNote:
-      'Tämä näyttää arvojen prioriteettijärjestyksen. Keon sisäinen taulukko ja PriorityQueuen iteraattori eivät ole kokonaan lajiteltuja.',
+      'Esikatselu näyttää poistumisprioriteetin. Opetustaulukko ja TRA-iteraattori eivät ole lajiteltuja; yksittäisellä jonolla voi olla toinen kelvollinen sisäinen järjestys.',
     repairing:
       'Kekoehtoa palautetaan. Poistumisjärjestys näytetään, kun keko on jälleen kelvollinen.',
     invariant: 'Kekoehto voimassa',
@@ -36,7 +36,7 @@ export const heapTranslations = {
     limit: 'Visualisointiin mahtuu {max} alkiota. Poista ensin pienin alkio.',
     invalid: 'Anna kokonaisluku väliltä {min}–{max}.',
     costs:
-      'Keon operaatiot: peek O(1), offer ja poll O(log n). Visualisoinnin koko on rajattu 15 alkioon.',
+      'Keko-operaatiot: peek O(1), poll O(log n), offer amortoidusti O(log n) taulukon kasvatus mukaan lukien. Visualisointi on rajattu 15 alkioon.',
     messages: {
       cancelled:
         'Toiminto peruttiin. Keko ja poistohistoria palautettiin sitä edeltävään tilanteeseen.',
@@ -75,11 +75,11 @@ export const heapTranslations = {
     peek: 'Peek minimum (peek)',
     poll: 'Remove minimum (poll)',
     tree: 'Min-heap as a tree',
-    array: 'Internal heap array',
+    array: 'Array of this teaching heap',
     queue: 'PriorityQueue',
     order: 'Removal order with repeated poll calls',
     queueNote:
-      'This shows the values in priority order. The internal heap array and a PriorityQueue iterator are not fully sorted.',
+      'The preview shows removal priority. The teaching array and the TRA iterator are not sorted; an individual queue may use another valid internal layout.',
     repairing: 'Restoring the heap property. Removal order is shown once the heap is valid again.',
     invariant: 'Heap property holds',
     transient: 'Restoring heap order',
@@ -102,7 +102,7 @@ export const heapTranslations = {
     limit: 'The visualisation holds {max} elements. Remove the minimum first.',
     invalid: 'Enter an integer from {min} to {max}.',
     costs:
-      'Heap operations: peek O(1), offer and poll O(log n). The visualisation is limited to 15 elements.',
+      'Heap operations: peek O(1), poll O(log n), offer amortised O(log n) including occasional array growth. The visualisation is limited to 15 elements.',
     messages: {
       cancelled:
         'Operation undone. The heap and removal history are restored to their previous state.',
@@ -140,11 +140,11 @@ export const heapTranslations = {
     peek: 'Посмотреть минимум (peek)',
     poll: 'Удалить минимум (poll)',
     tree: 'Минимальная куча как дерево',
-    array: 'Внутренний массив кучи',
+    array: 'Массив учебной кучи',
     queue: 'PriorityQueue',
     order: 'Порядок извлечения повторными вызовами poll',
     queueNote:
-      'Здесь значения показаны по приоритету. Внутренний массив кучи и итератор PriorityQueue не отсортированы полностью.',
+      'Просмотр показывает приоритет удаления. Учебный массив и итератор TRA не отсортированы; конкретная очередь может иметь другое допустимое внутреннее расположение.',
     repairing:
       'Восстанавливаем свойство кучи. Порядок извлечения появится, когда куча снова станет корректной.',
     invariant: 'Свойство кучи выполняется',
@@ -168,7 +168,7 @@ export const heapTranslations = {
     limit: 'В визуализации помещается {max} элементов. Сначала извлеки минимум.',
     invalid: 'Введи целое число от {min} до {max}.',
     costs:
-      'Операции кучи: peek O(1), offer и poll O(log n). Визуализация ограничена 15 элементами.',
+      'Операции кучи: peek O(1), poll O(log n), offer амортизированно O(log n) с учётом расширения массива. Визуализация ограничена 15 элементами.',
     messages: {
       cancelled: 'Действие отменено. Куча и история извлечений возвращены к предыдущему состоянию.',
       ready: 'В корне находится минимум. Попробуй добавить 1, посмотреть минимум или извлечь его.',

@@ -158,11 +158,11 @@ export function createGraphTraversalTrace(
     }
     return type
   }
-  const driverStart = 'if (graph.length > 0)'
-  const driverRoot = 'if (state.color[v] == WHITE)'
+  const driverStart = 'if (start != null)'
+  const driverRoot = 'if (v.getColor() == WHITE)'
   function dfs(v, parentCall = null, driverSource = driverStart) {
     const id = nodes.length
-    const callLine = line('dfs', 'dfs(graph, next, state);')
+    const callLine = line('dfs', 'dfs(next, state);')
     const loopLine = line('dfs', 'for (int i')
     const node = {
       id,
@@ -190,12 +190,12 @@ export function createGraphTraversalTrace(
     snapshot('enter', { v, call: id + 1 }, id, 'dfs', 'static void dfs')
     if (parent[v] < 0) {
       initializeRoot(v)
-      snapshot('rootSetup', { v }, id, 'dfs', 'if (state.parent[v] < 0)')
+      snapshot('rootSetup', { v }, id, 'dfs', 'if (state.parent.get(v) == null)')
     }
     colors[v] = 'GREY'
-    snapshot('mark', { v }, id, 'dfs', 'state.color[v] = GREY;')
+    snapshot('mark', { v }, id, 'dfs', 'v.setColor(GREY);')
     tin[v] = ++clock
-    snapshot('stamp', { v, time: clock }, id, 'dfs', 'state.tin[v]')
+    snapshot('stamp', { v, time: clock }, id, 'dfs', 'state.tin.put(v')
     pre.push(v)
     snapshot('pre', { v }, id, 'dfs', 'state.pre.add(v)')
     // Include the final failed loop test as an instructional step before POST.
@@ -211,18 +211,18 @@ export function createGraphTraversalTrace(
       const edge = { from: v, to: next }
       node.locals.next = next
       neighborChecks++
-      snapshot('neighbor', { v, i, next }, id, 'dfs', 'int next =', edge)
+      snapshot('neighbor', { v, i, next }, id, 'dfs', 'Vertex next =', edge)
       snapshot(
         colors[next] === 'WHITE' ? 'check' : 'seen',
         { v, next, color: colors[next] },
         id,
         'dfs',
-        'if (state.color[next] == WHITE)',
+        'if (next.getColor() == WHITE)',
         edge,
       )
       if (colors[next] === 'WHITE') {
         discoverChild(v, next)
-        snapshot('adopt', { v, next }, id, 'dfs', 'state.parent[next] =', edge)
+        snapshot('adopt', { v, next }, id, 'dfs', 'state.parent.put(next', edge)
         types[traversalEdgeKey(v, next, directed)] = 'tree'
         snapshot(
           'edgeType',
@@ -241,19 +241,12 @@ export function createGraphTraversalTrace(
           nextI: i + 1,
           child: next,
         }
-        snapshot('wait', { v, next, i }, id, 'dfs', 'dfs(graph, next, state);', edge)
+        snapshot('wait', { v, next, i }, id, 'dfs', 'dfs(next, state);', edge)
         dfs(next, id)
         vertex = v
         node.status = 'active'
         node.continuation = null
-        snapshot(
-          'resume',
-          { v, next, i, nextI: i + 1 },
-          id,
-          'dfs',
-          'dfs(graph, next, state);',
-          edge,
-        )
+        snapshot('resume', { v, next, i, nextI: i + 1 }, id, 'dfs', 'dfs(next, state);', edge)
       } else if (!directed && parent[v] === next) {
         snapshot('parentEdge', { v, next }, id, 'dfs', '} else if (!state.directed', edge)
       } else {
@@ -276,9 +269,9 @@ export function createGraphTraversalTrace(
     node.status = 'returning'
     snapshot('post', { v }, id, 'dfs', 'state.post.add(v)')
     tout[v] = ++clock
-    snapshot('finishTime', { v, time: clock }, id, 'dfs', 'state.tout[v]')
+    snapshot('finishTime', { v, time: clock }, id, 'dfs', 'state.tout.put(v')
     colors[v] = 'BLACK'
-    snapshot('black', { v }, id, 'dfs', 'state.color[v] = BLACK')
+    snapshot('black', { v }, id, 'dfs', 'v.setColor(BLACK)')
     stack.pop()
     node.status = 'done'
     returned = { from: id, to: parentCall, value: null, v, ...node.returnTo }
@@ -289,30 +282,30 @@ export function createGraphTraversalTrace(
       { v, parent: parentCall === null ? 'traverse' : nodes[parentCall].v },
       id,
       'dfs',
-      '    state.color[v] = BLACK',
+      '    v.setColor(BLACK)',
     )
     frames.at(-1).line = dfsEndLine
   }
   // The closing method brace is the return point for this void method.
-  const dfsEndLine = traversalLine('dfs', 'state.color[v] = BLACK') + 1
+  const dfsEndLine = traversalLine('dfs', 'v.setColor(BLACK)') + 1
   function bfs(v) {
     vertex = v
     locals = {}
     initializeRoot(v)
-    snapshot('rootSetup', { v }, null, 'bfs', 'state.root[start]')
-    snapshot('queueInit', {}, null, 'bfs', 'ArrayDeque<Integer>')
+    snapshot('rootSetup', { v }, null, 'bfs', 'state.root.put(start')
+    snapshot('queueInit', {}, null, 'bfs', 'LinkedQueue<Vertex>')
     colors[v] = 'GREY'
-    snapshot('bfsMark', { v }, null, 'bfs', 'state.color[start] = GREY')
+    snapshot('bfsMark', { v }, null, 'bfs', 'start.setColor(GREY)')
     pre.push(v)
     snapshot('discover', { v }, null, 'bfs', 'state.discovered.add(start)')
     queue.push(v)
-    snapshot('enqueue', { v }, null, 'bfs', 'queue.add(start)')
+    snapshot('enqueue', { v }, null, 'bfs', 'queue.offer(start)')
     while (queue.length) {
       // Dequeue does not finish processing: keep GREY until the last neighbour is examined.
       v = queue.shift()
       vertex = v
       locals = { v }
-      snapshot('dequeue', { v }, null, 'bfs', 'int v = queue.remove()')
+      snapshot('dequeue', { v }, null, 'bfs', 'Vertex v = queue.remove()')
       removed.push(v)
       snapshot('removeOrder', { v }, null, 'bfs', 'state.removed.add(v)')
       for (let i = 0; i <= graph[v].length; i++) {
@@ -325,33 +318,33 @@ export function createGraphTraversalTrace(
         const edge = { from: v, to: next }
         locals.next = next
         neighborChecks++
-        snapshot('neighbor', { v, i, next }, null, 'bfs', 'int next =', edge)
+        snapshot('neighbor', { v, i, next }, null, 'bfs', 'Vertex next =', edge)
         if (colors[next] !== 'WHITE') {
           snapshot(
             'bfsSkip',
             { v, next, color: colors[next] },
             null,
             'bfs',
-            'if (state.color[next] != WHITE)',
+            'if (next.getColor() != WHITE)',
             edge,
           )
           continue
         }
-        snapshot('check', { v, next }, null, 'bfs', 'if (state.color[next] != WHITE)', edge)
+        snapshot('check', { v, next }, null, 'bfs', 'if (next.getColor() != WHITE)', edge)
         colors[next] = 'GREY'
-        snapshot('bfsMark', { v: next }, null, 'bfs', 'state.color[next] = GREY', edge)
+        snapshot('bfsMark', { v: next }, null, 'bfs', 'next.setColor(GREY)', edge)
         discoverChild(v, next)
-        snapshot('adopt', { v, next }, null, 'bfs', 'state.parent[next] =', edge)
+        snapshot('adopt', { v, next }, null, 'bfs', 'state.parent.put(next', edge)
         pre.push(next)
         snapshot('discover', { v: next }, null, 'bfs', 'state.discovered.add(next)', edge)
         queue.push(next)
-        snapshot('enqueue', { v: next }, null, 'bfs', 'queue.add(next)', edge)
+        snapshot('enqueue', { v: next }, null, 'bfs', 'queue.offer(next)', edge)
       }
       locals = { v }
       post.push(v)
       snapshot('processed', { v }, null, 'bfs', 'state.completed.add(v)')
       colors[v] = 'BLACK'
-      snapshot('black', { v }, null, 'bfs', 'state.color[v] = BLACK')
+      snapshot('black', { v }, null, 'bfs', 'v.setColor(BLACK)')
     }
     vertex = null
     locals = {}
@@ -376,7 +369,7 @@ export function createGraphTraversalTrace(
   if (all) {
     for (let v = 0; v < count; v++) {
       outerChecks++
-      snapshot('outerLoop', { v }, null, 'traverse', 'for (int v')
+      snapshot('outerLoop', { v }, null, 'traverse', 'for (Vertex v')
       if (colors[v] === 'WHITE') {
         visitRoot(v, driverRoot)
       } else {

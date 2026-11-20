@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -11,6 +10,7 @@ import {
   packageGraphExercise,
 } from '../scripts/package-graph-exercise.mjs'
 import { graphCodingExerciseTranslations } from '../src/i18n/graphCodingExercise.js'
+import { readTraLibrary } from '../scripts/tra-library.mjs'
 
 const kit = resolve('exercises/dfs-reachable')
 const referenceMethod = `
@@ -32,10 +32,7 @@ const solution = body => `${starterImports}\npublic class Solution {\n${body}\n}
 
 test('graph coding task: the supplied JAR is unchanged and the archive is reproducible', () => {
   const jar = readFileSync(join(kit, 'traj.jar'))
-  assert.equal(
-    createHash('sha256').update(jar).digest('hex'),
-    '589c64b49dd8fa77fa1fb9f99d252bf475c180be437a70d81208f4e9f70f3423',
-  )
+  assert.deepEqual(jar, readTraLibrary())
   const files = exercisePackageFiles.map(name => ({
     name: `dfs-reachable/${name}`,
     data: readFileSync(join(kit, name)),

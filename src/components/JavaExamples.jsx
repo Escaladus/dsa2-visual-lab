@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { javaExamples } from '../data/javaExamples.js'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
 
@@ -12,17 +13,14 @@ const downloads = import.meta.glob('../examples/*.java', {
   import: 'default',
 })
 
-export default function JavaExamples({ topicId }) {
+function ExampleGroup({ examples, comparison = false }) {
   const { text } = useLanguage()
-  const examples = javaExamples.filter(example => example.topics.includes(topicId))
-  if (!examples.length) {
-    return null
-  }
+  const id = useId()
 
   return (
-    <section className="java-examples" aria-labelledby="java-examples-title">
-      <h2 id="java-examples-title">{text.ui.javaExamples}</h2>
-      <p className="java-note">{text.ui.javaNote}</p>
+    <section className="java-examples" data-comparison={comparison} aria-labelledby={`${id}-title`}>
+      <h2 id={`${id}-title`}>{text.ui.javaExamples}</h2>
+      <p className="java-note">{comparison ? text.ui.javaComparisonNote : text.ui.javaNote}</p>
       {examples.map((example, index) => {
         const [title, description, complexity] = text.examples[example.id]
         const filename = `${example.className}.java`
@@ -63,5 +61,23 @@ export default function JavaExamples({ topicId }) {
         )
       })}
     </section>
+  )
+}
+
+export default function JavaExamples({ topicId }) {
+  const { text } = useLanguage()
+  const examples = javaExamples.filter(example => example.topics.includes(topicId))
+  const main = examples.filter(example => !example.comparisonTopics?.includes(topicId))
+  const comparison = examples.filter(example => example.comparisonTopics?.includes(topicId))
+  return (
+    <>
+      {main.length > 0 && <ExampleGroup examples={main} />}
+      {comparison.length > 0 && (
+        <details className="java-comparison">
+          <summary>{text.ui.javaComparison}</summary>
+          <ExampleGroup examples={comparison} comparison />
+        </details>
+      )}
+    </>
   )
 }

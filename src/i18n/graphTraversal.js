@@ -24,7 +24,7 @@ export const graphTraversalTranslations = {
     lessons: [
       [
         'Соседи, ожидание и возврат DFS',
-        'Каждый кадр хранит собственные v, i и next. Объект State state общий: Java передаёт значение ссылки, а массивы и списки не копируются в каждый кадр. Родитель ждёт ребёнка на строке рекурсивного вызова. После возврата выполняется увеличение i, затем читается следующий сосед. Возврат управления не создаёт ребро графа: пунктирная стрелка означает только продолжение ожидающего вызова.',
+        'Каждый кадр хранит собственные v, i и next. v/next — ссылки Vertex, i — позиция в подготовленном Java List соседей. Общие данные State связаны с объектами вершин через IdentityHashMap. После возврата ребёнка увеличивается i в том же кадре; список не начинается заново. Пунктирный возврат управления не создаёт ребро TRA.',
       ],
       [
         'Три цвета DFS',
@@ -110,6 +110,15 @@ export const graphTraversalTranslations = {
     distance: 'd от старта',
     unreachable: 'Цель недостижима из выбранного старта.',
     applications: 'Задача → алгоритм → дополнительные данные',
+    applicationsOpen: 'Исследовать применения на графе',
+    applicationsGuide:
+      'Выбери задачу: откроется подходящий граф и алгоритм. Проходи шаги кнопками под графом или выбери завершение в меню ⋯. Ниже появится результат; таблица сравнения показывает полные DFS/BFS отдельно от текущего шага. Изменение задачи начинает новый разбор.',
+    shortestNeedsBfs:
+      'Сейчас выбран DFS: этот путь допустим, но может быть длиннее кратчайшего. Переключись на BFS, чтобы получить минимум рёбер.',
+    partialComponents:
+      'Показана только посещённая часть. Для перечисления всех компонент или деревьев леса выбери обход всего графа.',
+    directedForest:
+      'Это корни и деревья направленного обхода, а не компоненты сильной связности. Новое дерево не становится достижимым из первоначального старта.',
     target: 'Целевая вершина',
     launch: 'Открыть сценарий',
     result: 'Результат текущего завершённого обхода',
@@ -149,9 +158,11 @@ export const graphTraversalTranslations = {
     },
     complexity: 'Время и память текущего обхода',
     memory:
-      'Рабочие структуры O(V). Классификация, если сохраняется, добавляет O(E) результата. История визуализации в эти оценки не входит.',
-    fullBound: 'Полный обход: Θ(V + E)',
-    partialBound: 'Подготовка массивов + достижимая часть: Θ(V + R + Aᵣ)',
+      'Ядро обхода: O(V) под метаданные, стек/очередь и списки. Подготовленные списки соседей добавляют O(V + E), классы Edge — O(E) результата; вся дополнительная память этого примера O(V + E). Счётчик 7V показывает только логические поля модели, не все выделения JVM. Вход и история анимации учитываются отдельно.',
+    fullBound:
+      'После подготовки: ядро Θ(V + E). Подготовка сортирует все списки: O(V + E + Σ d(v) log(d(v) + 1)).',
+    partialBound:
+      'Ядро достижимой части: Θ(R + Aᵣ). Показанный wrapper также подготавливает весь граф и сохраняет цвета всех V вершин.',
     metrics: [
       'Чтений соседей',
       'Проверок внешнего цикла',
@@ -186,7 +197,7 @@ export const graphTraversalTranslations = {
     adjacency: 'Списки смежности в выбранном порядке',
     messages: {
       ready: 'Старт {start}. Все вершины WHITE; следующий шаг подготовит структуры.',
-      init: 'Создаём общие массивы цвета, родителей, корней, глубин, расстояний и времён.',
+      init: 'Подготовлены общие карты и упорядоченные списки из TRA. Все вершины помечены WHITE.',
       startRoot: 'Внешний метод запускает обход из {v}.',
       rootSetup: 'Вершина {v} начинает новое дерево; его локальная глубина 0.',
       enter: 'Создан кадр dfs({v}) #{call}. Его собственный аргумент v = {v}.',
@@ -194,7 +205,7 @@ export const graphTraversalTranslations = {
       stamp: 'tin[{v}] = {time}: время обнаружения.',
       pre: 'PRE: записываем вход в {v}.',
       loop: 'Вершина {v}: проверяем i = {i} < {length}.',
-      neighbor: 'Вершина {v}: graph[v][{i}] = {next}. Читаем следующего соседа.',
+      neighbor: 'Вершина {v}: позиция {i} подготовленного списка содержит Vertex {next}.',
       check: 'Сосед {next} WHITE: разрешено первое обнаружение.',
       seen: 'Сосед {next} уже {color}. Новый рекурсивный вызов не нужен.',
       adopt: 'У {next} родитель {v}; сохраняем общий корень и глубину пути.',
@@ -248,7 +259,7 @@ export const graphTraversalTranslations = {
     lessons: [
       [
         'DFS neighbours, waiting and returning',
-        'Each frame owns v, i and next. State state is shared: Java passes the reference value, without copying the arrays and lists into each frame. The parent waits at the recursive call. After the child returns, i increases and the next neighbour is read. A control return creates no graph edge: the dashed arrow only resumes the waiting call.',
+        'Each frame owns v, i and next. v/next are Vertex references; i is a position in a prepared Java List of neighbours. Shared State data uses identity-keyed vertex maps. After a child returns, i increases in that same frame; scanning does not restart. A dashed control return creates no TRA edge.',
       ],
       [
         'Three DFS colours',
@@ -305,7 +316,12 @@ export const graphTraversalTranslations = {
     returnControl: 'control return — not a graph edge',
     classify: 'Show DFS edge classes',
     edgeTypes: 'Edge classification output',
-    types: { tree: 'Tree', back: 'Back', forward: 'Forward', cross: 'Cross' },
+    types: {
+      tree: 'Tree',
+      back: 'Back',
+      forward: 'Forward',
+      cross: 'Cross',
+    },
     edgeLabel: 'Edge {u} → {v}: {type}',
     rule: {
       tree: 'WHITE → a new child call.',
@@ -328,6 +344,15 @@ export const graphTraversalTranslations = {
     distance: 'd from start',
     unreachable: 'The target is unreachable from the selected start.',
     applications: 'Problem → algorithm → extra state',
+    applicationsOpen: 'Explore applications on a graph',
+    applicationsGuide:
+      'Choose a problem to open its graph and algorithm. Step with the controls below the graph, or finish via the ⋯ menu. The result appears below; the comparison table shows completed DFS/BFS separately from the current step. Changing the problem starts a new walkthrough.',
+    shortestNeedsBfs:
+      'DFS is selected: this path is valid but may be longer than the shortest path. Switch to BFS for the minimum edge count.',
+    partialComponents:
+      'Only the visited part is shown. Select the whole-graph scope to list every component or forest tree.',
+    directedForest:
+      'These are directed traversal roots and trees, not strongly connected components. A new tree does not become reachable from the original start.',
     target: 'Target vertex',
     launch: 'Open scenario',
     result: 'Result of the current completed run',
@@ -367,9 +392,11 @@ export const graphTraversalTranslations = {
     },
     complexity: 'Time and space for this traversal',
     memory:
-      'Working structures take O(V). Saving edge classification adds O(E) output. Visualisation history is excluded.',
-    fullBound: 'Full traversal: Θ(V + E)',
-    partialBound: 'Array setup + reachable part: Θ(V + R + Aᵣ)',
+      'Traversal core: O(V) metadata, stack/queue and lists. Prepared neighbour lists add O(V + E); stored Edge classes add O(E) output. Total additional space here is O(V + E). The 7V counter describes logical model fields, not all JVM allocations. Input and animation history are separate.',
+    fullBound:
+      'After preparation: core Θ(V + E). Preparing sorted lists costs O(V + E + Σ d(v) log(d(v) + 1)).',
+    partialBound:
+      'Reachable core: Θ(R + Aᵣ). The shown wrapper also prepares the whole graph and captures all V final colours.',
     metrics: [
       'Neighbour reads',
       'Outer-loop checks',
@@ -404,7 +431,7 @@ export const graphTraversalTranslations = {
     adjacency: 'Adjacency lists in the selected order',
     messages: {
       ready: 'Start {start}. All vertices are WHITE; prepare the shared structures next.',
-      init: 'Create shared arrays for colours, parents, roots, depths, distances and timestamps.',
+      init: 'Shared maps and ordered neighbour lists from TRA are ready. All vertices are WHITE.',
       startRoot: 'The driver starts a traversal at {v}.',
       rootSetup: '{v} begins a new tree at local depth 0.',
       enter: 'Create dfs({v}) frame #{call}, with its own v = {v}.',
@@ -412,7 +439,7 @@ export const graphTraversalTranslations = {
       stamp: 'tin[{v}] = {time}: discovery time.',
       pre: 'PRE: record entry into {v}.',
       loop: 'Vertex {v}: test i = {i} < {length}.',
-      neighbor: 'Vertex {v}: graph[v][{i}] = {next}. Read the next neighbour.',
+      neighbor: 'Vertex {v}: position {i} of the prepared list contains Vertex {next}.',
       check: 'Neighbour {next} is WHITE: first discovery is allowed.',
       seen: 'Neighbour {next} is already {color}. No new recursive call.',
       adopt: 'Set parent of {next} to {v}; retain the shared root and path depth.',
@@ -466,7 +493,7 @@ export const graphTraversalTranslations = {
     lessons: [
       [
         'DFS:n naapurit, odotus ja paluu',
-        'Jokainen kehys omistaa muuttujat v, i ja next. State state on yhteinen: Java välittää viitearvon kopioimatta taulukoita ja listoja joka kehykseen. Vanhempi odottaa rekursiivisen kutsun kohdalla. Paluun jälkeen i kasvaa ja seuraava naapuri luetaan. Suorituksen paluu ei luo graafin kaarta: katkoviivanuoli tarkoittaa vain odottavan kutsun jatkumista.',
+        'Jokaisella kehyksellä on omat v, i ja next. v/next ovat Vertex-viitteet; i on paikka valmistellussa Java List -naapurilistassa. Yhteinen State käyttää identiteettiin perustuvia solmukuvauksia. Lapsen palattua i kasvaa samassa kehyksessä; selaus ei ala alusta. Katkoviivalla kuvattu paluu ei luo TRA-kaarta.',
       ],
       [
         'DFS:n kolme väriä',
@@ -551,6 +578,15 @@ export const graphTraversalTranslations = {
     distance: 'd alusta',
     unreachable: 'Kohdetta ei saavuteta valitusta aloitussolmusta.',
     applications: 'Tehtävä → algoritmi → lisätila',
+    applicationsOpen: 'Tutki sovelluksia graafilla',
+    applicationsGuide:
+      'Valitse tehtävä avataksesi sen graafin ja algoritmin. Etene kuvan alla olevilla painikkeilla tai siirry loppuun ⋯-valikosta. Tulos näkyy alla; vertailutaulukko näyttää valmiit DFS/BFS-ajot erillään nykyisestä vaiheesta. Tehtävän vaihto aloittaa uuden läpikäynnin.',
+    shortestNeedsBfs:
+      'DFS on valittu: polku on kelvollinen mutta voi olla lyhintä pidempi. Vaihda BFS:ään saadaksesi pienimmän kaarimäärän.',
+    partialComponents:
+      'Vain käyty osa näkyy. Valitse koko graafin läpikäynti nähdäksesi kaikki komponentit tai metsän puut.',
+    directedForest:
+      'Nämä ovat suunnatun läpikäynnin juuria ja puita, eivät vahvasti yhtenäisiä komponentteja. Uusi puu ei tule saavutettavaksi alkuperäisestä alusta.',
     target: 'Kohdesolmu',
     launch: 'Avaa esimerkki',
     result: 'Nykyisen valmiin läpikäynnin tulos',
@@ -590,9 +626,11 @@ export const graphTraversalTranslations = {
     },
     complexity: 'Tämän läpikäynnin aika ja muisti',
     memory:
-      'Työrakenteet vievät O(V). Tallennettu kaariluokittelu lisää O(E) tulostietoa. Visualisoinnin historia ei sisälly arvioon.',
-    fullBound: 'Koko läpikäynti: Θ(V + E)',
-    partialBound: 'Taulukoiden alustus + saavutettava osa: Θ(V + R + Aᵣ)',
+      'Läpikäynnin ydin: O(V) metatietoja, pinoa/jonoa ja listoja. Valmistellut naapurilistat lisäävät O(V + E) tilaa ja tallennetut Edge-luokat O(E) tulostilaa. Lisätila yhteensä on tässä O(V + E). Laskuri 7V kuvaa mallin loogisia kenttiä, ei kaikkia JVM-varauksia. Syöte ja animaatiohistoria ovat erillisiä.',
+    fullBound:
+      'Valmistelun jälkeen: ydin Θ(V + E). Lajiteltujen listojen valmistelu vie O(V + E + Σ d(v) log(d(v) + 1)).',
+    partialBound:
+      'Saavutettava ydin: Θ(R + Aᵣ). Näytetty wrapper valmistelee lisäksi koko verkon ja tallentaa kaikkien V solmujen loppuvärit.',
     metrics: [
       'Naapurilukuja',
       'Ulomman silmukan tarkistuksia',
@@ -627,7 +665,7 @@ export const graphTraversalTranslations = {
     adjacency: 'Vieruslistat valitussa järjestyksessä',
     messages: {
       ready: 'Alku {start}. Kaikki solmut ovat WHITE; seuraavaksi alustetaan yhteiset rakenteet.',
-      init: 'Luo yhteiset taulukot väreille, vanhemmille, juurille, syvyyksille, etäisyyksille ja ajoille.',
+      init: 'TRA:n yhteiset kuvaukset ja järjestetyt naapurilistat ovat valmiit. Kaikki solmut ovat WHITE.',
       startRoot: 'Ulompi metodi aloittaa läpikäynnin solmusta {v}.',
       rootSetup: '{v} aloittaa uuden puun paikallisella syvyydellä 0.',
       enter: 'Luo dfs({v})-kehys #{call}, jonka oma v = {v}.',
@@ -635,7 +673,7 @@ export const graphTraversalTranslations = {
       stamp: 'tin[{v}] = {time}: löytämisaika.',
       pre: 'PRE: kirjaa saapuminen solmuun {v}.',
       loop: 'Solmu {v}: tarkista i = {i} < {length}.',
-      neighbor: 'Solmu {v}: graph[v][{i}] = {next}. Lue seuraava naapuri.',
+      neighbor: 'Solmu {v}: valmistellun listan paikassa {i} on Vertex {next}.',
       check: 'Naapuri {next} on WHITE: ensimmäinen löytäminen sallitaan.',
       seen: 'Naapuri {next} on jo {color}. Ei uutta rekursiivista kutsua.',
       adopt: 'Aseta solmun {next} vanhemmaksi {v}; säilytä yhteinen juuri ja polkusyvyys.',

@@ -11,6 +11,7 @@ import HeapLab from './components/HeapLab.jsx'
 import { handout, handoutSections } from './data/handout.js'
 import { sortingAlgorithms } from './utils/sortingAlgorithms.js'
 import { roadmapIds, topics } from './data/topics.js'
+import { hasPrimaryTraExamples } from './data/traJavaExamples.js'
 import { useLanguage } from './i18n/LanguageContext.jsx'
 
 const RecursionLab = lazy(() => import('./components/RecursionLab.jsx'))
@@ -20,14 +21,8 @@ const JavaExamples = lazy(() => import('./components/JavaExamples.jsx'))
 const TraJavaExamples = lazy(() => import('./components/TraJavaExamples.jsx'))
 const RecurrenceTreeLab = lazy(() => import('./components/RecurrenceTreeLab.jsx'))
 const GraphCodingExercise = lazy(() => import('./components/GraphCodingExercise.jsx'))
-
-function Code({ children }) {
-  return (
-    <pre className="code-block">
-      <code>{children}</code>
-    </pre>
-  )
-}
+const GraphBasicsLesson = lazy(() => import('./components/GraphBasicsLesson.jsx'))
+const GraphApplicationsLab = lazy(() => import('./components/GraphApplicationsLab.jsx'))
 
 // Inline code stays text, including Java generics such as List<T>.
 function InlineText({ children }) {
@@ -120,6 +115,16 @@ function Lesson({ topic, onOpen }) {
         </Suspense>
       )}
 
+      {id === 'graph-basics' && (
+        <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
+          <GraphBasicsLesson />
+        </Suspense>
+      )}
+      {id === 'graph-apps' && (
+        <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
+          <GraphApplicationsLab />
+        </Suspense>
+      )}
       {id !== 'recursion' && (
         <div className={grid}>
           {page.cards.map(([title, body], index) => (
@@ -130,9 +135,6 @@ function Lesson({ topic, onOpen }) {
                 index === 0 && ['overview', 'sorted-lists', 'graph-dfs', 'graph-bfs'].includes(id)
               }
             >
-              {id === 'graph-basics' && index === 2 && (
-                <Code>{'A: [B, C]\nB: [A, D, F]\nC: [A, D, E]\n...'}</Code>
-              )}
               {Array.isArray(body) ? (
                 <ul>
                   {body.map((item, i) => (
@@ -173,8 +175,9 @@ function Lesson({ topic, onOpen }) {
       )}
       {id !== 'overview' && (
         <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
+          {hasPrimaryTraExamples(id) && <TraJavaExamples topicId={id} />}
           <JavaExamples topicId={id} />
-          <TraJavaExamples topicId={id} />
+          {!hasPrimaryTraExamples(id) && <TraJavaExamples topicId={id} />}
         </Suspense>
       )}
       {id === 'complexity' && <ComplexityQuiz />}
@@ -247,6 +250,7 @@ export default function App() {
             {text.ui.footer} <a href="https://github.com/Escaladus">Denis</a>
           </p>
           <p>{text.ui.courseCredit}</p>
+          <p>{text.ui.aiCredit}</p>
         </footer>
       </main>
     </div>

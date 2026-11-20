@@ -28,7 +28,7 @@ export const recursionComplexityTranslations = {
       reached: 'Помечено вершин',
       neighborChecks: 'Прочитано записей соседей',
       outerChecks: 'Вершин рассмотрено внешним циклом',
-      visitedSlots: 'Выделено ячеек visited',
+      visitedSlots: 'Записей visited подготовлено',
       resultEntries: 'Записей в PRE + POST',
     },
     counterNote:
@@ -52,7 +52,7 @@ export const recursionComplexityTranslations = {
       ],
     ],
     model:
-      'Здесь сравнение, арифметика long и индексирование массива считаются O(1), а добавление в ArrayList — амортизированно O(1). Θ описывает порядок роста с точностью до постоянных множителей; O задаёт верхнюю границу. Это не точное число машинных команд.',
+      'Здесь сравнение, арифметика long и индексирование массива считаются O(1), а добавление в ArrayList — амортизированно O(1). Θ описывает порядок роста с точностью до постоянных множителей; O задаёт верхнюю границу. Это не точное число машинных команд. Для identity-карты предполагается ожидаемое O(1) на операцию. ',
     tableTitle: 'Сравнение оценок',
     algorithm: 'Алгоритм',
     time: 'Время',
@@ -98,7 +98,7 @@ export const recursionComplexityTranslations = {
         paragraphs: [
           'Один вызов dfs(v) делает Θ(1 + degree(v)) собственной работы без учёта детей. Каждая вершина помечается до рекурсивных переходов и получает только один вызов. Каждый элемент её списка соседей читается один раз, даже если сосед уже посещён.',
           'При полном обходе рассматриваются все V вершин. В неориентированном графе каждое ребро хранится в двух списках: суммарно A = 2E записей соседей. Внешний цикл и создание visited добавляют Θ(V), поэтому время остаётся Θ(V + E).',
-          'Один dfs(start) обходит только R достижимых вершин и их Aᵣ записей соседей: ядро DFS работает за Θ(R + Aᵣ), если visited уже подготовлен. Но показанный traverse каждый раз создаёт boolean[V], поэтому его время в этом режиме — Θ(V + R + Aᵣ). Даже изолированная стартовая вершина не отменяет выделение массива на весь граф.',
+          'Сам dfs(start) читает R достижимых вершин и Aᵣ записей соседей за ожидаемое Θ(R + Aᵣ). Wrapper создаёт IdentityHashMap с V записями visited, поэтому с подготовкой время Θ(V + R + Aᵣ). Ожидаемая константная стоимость операций карты — предположение модели.',
           'Глубина рекурсии не больше R, но visited содержит V ячеек. PRE и POST содержат по R записей. Вместе это O(V) дополнительной памяти; входные списки смежности занимают Θ(V + E) отдельно и в эту оценку не включены.',
         ],
       },
@@ -151,7 +151,7 @@ export const recursionComplexityTranslations = {
       reached: 'Vertices marked',
       neighborChecks: 'Neighbour entries read',
       outerChecks: 'Vertices considered by the outer loop',
-      visitedSlots: 'Visited slots allocated',
+      visitedSlots: 'Visited entries initialised',
       resultEntries: 'PRE + POST entries',
     },
     counterNote:
@@ -175,7 +175,7 @@ export const recursionComplexityTranslations = {
       ],
     ],
     model:
-      'Here, comparisons, long arithmetic and array indexing cost O(1); ArrayList append is amortised O(1). Θ gives a growth rate up to constant factors; O gives an upper bound. This is not an exact count of machine instructions.',
+      'Here, comparisons, long arithmetic and array indexing cost O(1); ArrayList append is amortised O(1). Θ gives a growth rate up to constant factors; O gives an upper bound. This is not an exact count of machine instructions. Identity-map operations are assumed to take expected O(1) time. ',
     tableTitle: 'Comparing the bounds',
     algorithm: 'Algorithm',
     time: 'Time',
@@ -221,7 +221,7 @@ export const recursionComplexityTranslations = {
         paragraphs: [
           'One dfs(v) call does Θ(1 + degree(v)) work of its own, excluding children. Each vertex is marked before descending and receives only one call. Every entry in its adjacency list is read once, even if the neighbour is already visited.',
           'A full traversal considers all V vertices. In an undirected graph, each edge is stored twice: A = 2E neighbour entries altogether. The outer loop and visited allocation add Θ(V), so time remains Θ(V + E).',
-          'One dfs(start) visits only R reachable vertices and their Aᵣ neighbour entries: its core work is Θ(R + Aᵣ) if visited is ready. But the shown traverse creates boolean[V] each time, so its time in this mode is Θ(V + R + Aᵣ). Even an isolated start does not avoid allocating the whole visited array.',
+          'The dfs(start) core reads R reachable vertices and Aᵣ neighbour entries in expected Θ(R + Aᵣ). The wrapper creates an identity-keyed map with V visited entries, so setup makes the time Θ(V + R + Aᵣ). Expected constant-time map operations are a model assumption.',
           'Recursion depth is at most R, but visited has V slots. PRE and POST hold R entries each. Together this is O(V) additional space; the input adjacency lists take Θ(V + E) separately and are excluded from that bound.',
         ],
       },
@@ -274,7 +274,7 @@ export const recursionComplexityTranslations = {
       reached: 'Merkityt solmut',
       neighborChecks: 'Luetut naapurimerkinnät',
       outerChecks: 'Ulomman silmukan tutkimat solmut',
-      visitedSlots: 'Varatut visited-paikat',
+      visitedSlots: 'Alustettuja visited-merkintöjä',
       resultEntries: 'PRE + POST -merkinnät',
     },
     counterNote:
@@ -298,7 +298,7 @@ export const recursionComplexityTranslations = {
       ],
     ],
     model:
-      'Tässä vertailu, long-laskutoimitukset ja taulukkoindeksointi vievät O(1); ArrayList-lisäys vie amortoidusti O(1). Θ kuvaa kasvuluokkaa vakiokertoimiin asti; O antaa ylärajan. Tämä ei ole tarkka konekäskyjen määrä.',
+      'Tässä vertailu, long-laskutoimitukset ja taulukkoindeksointi vievät O(1); ArrayList-lisäys vie amortoidusti O(1). Θ kuvaa kasvuluokkaa vakiokertoimiin asti; O antaa ylärajan. Tämä ei ole tarkka konekäskyjen määrä. Identiteettikuvauksen operaation oletetaan vievän odotetusti O(1) aikaa. ',
     tableTitle: 'Arvioiden vertailu',
     algorithm: 'Algoritmi',
     time: 'Aika',
@@ -344,7 +344,7 @@ export const recursionComplexityTranslations = {
         paragraphs: [
           'Yksi dfs(v) tekee omaa työtä Θ(1 + degree(v)) ilman lapsikutsuja. Solmu merkitään ennen rekursiota ja se saa vain yhden kutsun. Jokainen vieruslistan alkio luetaan kerran, vaikka naapuri olisi jo käyty.',
           'Koko läpikäynti tutkii kaikki V solmua. Suuntaamattomassa graafissa jokainen kaari on kahdessa listassa: yhteensä A = 2E naapurimerkintää. Ulompi silmukka ja visited-varaus lisäävät Θ(V), joten aika on edelleen Θ(V + E).',
-          'Yksi dfs(start) käy vain R saavutettavaa solmua ja niiden Aᵣ naapurimerkintää: ydintyö on Θ(R + Aᵣ), jos visited on jo valmisteltu. Näytetty traverse luo kuitenkin joka kerta boolean[V]:n, joten sen aika tässä tilassa on Θ(V + R + Aᵣ). Myös eristetty aloitussolmu vaatii koko visited-taulukon varaamisen.',
+          'dfs(start)-ydin lukee R saavutettavaa solmua ja Aᵣ naapurimerkintää odotetussa ajassa Θ(R + Aᵣ). Wrapper alustaa identiteettikuvaukseen V visited-merkintää, joten alustuksineen aika on Θ(V + R + Aᵣ). Kuvauksen odotettu vakioaika on mallin oletus.',
           'Rekursiosyvyys on enintään R, mutta visited sisältää V paikkaa. PRE ja POST sisältävät kumpikin R merkintää. Yhteensä lisämuisti on O(V); syötteen vieruslistat vievät erikseen Θ(V + E), eikä niitä lasketa tähän arvioon.',
         ],
       },

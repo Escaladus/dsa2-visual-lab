@@ -1,105 +1,103 @@
-// Generated from GraphTraversalExample.java. Edit the Java source, then run npm run sync:java-snippets.
-export const traverseTraversalCode = `static State traverse(int[][] graph, int start, boolean all, boolean directed, boolean breadth) {
-    State state = new State(graph.length, start, directed);
+// Generated from TraTraversalExample.java. Edit the Java source, then run npm run sync:java-snippets.
+export const traverseTraversalCode = `public static State traverse(AbstractGraph graph, List<Vertex> vertices, Vertex start,
+                             boolean all, boolean breadth, boolean reverse) {
+    State state = new State(graph, vertices, start, reverse);
     state.breadth = breadth;
-    if (graph.length > 0) {
+    if (start != null) {
         if (breadth) {
-            bfs(graph, start, state);
+            bfs(start, state);
         } else {
-            dfs(graph, start, state);
+            dfs(start, state);
         }
     }
     if (all) {
-        for (int v = 0; v < graph.length; v++) {
-            if (state.color[v] == WHITE) {
+        for (Vertex v : state.vertices) {
+            if (v.getColor() == WHITE) {
                 if (breadth) {
-                    bfs(graph, v, state);
+                    bfs(v, state);
                 } else {
-                    dfs(graph, v, state);
+                    dfs(v, state);
                 }
             }
         }
     }
+    state.captureColors();
     return state;
 }`
 
-export const dfsTraversalCode = `static void dfs(int[][] graph, int v, State state) {
-    if (state.parent[v] < 0) {
-        state.root[v] = v;
-        state.depth[v] = 0;
-        state.distance[v] = v == state.start ? 0 : -1;
+export const dfsTraversalCode = `static void dfs(Vertex v, State state) {
+    if (state.parent.get(v) == null) {
+        state.root.put(v, v);
+        state.depth.put(v, 0);
+        state.distance.put(v, v == state.start ? 0 : -1);
     }
-    state.color[v] = GREY;
-    state.tin[v] = ++state.clock;
+    v.setColor(GREY);
+    state.tin.put(v, ++state.clock);
     state.pre.add(v);
-    for (int i = 0; i < graph[v].length; i++) {
-        int next = graph[v][i];
+    for (int i = 0; i < state.neighbors.get(v).size(); i++) {
+        Vertex next = state.neighbors.get(v).get(i);
+        Edge edge = state.outgoingEdges.get(v).get(i);
         state.neighborChecks++;
-        if (state.color[next] == WHITE) {
-            state.parent[next] = v;
-            state.root[next] = state.root[v];
-            state.depth[next] = state.depth[v] + 1;
-            state.distance[next] = state.root[v] == state.start ? state.depth[next] : -1;
-            state.types.put(edgeKey(v, next, state.directed), "tree");
-            dfs(graph, next, state);
-        } else if (!state.directed && state.parent[v] == next) {
-            // Two adjacency entries describe one physical parent edge, not a cycle.
+        if (next.getColor() == WHITE) {
+            state.parent.put(next, v);
+            state.parentEdge.put(next, edge);
+            state.root.put(next, state.root.get(v));
+            state.depth.put(next, state.depth.get(v) + 1);
+            state.distance.put(next, state.root.get(v) == state.start ? state.depth.get(next) : -1);
+            state.types.put(edge, "tree");
+            dfs(next, state);
+        } else if (!state.directed && edge == state.parentEdge.get(v)) {
+            // The reverse view of this physical tree edge is not a cycle.
         } else {
-            state.types.putIfAbsent(edgeKey(v, next, state.directed), classify(v, next, state));
+            state.types.putIfAbsent(edge, classify(v, next, edge, state));
         }
     }
     state.post.add(v);
-    state.tout[v] = ++state.clock;
-    state.color[v] = BLACK;
+    state.tout.put(v, ++state.clock);
+    v.setColor(BLACK);
 }`
 
-export const bfsTraversalCode = `static void bfs(int[][] graph, int start, State state) {
-    state.root[start] = start;
-    state.depth[start] = 0;
-    state.distance[start] = start == state.start ? 0 : -1;
-    ArrayDeque<Integer> queue = new ArrayDeque<>();
-    state.color[start] = GREY;
+export const bfsTraversalCode = `static void bfs(Vertex start, State state) {
+    state.root.put(start, start);
+    state.depth.put(start, 0);
+    state.distance.put(start, start == state.start ? 0 : -1);
+    LinkedQueue<Vertex> queue = new LinkedQueue<>();
+    start.setColor(GREY);
     state.discovered.add(start);
-    queue.add(start);
+    queue.offer(start);
     while (!queue.isEmpty()) {
-        int v = queue.remove();
+        Vertex v = queue.remove();
         state.removed.add(v);
-        for (int i = 0; i < graph[v].length; i++) {
-            int next = graph[v][i];
+        for (int i = 0; i < state.neighbors.get(v).size(); i++) {
+            Vertex next = state.neighbors.get(v).get(i);
             state.neighborChecks++;
-            if (state.color[next] != WHITE) continue;
-            state.color[next] = GREY;
-            state.parent[next] = v;
-            state.root[next] = state.root[v];
-            state.depth[next] = state.depth[v] + 1;
-            state.distance[next] = state.root[v] == state.start ? state.depth[next] : -1;
+            if (next.getColor() != WHITE) continue;
+            next.setColor(GREY);
+            state.parent.put(next, v);
+            state.root.put(next, state.root.get(v));
+            state.depth.put(next, state.depth.get(v) + 1);
+            state.distance.put(next, state.root.get(v) == state.start ? state.depth.get(next) : -1);
             state.discovered.add(next);
-            queue.add(next);
+            queue.offer(next);
         }
         state.completed.add(v);
-        state.color[v] = BLACK;
+        v.setColor(BLACK);
     }
 }`
 
-export const classifyTraversalCode = `static String classify(int source, int target, State state) {
-    String key = edgeKey(source, target, state.directed);
-    if (state.types.containsKey(key)) return state.types.get(key);
-
+export const classifyTraversalCode = `static String classify(Vertex source, Vertex target, Edge edge, State state) {
+    if (state.types.containsKey(edge)) return state.types.get(edge);
     String type;
-    if (!state.directed || state.color[target] == GREY) {
+    if (!state.directed || target.getColor() == GREY) {
         type = "back";
-    } else if (state.tin[source] < state.tin[target]) {
+    } else if (state.tin.get(source) < state.tin.get(target)) {
         type = "forward";
     } else {
         type = "cross";
     }
-
-    // Follow parents up to the GREY ancestor to construct one explicit cycle witness.
     if (type.equals("back") && state.cycle.isEmpty()) {
-        List<Integer> branch = new ArrayList<>();
-        for (int v = source; v != target; v = state.parent[v]) {
-            branch.add(v);
-        }
+        List<Vertex> branch = new ArrayList<>();
+        for (Vertex v = source; v != target; v = state.parent.get(v)) branch.add(v);
         Collections.reverse(branch);
         state.cycle.add(target);
         state.cycle.addAll(branch);
@@ -108,15 +106,50 @@ export const classifyTraversalCode = `static String classify(int source, int tar
     return type;
 }`
 
-export const topologicalTraversalCode = `static List<Integer> topological(State state) {
-    if (!state.directed || state.breadth) {
-        throw new IllegalArgumentException("directed DFS required");
-    }
+export const topologicalTraversalCode = `public static List<Vertex> topological(State state) {
+    if (!state.directed || state.breadth) throw new IllegalArgumentException("directed DFS required");
     if (!state.cycle.isEmpty()) throw new IllegalArgumentException("cycle");
-    for (int color : state.color) {
-        if (color != BLACK) throw new IllegalArgumentException("full DFS required");
+    for (Vertex v : state.vertices) {
+        if (state.color.get(v) != BLACK) throw new IllegalArgumentException("full DFS required");
     }
-    List<Integer> result = new ArrayList<>(state.post);
+    List<Vertex> result = new ArrayList<>(state.post);
     Collections.reverse(result);
     return result;
+}`
+
+export const traversalPreparationCode = `State(AbstractGraph graph, List<Vertex> vertices, Vertex start, boolean reverse) {
+    this.vertices = List.copyOf(vertices);
+    this.start = start;
+    this.directed = graph.isDiGraph();
+    for (Vertex vertex : graph.vertices()) color.put(vertex, WHITE);
+    for (int i = 0; i < vertices.size(); i++) {
+        Vertex vertex = vertices.get(i);
+        if (!color.containsKey(vertex) || id.put(vertex, i) != null) {
+            throw new IllegalArgumentException("Vertex order must list graph vertices once");
+        }
+    }
+    if (id.size() != color.size()
+            || (vertices.isEmpty() ? start != null : !id.containsKey(start))) {
+        throw new IllegalArgumentException("Invalid vertex order or start");
+    }
+    for (Vertex vertex : vertices) {
+        vertex.setColor(WHITE);
+        parent.put(vertex, null);
+        root.put(vertex, null);
+        depth.put(vertex, -1);
+        distance.put(vertex, -1);
+        tin.put(vertex, 0);
+        tout.put(vertex, 0);
+        // getEdge(next) scans incident edges in this JAR. Save aligned Edge references
+        // once, rather than repeating that scan for every neighbour during DFS.
+        List<Edge> outgoing = new ArrayList<>();
+        for (Edge edge : vertex.edges()) outgoing.add(edge);
+        Comparator<Edge> order = Comparator.comparingInt(edge -> id.get(edge.getEndPoint(vertex)));
+        if (reverse) order = order.reversed();
+        outgoing.sort(order);
+        List<Vertex> adjacent = new ArrayList<>();
+        for (Edge edge : outgoing) adjacent.add(edge.getEndPoint(vertex));
+        neighbors.put(vertex, List.copyOf(adjacent));
+        outgoingEdges.put(vertex, List.copyOf(outgoing));
+    }
 }`

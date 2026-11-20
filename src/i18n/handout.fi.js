@@ -5,6 +5,9 @@ export default {
     javaExamples: 'Java-esimerkit',
     javaNote:
       'Itsenäisiä esimerkkejä JDK 11:lle tai uudemmalle. Lataa tiedosto ja suorita alla oleva komento. Kurssin TRA-kirjastoa ei tarvita.',
+    javaComparison: 'Lisämateriaali: itsenäiset JDK-versiot',
+    javaComparisonNote:
+      'TRA-esimerkit ovat yllä. Valinnaiset vertailut käyttävät taulukoita tai JDK-kokoelmia ja toimivat JDK 11+:lla ilman traj.jar-tiedostoa.',
     runJava: 'Suoritus',
     expectedOutput: 'Odotettu tuloste',
     downloadJava: 'Lataa .java',
@@ -74,16 +77,24 @@ export default {
     trees: {
       cards: [
         [
-          'Binääripuu ei automaattisesti ole hakupuu',
-          'Sisäjärjestys antaa järjestetyt arvot vain, jos binäärihakupuun ehto pätee. Jokainen läpikäynti käy n solmussa ajassa O(n) ja käyttää O(h) rekursiopinoa korkeudella h. Vinossa puussa h voi olla n.',
+          'Korkeus ja rekursion tila',
+          'Korkeus lasketaan kaarina: tyhjä −1, lehti 0, n solmun ketju n − 1. Tasoja on h + 1. Läpikäynti vie Θ(n) aikaa ja epätyhjän puun pino O(h + 1) tilaa; tuloslistat lisäävät O(n). Null-kutsu lisää hetkeksi yhden kehyksen.',
+        ],
+        [
+          'TRA:n binäärinen ja yleinen puu',
+          '`BTree`/`BTreeNode` käyttävät vasenta ja oikeaa lasta; IN lajittelee vain hakupuussa. `Tree`/`TreeNode` käyttävät ensimmäistä lasta ja seuraavaa sisarusta. Todelliset rajapinnat ja esimerkit ovat avattavassa oppitunnissa.',
         ],
       ],
     },
     heap: {
       cards: [
         [
-          'Java PriorityQueuen sudenkuopat',
-          'PriorityQueuen iterointi ei tuota prioriteettijärjestystä; käytä toistuvasti `poll`-metodia. `peek` on O(1), `offer`/`poll` O(log n) ja `contains`/`remove(Object)` O(n). Olion prioriteetin muuttaminen ei automaattisesti palauta kekoehtoa.',
+          'TRA-prioriteettijono',
+          'Käytä eksplisiittistä importia `fi.uef.cs.tra.PriorityQueue`. Luokka perii JDK PriorityQueuen; vertailijalle tarvitaan `new PriorityQueue<>(11, comparator)`. Toistot säilyvät. Tyhjän jonon `peek`/`poll` palauttavat nullin; nullin lisääminen on kielletty.',
+        ],
+        [
+          'Prioriteetti ja iterointi',
+          'Käytä prioriteettijärjestykseen toistuvaa `poll`-kutsua; iteraattorin järjestystä ei määritellä. `contains`/`remove(Object)` vievät O(n). Olion prioriteetin muutos ei korjaa tavallista jonoa. Kuva esittää keon periaatteen; yksittäisellä jonolla voi olla toinen kelvollinen sisäinen järjestys.',
         ],
       ],
     },
@@ -95,7 +106,15 @@ export default {
         ],
         [
           'Kurssin verkkorajapinta',
-          'Moniste käyttää opetuskirjaston luokkia `DiGraph`, `Vertex`, `Edge` sekä metodeja `vertices()` ja `neighbors()`. Ne eivät kuulu JDK:hon. Ajettava vaihtoehtomme käyttää geneeristä vieruskarttaa. Suunnattu kaari tallennetaan yhteen suuntaan, suuntaamaton molempiin.',
+          'Pääesimerkit käyttävät pakettia `fi.uef.cs.tra`: luo `Graph` tai `DiGraph`, lisää solmut metodilla `addVertex` ja yhdistä palautetut `Vertex`-oliot metodilla `addEdge`. Lue `vertices()`, `neighbors()` ja `edges()`; `Edge.getWeight()` palauttaa float-painon.',
+        ],
+        [
+          'Nimi, identiteetti ja väri',
+          '`getLabel()` palauttaa näyttönimen: kahdella eri Vertex-oliolla voi olla sama nimi. `getColor()` ja `setColor(...)` tallentavat läpikäynnin tilan. Alusta värit erikseen arvoon `AbstractGraph.WHITE`; GREY ja BLACK käsitellään läpikäyntitunneilla.',
+        ],
+        [
+          'Silmukat ja sallitut syötteet',
+          'Silmukka yhdistää solmun itseensä. Tämä TRA-versio sallii sen `DiGraph`-verkossa, mutta `Graph` hylkää sen. Oppitunnin esimerkeissä ei ole rinnakkaisia kaaria. Eristettykin solmu kuuluu `vertices()`-joukkoon, ja sen naapurilista on tyhjä.',
         ],
       ],
     },
@@ -111,7 +130,7 @@ export default {
       cards: [
         [
           'Polun palauttaminen ja saavuttamattomat solmut',
-          'Tallenna löydettäessä `parent[next] = v`. Seuraa vanhempia tavoitteesta taaksepäin ja käännä tulos. Saavuttamattomaan tavoitteeseen ei ole polkua. BFS minimoi kaarien määrän; painotettuihin lyhimpiin polkuihin se sopii vain kaikkien kaaripainojen ollessa samat.',
+          'Tallenna löydettäessä `parent[next] = v`. Seuraa vanhempia tavoitteesta taaksepäin ja käännä tulos. Saavuttamattomaan tavoitteeseen ei ole polkua. BFS minimoi kaarien määrän; samat ei-negatiiviset kaaripainot tekevät poluista myös pienimmän painosumman polkuja.',
         ],
       ],
     },
@@ -120,6 +139,14 @@ export default {
         [
           'Suunta vaikuttaa yhtenäisyyteen',
           'Tavalliset yhtenäiset komponentit koskevat suuntaamattomia verkkoja. Suunnatussa verkossa erotetaan heikko yhtenäisyys ilman suuntia ja vahva yhtenäisyys, jossa jokaisesta solmusta pääsee jokaiseen. Yksi DFS-metsä ei laske vahvasti yhtenäisiä komponentteja.',
+        ],
+        [
+          'Koko läpikäynti ei luo polkua',
+          'TRA:n parent/root-tauluissa polku alkuperäisestä alusta on vain sen oman puun solmuilla. BFS:n myöhempien juurien etäisyys säilyy arvossa -1 (taulukossa ∞), vaikka niiden oma metsäsyvyys on nolla. Seuraa DiGraphin lähteviä naapureita: saavutettavuus yhteen suuntaan ei takaa paluuta.',
+        ],
+        [
+          'Vaativuus ja tuloksen tarkistus',
+          'TraComponentsExample ja TraTopologicalExample käyttävät omaa naapurijärjestystä: Θ(V + E) aikaa ja O(V) lisätilaa tuloksineen ja pinoineen. Värit alustetaan joka ajossa, rakenne säilyy. Tarkista polku oikeista kaarista, komponentit kattavuudesta ja yhtenäisyydestä sekä topologinen järjestys jokaisesta u→v-ehdosta yhden tarkan listan sijaan. Yhteinen animaatio valmistelee lajitellut naapurit erikseen.',
         ],
         [
           'Muita kurssin algoritmeja',
@@ -204,56 +231,76 @@ export default {
         ],
         [
           'Map ja verkot',
-          'Moniste ehdottaa solmujen yhdistämistä sovelluksen tietoihin kuvauksella. Map voi tallentaa etäisyydet, vanhemmat, nimet ja ulkoiset oliot muuttamatta solmuluokkaa. Käytyjen solmujen Set ja vanhempien Map palvelevat eri tarkoituksia.',
+          'TRA tallentaa solmut ja kaaret. Käytä `Map<Vertex, Integer>`-rakennetta lisälaskureille tai etäisyyksille ja `Map<Vertex, Vertex>`-rakennetta vanhemmille. `IdentityHashMap` erottaa eri solmuoliot, vaikka niiden nimet olisivat samat. Ajettava TRA-esimerkki laskee lähtevät naapurit; Map tallentaa verkon lisätiedot.',
         ],
       ],
     },
     'shortest-paths': {
       title: 'Dijkstra ja Floyd–Warshall',
       intro:
-        'Painotetun verkon lyhin polku minimoi kaaripainojen summan. Algoritmin valinta riippuu sallituista painoista ja tarvittavista lähtösolmuista.',
+        'Käytä TRA:n oikeita Graph/DiGraph-, Vertex- ja Edge-olioita. Lyhin polku minimoi painosumman: Dijkstra yhdestä alusta, Floyd–Warshall kaikille pareille. BFS sopii, kun kaikkien kaarien painot ovat samat ja ei-negatiiviset.',
       cards: [
         [
           'Dijkstra: ei-negatiiviset painot',
-          'Valitse toistuvasti pienimmän tunnetun etäisyyden solmu ja päivitä sen lähtevien kaarien etäisyydet. Negatiiviset painot rikkovat ahneen valinnan takuun. Esimerkki tarkistaa painot, lisää parannuksista muuttumattomat jonotietueet ja ohittaa vanhentuneet tietueet.',
+          'Tarkista jokainen Edge-paino, myös saavuttamattomista osista: sen on oltava äärellinen ja ei-negatiivinen. Poimi pienin nykyinen etäisyys ja paranna etäisyyksiä lähteviä kaaria pitkin. TraDijkstraExample-esimerkissä A→B maksaa 10, mutta A→C→B maksaa 1 + 2 = 3; jatko B→D antaa 4. Negatiivinen paino rikkoo tämän metodin syötesopimuksen.',
         ],
         [
-          'Prioriteetin päivitys tavallisessa Javassa',
-          'Javan PriorityQueuessa ei ole decrease-key-operaatiota. Vertailijan käyttämän kentän muuttaminen ei järjestä kekoa uudelleen. Siksi esimerkki lisää uuden `(vertex, distance)`-tietueen. Aika on O(V + E log(E + 1)) ja työtila O(V + E), ilman oletusta erityisestä indeksoidusta keosta.',
+          'Prioriteetin päivitys TRA PriorityQueuella',
+          'Tuo fi.uef.cs.tra.PriorityQueue ja käytä kapasiteetin ja vertailijan ottavaa konstruktoria. Lisää parannuksesta uusi muuttumaton (Vertex, distance) -tietue; ohita poistettu tietue, jos sen tallennettu etäisyys on vanhentunut. Vanhat B:10 ja D:9 eivät käynnistä uutta kaarien tutkimista. Tämä toteutus vie O(V + E log(E + 1)) aikaa ja O(V + E) lisätilaa. Jonossa olevan Vertex-kentän muuttaminen ei korjaa kekoa; decrease-key-operaatiota ei oleteta.',
         ],
         [
-          'Floyd–Warshall: kaikki parit',
-          'Kokeile jokaisella välisolmulla k reittiä `d[i][k] + d[k][j]`. k-silmukan on oltava uloin, ja i sekä j alkavat nollasta. Aika on O(V³), tila O(V²). Negatiiviset kaaret sallitaan, mutta negatiivinen sykli estää äärellisen lyhimmän etäisyyden siihen liittyvillä reiteillä.',
+          'Floyd–Warshall: matriisi TRA-graafista',
+          'Käy vertices(), anna ulkoiset identiteettipohjaiset indeksit ja kopioi lähtevien Edge-kaarien painot matriisiin. Diagonaalilla on nolla, puuttuvalla kaarella +∞. Kokeile kullakin välisolmulla k summaa d[i][k] + d[k][j]: k uloimpana, kaikki i/j mukana. TraFloydWarshallExample-esimerkissä A→B→C maksaa 5 − 2 = 3 ja voittaa suoran painon 10. Aika O(V³ + E), lisätila O(V²).',
         ],
         [
-          'Äärettömyys ja itse polut',
-          'Älä laske yhteen äärettömyyden merkkilukuja. Esimerkit erottavat saavuttamattomat solmut, ja Floyd–Warshall tunnistaa negatiiviset syklit. Tallenna polkuja varten myös edeltäjät. Painottomassa verkossa BFS on yksinkertaisempi vaihtoehto.',
+          'Negatiiviset kaaret ja syklit',
+          'Floyd sallii äärelliset negatiiviset painot. Negatiivinen diagonaali paljastaa negatiivisen syklin; matemaattisesti äärellinen lyhin etäisyys puuttuu vain pareilta, joiden reitti voi kulkea tällaisen syklin kautta. Tämä esimerkki hylkää tarkoituksella koko tuloksen, jos missä tahansa, myös erillisessä osassa, on negatiivinen sykli. C→A painolla −4 sulkee syklin, jonka summa on −1. Negatiivinen suuntaamaton kaarikin sallii painon rajattoman pienentämisen edestakaisin kulkemalla. Hylkäyksessä ei palauteta osittaista matriisia tai polkua.',
+        ],
+        [
+          'Äärettömyys ja oikeat polut',
+          'Saavuttamaton etäisyys on Double.POSITIVE_INFINITY, tulosteessa INF, ja polku on tyhjä. Ohita äärettömät osapolut ennen Floyd-etäisyyksien yhteenlaskua. Dijkstra tallentaa vanhemmat, Floyd seuraavan askeleen matriisin. Käytä result.pathTo(target) tai result.path(from, to). Polku solmusta itseensä on [vertex], nolla kaarta. Vieraat kyselysolmut hylätään. Yhtä halvat polut voivat erota: tarkista kaaret ja summa yhden tarkan listan sijaan.',
+        ],
+        [
+          'Painot, identiteetti ja laskenta',
+          'Lue Edge.getWeight(), ei Vertex.getWeight(). Kirjoita addEdge(v, 5.0f): kokonaisluku toisena argumenttina valitsee TRA:ssa värin. Esimerkit tarkistavat äärelliset float-painot ja laskevat summat doublena; NaN ja molemmat äärettömyydet hylätään syötteestä. Laskenta on likimääräistä: 0.1f ei ole tarkka desimaalikymmenesosa. Opetuspainot ovat pieniä ja tarkasti esitettävissä. Molemmat algoritmit säilyttävät värit, nimiöt, Vertex.index-kentän ja rakenteen; samat nimet ovat eri olioita.',
         ],
       ],
     },
     mst: {
       title: 'Pienimmät virittävät puut: Prim ja Kruskal',
       intro:
-        'Yhtenäisen suuntaamattoman painotetun verkon pienin virittävä puu yhdistää kaikki solmut V − 1 kaarella ja pienimmällä yhteispainolla. Se ei ole sama kuin lyhimpien polkujen puu.',
+        'Käytä TRA:n suuntaamatonta Graphia ja oikeita Edge-painoja. Yhtenäisestä syötteestä saadaan pienin virittävä puu, epäyhtenäisestä pienin virittävä metsä, yksi puu komponenttia kohti.',
       cards: [
         [
           'Prim',
-          'Kasvata yhtä puuta valitsemalla halvin kaari saavutettujen ja saavuttamattomien solmujen väliltä. Esimerkki käyttää laiskaa kaarien prioriteettijonoa ja ohittaa jo saavutettuun solmuun päätyvät kaaret.',
+          'Aloita saavuttamattomasta Vertexistä ja lisää sen rajakaaret TRA PriorityQueueen. Poimi kevyin kaari saavuttamattomaan päähän. Ohita jonokaari, kun molemmat päät on jo saavutettu. Jonon tyhjennyttyä aloita toisesta saavuttamattomasta solmusta. Edge.getEndPoint() ei aina ole uusi solmu: Graphissa ei ole nuolen suuntaa.',
         ],
         [
           'Kruskal ja union–find',
-          'Järjestä kaaret painon mukaan ja hyväksy kaari vain, jos päätepisteet ovat eri komponenteissa. Union–find ylläpitää komponentteja poluntiivistyksellä ja rankin mukaisella yhdistämisellä.',
+          'Kopioi Graph.edges(), joka luettelee jokaisen fyysisen suuntaamattoman Edge-kaaren kerran. Lajittele painon mukaan ja hyväksy kaari vain, kun union–find yhdistää eri joukot; muuten syntyisi sykli. Poluntiivistys ja rankin mukainen yhdistäminen muuttavat vain omia taulukoita. IdentityHashMap liittää oikeat Vertex-oliot ulkoisiin joukkoindekseihin ja säilyttää nimet sekä Vertex.index-kentän.',
         ],
         [
-          'Ehdot ja kustannukset',
-          'Negatiiviset painot sallitaan. Samat painot voivat tuottaa useita kelvollisia puita. Esimerkit hylkäävät epäyhtenäisen syötteen eivätkä esitä osapuuta virittävänä puuna. Molempien aika on O(V + E log(E + 1)); Kruskal käyttää O(V + E) tilaa komponenteille ja kaarikopiolle.',
+          'Puu, metsä ja eristetyt solmut',
+          'Tuloksessa ovat vertices(), edges(), components() ja totalWeight(). V solmun ja C yhtenäisen komponentin virittävässä metsässä on V − C kaarta. Eristetty solmu on komponentti ilman valittuja kaaria. Tyhjä syöte antaa C = 0 ja painon 0; yksi solmu antaa C = 1 ja kaarettoman puun. isSpanningTree() on tosi vain epätyhjälle yhtenäiselle syötteelle.',
+        ],
+        [
+          'Lue esimerkki',
+          'A—B:1, B—C:2, A—C:5, C—D:1 antavat kolmen kaaren puun, jonka paino on 4. Lisää eristetty E ja F—G:-2: molemmat algoritmit palauttavat kolmen komponentin ja neljän kaaren metsän, paino 2. Negatiiviset kaaret sallitaan, koska metsä valitsee kaaret ilman syklejä; tehtävässä ei toisteta kulkuja etäisyyden pienentämiseksi.',
+        ],
+        [
+          'MST ja lyhimpien polkujen puu',
+          'Graafissa A—B:2, A—C:2, B—C:1 pienin virittävä puu painaa 3. A:sta alkava lyhimpien polkujen puu käyttää A—B:tä ja A—C:tä, yhteispaino 4, joten molemmat etäisyydet ovat 2. MST:n A-polku toiseen kohteeseen painaa 3. Tavoitteet eroavat: minimoi valittujen kaarien kokonaissumma tai etäisyydet yhdestä alusta.',
+        ],
+        [
+          'Painot, tasatilanteet ja vaativuus',
+          'Äärelliset negatiiviset ja nollapainot sallitaan; NaN ja molemmat äärettömyydet hylätään myös toisessa komponentissa. Yhtäsuuret painot voivat antaa eri minimimetsiä: Prim ja Kruskal eivät välttämättä valitse samoja kaaria tai järjestystä. Float-painot summataan doublena, laskenta on likimääräistä. Molemmat vievät O(V + E log(E + 1)) aikaa ja O(V + E) lisätilaa olettaen identiteettikuvauksen/-joukon odotetut O(1)-operaatiot. Tulos säilyttää oikeat Edge-viitteet vain luettavissa listoissa; graafin kentät säilyvät ja painot pysyvät samoina ajon aikana.',
         ],
       ],
     },
     'graph-analysis': {
       title: 'Syklit, yhtenäisyys, leikkaukset, sovitus ja virtaus',
       intro:
-        'Moniste rakentaa uusia verkkoalgoritmeja lisäämällä DFS:ään ja BFS:ään tarkasti määriteltyä tilatietoa.',
+        'Tutki leikkauksia, suurinta kaksijakoista sovitusta ja virtausta oikeilla TRA-solmuilla ja -kaarilla. Algoritmien omat kuvaukset, osajako ja jäännöstietueet säilyttävät syötegraafin.',
       cards: [
         [
           'Suunnatut syklit ja topologinen järjestys',
@@ -265,19 +312,27 @@ export default {
         ],
         [
           'Leikkaussolmut ja sillat',
-          'Yksinkertaisessa suuntaamattomassa verkossa DFS laskee löytöajat ja low-arvot. Muu kuin juurisolmu v on leikkaussolmu, jos lapsella w on `low[w] >= discovery[v]`. Juurella on oltava vähintään kaksi DFS-lasta. Kaari v–w on silta, kun `low[w] > discovery[v]`.',
+          'TraGraphCutsExample ottaa Graphin ja käy DFS:llä kaikki komponentit. tin laskee vain saapumiset. low[v] on pienin tin, johon päästään alas DFS-alipuuta ja sitten enintään yhdellä ei-vanhempipaluukaarella. Lapsen palattua välitä low[child]; käydystä naapurista käytä tin[neighbour], ei sen low-arvoa. Muu kuin juuri v on leikkaussolmu, kun low[child] >= tin[v]; puukaari on silta, kun low[child] > tin[v]. Painot eivät vaikuta. Odotettu O(V + E) aika, O(V) lisätila.',
+        ],
+        [
+          'Juuren lapset ja fyysinen vanhempikaari',
+          'Ohita käänteisessä naapuruussuunnassa vain sama vanhempi-Edge. Juuri on leikkaussolmu vain vähintään kahdella DFS-lapsella, ei vain kahdella naapurilla. Kolmiossa 0–1–2, hännässä 1–3–4 ja eristetyssä 5:ssä juurella 0 on kaksi naapuria mutta yksi DFS-lapsi: leikkaussolmut 1/3, sillat 1–3/3–4. Tulos palauttaa oikeat Vertex/Edge-oliot. Tyhjyys ja epäyhtenäisyys tuetaan.',
         ],
         [
           'Kaksijakoinen verkko ja sovitus',
-          'Kaksijakoisessa verkossa on kaksi solmuryhmää ja kaaria vain ryhmien välillä. Sovituksessa kukin solmu esiintyy enintään kerran. Kasvattava polku vuorottelee vapaiden ja valittujen kaarien välillä; niiden vaihtaminen kasvattaa sovitusta yhdellä. Suurimman koon sovitus on vahvempi ehto kuin pelkkä maksimaalinen sovitus.',
+          'Anna Graph ja lista vasemman puolen eri syötesolmuista; oikea puoli on loput, myös eristetyt solmut. Jokaisen kaaren on ylitettävä jako tai syöte hylätään. Osajakoa ei löydetä automaattisesti. Vuorotteleva polku voi vaihtaa parit: L0 siirtyy R0:sta R1:een, jotta L1 saa R0:n. Jokainen vasen juuri tarvitsee uuden seen-tilan. Suurin tarkoittaa suurinta parimäärää; maksimaaliseen ei vain voi lisätä yhtä kaarta muuttamatta vanhoja pareja. Painot ohitetaan.',
         ],
         [
           'Maksimivirtaus ja jäännöskaaret',
-          'Ylläpidä jäljellä olevia kapasiteetteja, etsi kasvattava s→t-polku ja lisää sen pullonkaulan verran virtausta. Kasvata myös vastakkaisen suunnan jäännöskapasiteettia, jotta aiempia valintoja voidaan perua. Välisolmuissa sisään ja ulos menevän virtauksen on oltava samat.',
+          'TraMaxFlowExample ottaa DiGraphin ja eri syötesolmuina lähteen/nielun. TRA LinkedQueue -BFS löytää kasvattavan jäännöspolun; lisää pullonkaulan verran virtausta. Kunkin alkuperäisen Edgen virtaus pysyy nollan ja kapasiteetin välissä, välisolmuissa virtaus säilyy. Kun nielua ei saavuteta jäännösverkossa, saavutettu lähdepuoli määrittää minimileikkauksen. Palautetaan Edge-virtaukset ja leikkauskaaret/-kapasiteetti: esimerkin arvo 5 vastaa leikkauskapasiteettia 5.',
         ],
         [
-          'Toteutusvalinnat',
-          'Virtausesimerkki käyttää BFS:ää (Edmonds–Karp), vieruslistaa hakuun ja jäännöskapasiteettimatriisia. Se on monisteen kasvattavien polkujen menetelmän konkreettinen muoto. Leikkausesimerkki olettaa, ettei rinnakkaiskaaria ole; sovitusesimerkki saa jo kaksijakoisen verkon vasemmalta oikealle kulkevat vieruslistat.',
+          'Peruutus ei ole syötteen vastakkainen kaari',
+          'Kukin fyysinen syöte-Edge saa oman eteenpäin/peruutusparin yksityisiin jäännöslistoihin. Oikeat vastakkaiset syötekaaret pysyvät erillisinä. Uudelleenreitityksessä BFS käyttää ensin s→a→x→t, sitten s→b→x→a→y→t: x→a peruu aiemman a→x-varauksen, vaikka x→a puuttuu DiGraphista. Lopullinen virtaus on 2, a→x:n virtaus 0. Syötekaaret, painot ja värit säilyvät.',
+        ],
+        [
+          'Kapasiteetit, kyselyt ja vaativuus',
+          'Virtaus lukee tallennetut float-Edge-painot kapasiteetteina: vain äärelliset kokonaisluvut [0, 1 000 000 000], myös saavuttamattomista osista. Kirjoita addEdge(v, 3.0f): kokonaislukuargumentti valitsee värin. Murto-, negatiiviset, ei-äärelliset ja ylisuuret arvot hylätään pyöristämättä; tarkistetut kapasiteetit/virtaukset käyttävät tarkkaa long-laskentaa ylivuototarkistuksin. Odotetut rajat: sovitus O(V + E + L·E) aika/O(V) tila, L = vasemman puolen koko; virtaus O(V + E + V·E²) aika/O(V + E) tila. Identiteettihaku oletetaan O(1):ksi. Vieraat kyselyoliot ovat virheitä; vapaalla sovitussolmulla partner on null. Tyhjyys käy leikkauksille/sovitukselle, mutta virtaus tarvitsee kaksi eri solmua. Vain luettavat tuloslistat viittaavat syöteolioihin.',
         ],
       ],
     },

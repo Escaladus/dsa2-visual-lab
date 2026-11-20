@@ -22,6 +22,8 @@ import { recurrenceTreeTranslations } from '../src/i18n/recurrenceTrees.js'
 import { graphTraversalTranslations } from '../src/i18n/graphTraversal.js'
 import { graphLearningTranslations } from '../src/i18n/graphLearning.js'
 import { graphQuizTranslations } from '../src/i18n/graphQuiz.js'
+import { graphBasicsTranslations } from '../src/i18n/graphBasics.js'
+import { treeTranslations } from '../src/i18n/trees.js'
 
 function compareShape(reference, actual, path = '') {
   assert.equal(typeof actual, typeof reference, path)
@@ -58,6 +60,10 @@ for (const { code } of languages) {
     compareShape(graphTraversalTranslations.ru, graphTraversalTranslations[code], 'graphTraversal')
     compareShape(graphLearningTranslations.ru, graphLearningTranslations[code], 'graphLearning')
     compareShape(graphQuizTranslations.ru, graphQuizTranslations[code], 'graphQuiz')
+    compareShape(graphBasicsTranslations.ru, graphBasicsTranslations[code], 'graphBasics')
+    compareShape(treeTranslations.ru, treeTranslations[code], 'trees')
+    if (code !== 'ru') assert.doesNotMatch(JSON.stringify(treeTranslations[code]), /[а-яё]/i)
+    if (code !== 'ru') assert.doesNotMatch(JSON.stringify(graphBasicsTranslations[code]), /[а-яё]/i)
     assert.equal(dictionary.topics.length, topics.length)
     assert.equal(dictionary.roadmap.length, roadmapIds.length)
     assert.deepEqual(Object.keys(dictionary.pages).sort(), topics.map(topic => topic.id).sort())

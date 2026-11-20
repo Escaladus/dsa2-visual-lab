@@ -17,6 +17,7 @@ const base = {
     examples: 'React + Java examples',
     footer: 'Created by',
     courseCredit: 'Based on UEF Data Structures and Algorithms II course materials.',
+    aiCredit: 'Developed with assistance from OpenAI Codex.',
     description: 'DSA2 Visual Lab — interactive learning of data structures and algorithms',
     back: '← Back',
     next: 'Next step →',
@@ -150,7 +151,8 @@ const base = {
     },
     trees: {
       title: 'Preorder, inorder and postorder',
-      intro: 'The difference is when the current node is processed relative to its children.',
+      intro:
+        'Read and traverse a binary tree using TRA BTree and BTreeNode. PRE, IN and POST differ in when they process the current node.',
       cards: [
         ['PRE', 'Root → Left → Right. Process the node immediately on entry.'],
         ['IN', 'Left → Root → Right. For a BST, this produces keys in ascending order.'],
@@ -160,11 +162,11 @@ const base = {
     heap: {
       title: 'Heap and PriorityQueue',
       intro:
-        'A heap guarantees fast access to the element with the highest priority without keeping all elements in sorted order.',
+        'A heap provides fast access to the highest-priority element. The Java example uses fi.uef.cs.tra.PriorityQueue; the drawing explains min-heap operations.',
       cards: [
         [
           'Min-heap',
-          'Each parent has a value ≤ the values of its children. The minimum is at the root and can be accessed in O(1). Insertion and root removal require O(log n) work to restore the heap property.',
+          'Each parent is ≤ its children; the minimum is at the root. peek is O(1), heap repair for insertion/removal O(log n). Including occasional array growth, offer is amortised O(log n); poll is O(log n).',
         ],
         [
           'When to use it',
@@ -181,16 +183,19 @@ const base = {
     'graph-basics': {
       title: 'What is a graph?',
       intro:
-        'A graph consists of vertices and edges between them. Focus on the neighbour relationships represented by the drawing.',
+        'A graph consists of vertices and edges. In this lesson, Graph and DiGraph from the TRA library store them as Vertex and Edge objects.',
       cards: [
         [
-          'Undirected graph',
-          'An edge A—B means that A is a neighbour of B and B is a neighbour of A.',
+          'Undirected graph — Graph',
+          'An edge A—B makes A and B neighbours of each other. With `Graph`, add it once using `a.addEdge(b)`; the library supplies both neighbour directions.',
         ],
-        ['Directed graph', 'An edge A→B has a direction; a reverse connection may not exist.'],
         [
-          'Adjacency list',
-          'For sparse graphs, this is usually more convenient than an adjacency matrix: it stores only the edges that actually exist.',
+          'Directed graph — DiGraph',
+          'An edge A→B has a direction. `a.addEdge(b)` creates it; `b.addEdge(a)` would create a separate reverse edge.',
+        ],
+        [
+          'Read the neighbours',
+          'Use `for (Vertex next : v.neighbors())` to enumerate outgoing neighbours. The iterable is not automatically sorted by label. `graph.vertices()` includes isolated vertices too.',
         ],
       ],
     },
@@ -222,23 +227,24 @@ const base = {
     },
     'graph-apps': {
       title: 'What can you build with DFS/BFS?',
-      intro: 'Many problems become easier once you understand the traversal itself.',
+      intro:
+        'Apply DFS/BFS to real TRA Graph/DiGraph objects: paths, components, cycles and ordering.',
       cards: [
         [
           'Connected components',
-          'Start DFS/BFS from an unvisited vertex. Everything it reaches is one component. Repeat with another unvisited vertex.',
+          'For an undirected TRA `Graph`, reset WHITE once, then scan `vertices()`. Start DFS/BFS at each WHITE vertex: everything newly reached belongs to that component. An isolated vertex forms its own component; the empty graph has none.',
         ],
         [
           'Shortest unweighted path',
-          'Use BFS with `parent` and `distance`. After reaching the target, reconstruct the path by following parent links backwards.',
+          'Keep `parent` when discovering a TRA `Vertex`. Follow parents from target to start, then reverse. DFS gives a found path; BFS gives a shortest path by edge count. An unreachable target returns an empty path; start → start has zero edges.',
         ],
         [
           'Cycle detection',
-          'In an undirected graph, DFS must distinguish an edge back to the parent from an edge to another visited vertex.',
+          'In `DiGraph`, an outgoing edge to a GREY ancestor proves a cycle, including a self-loop. In `Graph`, skip the same physical parent `Edge` viewed backwards. Scan every root to conclude the whole graph is acyclic.',
         ],
         [
           'Topological order',
-          'Only for DAGs. With DFS, collect vertices in POST order, then reverse the result.',
+          'For a `DiGraph`, run full DFS and check cycles. After every root finishes successfully, reverse POST. A cycle anywhere rejects the entire order; isolated vertices are included. Several valid orders may exist.',
         ],
       ],
     },
@@ -279,6 +285,7 @@ const base = {
     dfsEdge: 'From {v}, examine {next}. It has not been visited — go deeper.',
     dfsExit: 'All neighbours of {v} have been processed. This is a POST event: leave {v}.',
     bfsStart: 'Mark {start} as visited as soon as it is added to the queue.',
+    bfsProcessed: 'All neighbours of {v} have been examined. Processing this vertex is complete.',
     bfsDequeue: 'Remove {v} from the front of the queue. Now examine all its neighbours.',
     bfsSkip: '{next} has already been discovered — do not enqueue it again.',
     bfsEnqueue:

@@ -1,28 +1,15 @@
-export const dfsCode = `static void dfs(int[][] graph, int v, boolean[] visited, List<Integer> pre, List<Integer> post) {
-    visited[v] = true;
-    pre.add(v);
-    for (int i = 0; i < graph[v].length; i++) {
-        int next = graph[v][i];
-        if (!visited[next]) {
-            dfs(graph, next, visited, pre, post);
-        }
-    }
-    post.add(v);
-}`
+import { dfsCode, dfsDriverCode } from './recursiveDfsCode.js'
+export { dfsCode, dfsDriverCode }
 
-export const dfsDriverCode = `static Result traverse(int[][] graph, int start, boolean all) {
-    boolean[] visited = new boolean[graph.length];
-    List<Integer> pre = new ArrayList<>(), post = new ArrayList<>();
-    if (graph.length > 0) dfs(graph, start, visited, pre, post);
-    if (all) {
-        for (int v = 0; v < graph.length; v++) {
-            if (!visited[v]) dfs(graph, v, visited, pre, post);
-        }
-    }
-    return new Result(pre, post);
-}`
+export function dfsLine(method, statement) {
+  const code = method === 'dfs' ? dfsCode : dfsDriverCode
+  const index = code.split('\n').findIndex(line => line.includes(statement))
+  if (index < 0) throw new Error(`Missing TRA DFS line: ${method} ${statement}`)
+  return index + 1
+}
 
-// Undirected graphs; neighbours and the outer loop use ascending vertex order.
+// Undirected fixtures are inserted in ID order; the pinned JAR yields these native neighbour lists.
+// General Vertex.neighbors() does not promise sorted labels. The root list has explicit stable IDs.
 export const dfsExamples = {
   branching: {
     graph: [[1, 2], [0, 3], [0], [1]],

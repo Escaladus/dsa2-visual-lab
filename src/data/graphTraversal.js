@@ -5,6 +5,7 @@ export {
   traverseTraversalCode,
   classifyTraversalCode,
   topologicalTraversalCode,
+  traversalPreparationCode,
 } from './graphTraversalCode.js'
 
 /** Select a teaching excerpt by Java statements instead of fragile line-number offsets. */

@@ -891,6 +891,139 @@ summary:focus-visible {
   margin-top: 38px;
   min-width: 0;
 }
+.tree-metrics,
+.tree-current-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin: 18px 0;
+}
+.tree-metrics > div,
+.tree-current-metrics > div {
+  min-width: 0;
+}
+.tree-metrics dt,
+.tree-current-metrics dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.tree-metrics dd,
+.tree-current-metrics dd {
+  margin: 5px 0 0;
+  color: var(--accent-2);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.tree-traversal-lab .tree-empty {
+  fill: var(--muted);
+  font-size: 5px;
+}
+.tree-traversal-lab .adjacency-box pre {
+  white-space: pre;
+}
+.tree-explanation section p,
+.tree-traversal-lab .recursion-note {
+  line-height: 1.7;
+}
+.java-comparison {
+  margin: 28px 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  min-width: 0;
+}
+.java-comparison > summary {
+  cursor: pointer;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.java-comparison .java-examples {
+  margin-top: 12px;
+}
+.graph-basics-lesson {
+  margin: 28px 0;
+  min-width: 0;
+}
+.graph-basics-lesson p,
+.graph-basics-lesson figcaption {
+  color: var(--muted);
+  line-height: 1.7;
+}
+.graph-basics-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 20px;
+}
+.graph-basics-grid > * {
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: #0e1525;
+}
+.graph-basics-svg {
+  display: block;
+  width: 100%;
+  max-height: 290px;
+}
+.graph-basics-svg line {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.graph-basics-svg path {
+  fill: var(--accent);
+}
+.graph-basics-svg circle {
+  fill: var(--panel-2);
+  stroke: var(--accent-2);
+  stroke-width: 2;
+}
+.graph-basics-svg .isolated circle {
+  stroke: var(--muted);
+  stroke-dasharray: 4 3;
+}
+.graph-basics-svg text {
+  fill: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+}
+.graph-basics-svg .graph-basics-weight {
+  fill: var(--warn);
+  font-size: 15px;
+}
+.graph-basics-api {
+  width: 100%;
+  border-collapse: collapse;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.graph-basics-api th,
+.graph-basics-api td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+.graph-basics-api tbody th {
+  vertical-align: top;
+}
+.graph-basics-api a,
+.graph-basics-api a:visited {
+  color: var(--accent-2);
+  text-underline-offset: 3px;
+}
+.graph-basics-api a:hover {
+  color: var(--text);
+}
+.graph-basics-api a:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+@media (max-width: 1024px) {
+  .graph-basics-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .java-examples h2 {
   font-size: 26px;
   letter-spacing: -0.03em;
@@ -4705,6 +4838,25 @@ summary:focus-visible {
 .graph-learning-practice[open] > summary {
   margin-bottom: 16px;
 }
+.graph-applications-lab > .graph-learning-practice {
+  padding: 0;
+  border: 0;
+}
+.graph-applications-lab .callout-actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.graph-applications-lab .callout-actions button {
+  flex: 1 1 150px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  background: #121c30;
+  border-color: #334463;
+}
+.graph-applications-lab .callout-actions button[aria-pressed='true'] {
+  background: #2d5ea0;
+  border-color: #8fb9f5;
+}
 .traversal-presentation-colors .traversal-shared {
   grid-template-columns: 1fr;
 }
@@ -4728,6 +4880,12 @@ summary:focus-visible {
   }
   .graph-learning-practice {
     padding: 10px;
+  }
+  .graph-applications-lab .callout-actions {
+    flex-direction: column;
+  }
+  .graph-applications-lab .callout-actions button {
+    flex: 0 1 auto;
   }
 }
 

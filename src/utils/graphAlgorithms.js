@@ -94,60 +94,50 @@ export function createBfsSteps(start) {
   const order = []
   const distance = { [start]: 0 }
   const parent = { [start]: null }
-
-  steps.push({
-    kind: 'enqueue',
-    current: start,
-    visited: [...visited],
-    frontier: [...queue],
-    order: [...order],
-    distance: { ...distance },
-    message: { key: 'bfsStart', values: { start } },
-  })
-
-  while (queue.length) {
-    const v = queue.shift()
-    order.push(v)
+  const colors = Object.fromEntries(Object.keys(graphNodes).map(v => [v, 'WHITE']))
+  colors[start] = 'GREY'
+  let processing = null
+  function record(kind, current, message, next) {
     steps.push({
-      kind: 'dequeue',
-      current: v,
+      kind,
+      current,
+      processing,
+      next,
       visited: [...visited],
       frontier: [...queue],
       order: [...order],
       distance: { ...distance },
-      message: { key: 'bfsDequeue', values: { v } },
+      parent: { ...parent },
+      colors: { ...colors },
+      message,
     })
-
+  }
+  record('enqueue', start, { key: 'bfsStart', values: { start } })
+  while (queue.length) {
+    const v = queue.shift()
+    processing = v
+    order.push(v)
+    record('dequeue', v, { key: 'bfsDequeue', values: { v } })
     for (const next of adjacency[v]) {
       if (visited.has(next)) {
-        steps.push({
-          kind: 'skip',
-          current: v,
-          next,
-          visited: [...visited],
-          frontier: [...queue],
-          order: [...order],
-          distance: { ...distance },
-          message: { key: 'bfsSkip', values: { next } },
-        })
+        record('skip', v, { key: 'bfsSkip', values: { next } }, next)
         continue
       }
+      colors[next] = 'GREY'
       visited.add(next)
       parent[next] = v
       distance[next] = distance[v] + 1
       queue.push(next)
-      steps.push({
-        kind: 'enqueue',
-        current: next,
-        parent: v,
-        visited: [...visited],
-        frontier: [...queue],
-        order: [...order],
-        distance: { ...distance },
-        message: { key: 'bfsEnqueue', values: { v, next, distance: distance[next] } },
-      })
+      record(
+        'enqueue',
+        next,
+        { key: 'bfsEnqueue', values: { v, next, distance: distance[next] } },
+        next,
+      )
     }
+    colors[v] = 'BLACK'
+    processing = null
+    record('processed', v, { key: 'bfsProcessed', values: { v } })
   }
-
   return steps
 }

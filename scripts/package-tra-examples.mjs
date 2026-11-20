@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { traJavaExamples } from '../src/data/traJavaExamples.js'
 import { createStoredZip } from './package-graph-exercise.mjs'
+import { readTraLibrary } from './tra-library.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 export const traExampleSourceFiles = [
@@ -20,7 +21,7 @@ export function packageTraExamples(output = resolve(root, 'public/examples/tra-g
   // Reuse the supplied library rather than maintaining a second source JAR.
   files.push({
     name: 'tra-graphs/traj.jar',
-    data: readFileSync(resolve(root, 'exercises/dfs-reachable/traj.jar')),
+    data: readTraLibrary(),
   })
   files.push({
     name: 'tra-graphs/expected-output.txt',

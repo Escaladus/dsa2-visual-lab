@@ -6,6 +6,7 @@ import {
   dfsTraversalCode,
   bfsTraversalCode,
   traverseTraversalCode,
+  traversalPreparationCode,
 } from '../data/graphTraversal.js'
 import { orderedTraversalGraph, traversalEdgeKey, traversalPath } from '../utils/graphTraversal.js'
 import { graphLearningTranslations } from '../i18n/graphLearning.js'
@@ -29,6 +30,8 @@ import {
 
 export default function GraphTraversalLab({
   initialMode = 'dfs',
+  initialTask,
+  showTaskLauncher = true,
   onExampleSelect,
   presentation = 'practice',
   active = true,
@@ -41,7 +44,7 @@ export default function GraphTraversalLab({
   const colorsOnly = presentation === 'colors'
   const edgesOnly = presentation === 'edges'
   const practice = presentation === 'practice'
-  const controller = useGraphTraversal({ initialMode, colorsOnly, edgesOnly, active })
+  const controller = useGraphTraversal({ initialMode, initialTask, colorsOnly, edgesOnly, active })
   const {
     preset,
     start,
@@ -407,6 +410,7 @@ export default function GraphTraversalLab({
           target={target}
           onTargetChange={setTarget}
           onLaunch={launch}
+          showTaskLauncher={showTaskLauncher}
         />
       )}
       {!colorsOnly && (
@@ -429,6 +433,13 @@ export default function GraphTraversalLab({
           <p>{labels.memory}</p>
         </details>
       )}
+      <details className="adjacency-box traversal-preparation">
+        <summary>{learning.preparation}</summary>
+        <p>{learning.preparedOrder}</p>
+        <pre className="code-block" tabIndex={0}>
+          <code>{traversalPreparationCode}</code>
+        </pre>
+      </details>
       <details className="adjacency-box">
         <summary>{labels.adjacency}</summary>
         <pre>

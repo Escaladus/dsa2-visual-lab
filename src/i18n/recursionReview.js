@@ -1,4 +1,3 @@
-// Additional quiz material loads with the quiz, alongside the existing five basics.
 export const recursionReviewTranslations = {
   ru: {
     title: 'Проверь себя: рекурсия и DFS',
@@ -103,9 +102,9 @@ export const recursionReviewTranslations = {
       'dfs-next': {
         title: 'Какого соседа проверит dfs(0) после возврата?',
         assumptions:
-          'Обход начат из 0. Вызов dfs(1) полностью завершился, включая dfs(3), и управление вернулось в dfs(0). Порядок соседей: graph[0] = {1, 2}.',
+          'Обход начат из 0. Вызов dfs(1) полностью завершился, включая dfs(3), и управление вернулось в dfs(0). Порядок соседей: 0: [1, 2].',
         explanation:
-          'В dfs(0) сохранён i = 0. После возврата из dfs(1) цикл увеличит i до 1 и прочитает graph[0][1] = 2. Перебор не начинается сначала.',
+          'В dfs(0) сохранён i = 0. После возврата из dfs(1) цикл увеличит i до 1 и прочитает next = 2. Перебор не начинается сначала.',
         feedback: [
           '3 — сосед вершины 1; его обработка уже закончилась.',
           'Следующий элемент списка соседей вершины 0 — 2.',
@@ -116,15 +115,15 @@ export const recursionReviewTranslations = {
       'dfs-skip': {
         title: 'Почему переход 2 → 0 пропускается?',
         assumptions:
-          'Циклический граф, старт 0. Цепочка вызовов: dfs(0) → dfs(1) → dfs(2). В dfs(2) рассматривается next = 0.',
+          'Циклический граф, старт 0. Цепочка вызовов: dfs(0) → dfs(1) → dfs(2). В dfs(2) рассматривается next = 0. v0 обозначает объект вершины 0.',
         choices: [
           '0 меньше 2',
           'Вершина 0 уже записана в POST',
-          'visited[0] уже true',
+          'visited.get(v0) уже true',
           'В графе нет циклов',
         ],
         explanation:
-          'dfs(0) пометил visited[0] до перехода к соседям. Условие !visited[0] ложно, поэтому новый вызов не создаётся. dfs(0) пока ждёт и ещё не попал в POST.',
+          'dfs(0) пометил visited.get(v0) до перехода к соседям. Условие !visited.get(v0) ложно, поэтому новый вызов не создаётся. dfs(0) пока ждёт и ещё не попал в POST.',
         feedback: [
           'Номера вершин не определяют, разрешён ли рекурсивный переход.',
           'POST добавляется при завершении dfs(0); сейчас этот кадр ещё ожидает.',
@@ -147,7 +146,7 @@ export const recursionReviewTranslations = {
         ],
       },
       'dfs-scope': {
-        title: 'Каким будет PRE для traverse(graph, 2, false)?',
+        title: 'Каким будет PRE для traverse(graph, vertices, vertices.get(2), false)?',
         assumptions: 'Вершина 2 изолирована. all = false означает обход только достижимой части.',
         choices: ['0 → 1', '2 → 0 → 1 → 3 → 4', 'Пустой список', 'Только 2'],
         explanation:
@@ -200,7 +199,7 @@ export const recursionReviewTranslations = {
       'dfs-cost': {
         title: 'Какова сложность полного рекурсивного DFS?',
         assumptions:
-          'Вызван traverse(graph, start, true). Граф задан списками смежности: V вершин, E рёбер. Добавление в ArrayList — амортизированно O(1). Память включает стек, visited и PRE/POST, исключая входной граф и историю визуализации.',
+          'Вызван traverse(graph, vertices, start, true). Граф задан списками смежности: V вершин, E рёбер. Добавление в ArrayList — амортизированно O(1). Память включает стек, visited и PRE/POST, исключая входной граф и историю визуализации. Для identity-карты предполагается ожидаемое O(1) на операцию. ',
         choices: [
           'Время Θ(V), память O(V), независимо от E',
           'Время Θ(V + E), память O(V)',
@@ -219,7 +218,7 @@ export const recursionReviewTranslations = {
       'dfs-setup': {
         title: 'Делает ли изолированный старт весь traverse константным?',
         assumptions:
-          'Вызван traverse(graph, 2, false). Показан пример из 5 вершин; для оценки рассматривай аналогичные графы с растущим V и изолированной вершиной 2. Учитывай подготовку visited, а не только dfs(2).',
+          'Вызван traverse(graph, vertices, vertices.get(2), false). Показан пример из 5 вершин; для оценки рассматривай аналогичные графы с растущим V и изолированной вершиной 2. Учитывай подготовку visited, а не только dfs(2).',
         choices: [
           'Да: время и память O(1)',
           'Время Θ(log V), память O(V)',
@@ -227,12 +226,12 @@ export const recursionReviewTranslations = {
           'Время Θ(V²), память Θ(V)',
         ],
         explanation:
-          'Ядро dfs(2) выполняет постоянную работу, но traverse выделяет и обнуляет boolean[V]. Это Θ(V) времени и памяти даже при одном посещённом узле. Внешний цикл здесь не выполняется.',
+          'Ядро dfs(2) делает постоянную работу, но traverse создаёт запись visited=false для каждого объекта Vertex. Ожидаемое время и память подготовки — Θ(V), даже если посещена одна вершина. Внешний цикл здесь не выполняется.',
         feedback: [
-          'Один вызов DFS не отменяет выделение массива на весь граф.',
-          'Здесь нет деления задачи пополам; массив visited инициализируется целиком.',
-          'В этом случае подготовка массива определяет общий порядок затрат.',
-          'Нет вложенных циклов по всем вершинам: массив инициализируется один раз.',
+          'Посещение одной вершины не отменяет подготовку visited для всех V вершин.',
+          'Деления пополам нет: требуется запись для каждой вершины.',
+          'Верно: подготовка карты занимает ожидаемое линейное время и линейную память.',
+          'Вложенного перебора всех пар нет: visited инициализируется один раз.',
         ],
       },
     },
@@ -340,9 +339,9 @@ export const recursionReviewTranslations = {
       'dfs-next': {
         title: 'Which neighbour does dfs(0) check after the return?',
         assumptions:
-          'Start at 0. dfs(1) has finished completely, including dfs(3), and control has returned to dfs(0). Neighbour order: graph[0] = {1, 2}.',
+          'Start at 0. dfs(1) has finished completely, including dfs(3), and control has returned to dfs(0). Neighbour order: 0: [1, 2].',
         explanation:
-          'dfs(0) saved i = 0. After dfs(1) returns, its loop increments i to 1 and reads graph[0][1] = 2. It does not restart the neighbour scan.',
+          'dfs(0) saved i = 0. After dfs(1) returns, its loop increments i to 1 and reads next = 2. It does not restart the neighbour scan.',
         feedback: [
           '3 is a neighbour of vertex 1; its processing has already finished.',
           'The next entry in vertex 0’s neighbour list is 2.',
@@ -353,15 +352,15 @@ export const recursionReviewTranslations = {
       'dfs-skip': {
         title: 'Why is the transition 2 → 0 skipped?',
         assumptions:
-          'Cyclic graph, start 0. The call chain is dfs(0) → dfs(1) → dfs(2). dfs(2) is considering next = 0.',
+          'Cyclic graph, start 0. The call chain is dfs(0) → dfs(1) → dfs(2). dfs(2) is considering next = 0. v0 denotes the object for vertex 0.',
         choices: [
           '0 is smaller than 2',
           'Vertex 0 is already in POST',
-          'visited[0] is already true',
+          'visited.get(v0) is already true',
           'The graph has no cycles',
         ],
         explanation:
-          'dfs(0) marked visited[0] before visiting neighbours. !visited[0] is false, so no new call is created. dfs(0) is still waiting and has not entered POST yet.',
+          'dfs(0) marked visited.get(v0) before visiting neighbours. !visited.get(v0) is false, so no new call is created. dfs(0) is still waiting and has not entered POST yet.',
         feedback: [
           'Vertex numbers do not determine whether a recursive transition is allowed.',
           'POST is updated when dfs(0) finishes; this frame is still waiting.',
@@ -372,7 +371,7 @@ export const recursionReviewTranslations = {
       'dfs-post': {
         title: 'In what order is POST filled?',
         assumptions:
-          'Start at 0, traverse the reachable part. Read neighbours in array order. PRE records entry; POST records completion.',
+          'Start at 0, traverse the reachable part. Read neighbours in the shown native neighbour order. PRE records entry; POST records completion.',
         choices: ['3 → 1 → 2 → 0', '0 → 1 → 3 → 2', '3 → 2 → 1 → 0', '0 → 2 → 1 → 3'],
         explanation:
           'Leaf 3 finishes first, then its parent 1. Back at 0, vertex 2 is traversed, and 0 finishes last. POST: 3 → 1 → 2 → 0.',
@@ -384,7 +383,7 @@ export const recursionReviewTranslations = {
         ],
       },
       'dfs-scope': {
-        title: 'What is PRE for traverse(graph, 2, false)?',
+        title: 'What is PRE for traverse(graph, vertices, vertices.get(2), false)?',
         assumptions:
           'Vertex 2 is isolated. all = false means only the reachable part is traversed.',
         choices: ['0 → 1', '2 → 0 → 1 → 3 → 4', 'An empty list', 'Only 2'],
@@ -438,7 +437,7 @@ export const recursionReviewTranslations = {
       'dfs-cost': {
         title: 'What is the complexity of a full recursive DFS?',
         assumptions:
-          'Call traverse(graph, start, true). Adjacency lists contain V vertices and E edges. ArrayList append is amortised O(1). Include stack, visited and PRE/POST in space; exclude the input graph and visualisation history.',
+          'Call traverse(graph, vertices, start, true). Adjacency lists contain V vertices and E edges. ArrayList append is amortised O(1). Include stack, visited and PRE/POST in space; exclude the input graph and visualisation history. Identity-map operations are assumed to take expected O(1) time. ',
         choices: [
           'Time Θ(V), space O(V), regardless of E',
           'Time Θ(V + E), space O(V)',
@@ -457,7 +456,7 @@ export const recursionReviewTranslations = {
       'dfs-setup': {
         title: 'Does an isolated start make all of traverse constant?',
         assumptions:
-          'Call traverse(graph, 2, false). The shown example has 5 vertices; for asymptotic analysis consider similar graphs with growing V and isolated vertex 2. Include visited setup, not just dfs(2).',
+          'Call traverse(graph, vertices, vertices.get(2), false). The shown example has 5 vertices; for asymptotic analysis consider similar graphs with growing V and isolated vertex 2. Include visited setup, not just dfs(2).',
         choices: [
           'Yes: time and space O(1)',
           'Time Θ(log V), space O(V)',
@@ -465,12 +464,12 @@ export const recursionReviewTranslations = {
           'Time Θ(V²), space Θ(V)',
         ],
         explanation:
-          'The dfs(2) core does constant work, but traverse allocates and zero-initialises boolean[V]. That takes Θ(V) time and space even with one visited vertex. The outer loop does not run here.',
+          'The dfs(2) core does constant work, but traverse creates a visited=false entry for every Vertex object. Setup takes expected Θ(V) time and Θ(V) space even if one vertex is visited. The outer loop does not run here.',
         feedback: [
-          'A single DFS call does not remove allocation of the array for the whole graph.',
-          'There is no halving here; the entire visited array is initialised.',
-          'Array setup determines the overall growth in this case.',
-          'There are no nested loops over all vertices: the array is initialised once.',
+          'Visiting one vertex does not remove visited setup for all V vertices.',
+          'There is no halving: every vertex needs an entry.',
+          'Correct: map setup takes expected linear time and linear space.',
+          'No nested scan of every pair occurs: visited is initialised once.',
         ],
       },
     },
@@ -579,9 +578,9 @@ export const recursionReviewTranslations = {
       'dfs-next': {
         title: 'Minkä naapurin dfs(0) tarkistaa paluun jälkeen?',
         assumptions:
-          'Aloitus 0:sta. dfs(1) on valmistunut kokonaan, myös dfs(3), ja suoritus on palannut dfs(0):aan. Naapurijärjestys: graph[0] = {1, 2}.',
+          'Aloitus 0:sta. dfs(1) on valmistunut kokonaan, myös dfs(3), ja suoritus on palannut dfs(0):aan. Naapurijärjestys: 0: [1, 2].',
         explanation:
-          'dfs(0) säilytti arvon i = 0. dfs(1):n paluun jälkeen silmukka kasvattaa i:n arvoon 1 ja lukee graph[0][1] = 2. Naapureiden käsittely ei ala alusta.',
+          'dfs(0) säilytti arvon i = 0. dfs(1):n paluun jälkeen silmukka kasvattaa i:n arvoon 1 ja lukee next = 2. Naapureiden käsittely ei ala alusta.',
         feedback: [
           '3 on solmun 1 naapuri; sen käsittely on jo valmis.',
           'Solmun 0 naapurilistan seuraava alkio on 2.',
@@ -592,15 +591,15 @@ export const recursionReviewTranslations = {
       'dfs-skip': {
         title: 'Miksi siirtymä 2 → 0 ohitetaan?',
         assumptions:
-          'Syklinen graafi, aloitus 0:sta. Kutsuketju on dfs(0) → dfs(1) → dfs(2). dfs(2) tarkastelee naapuria next = 0.',
+          'Syklinen graafi, aloitus 0:sta. Kutsuketju on dfs(0) → dfs(1) → dfs(2). dfs(2) tarkastelee naapuria next = 0. v0 tarkoittaa solmun 0 oliota.',
         choices: [
           '0 on pienempi kuin 2',
           'Solmu 0 on jo POST-listassa',
-          'visited[0] on jo true',
+          'visited.get(v0) on jo true',
           'Graafissa ei ole syklejä',
         ],
         explanation:
-          'dfs(0) merkitsi visited[0]:n ennen naapureihin siirtymistä. !visited[0] on epätosi, joten uutta kutsua ei synny. dfs(0) odottaa vielä eikä ole POST-listassa.',
+          'dfs(0) merkitsi visited.get(v0):n ennen naapureihin siirtymistä. !visited.get(v0) on epätosi, joten uutta kutsua ei synny. dfs(0) odottaa vielä eikä ole POST-listassa.',
         feedback: [
           'Solmujen numerot eivät määrää rekursiivisen siirtymän sallittavuutta.',
           'POST päivitetään dfs(0):n valmistuessa; tämä kehys odottaa vielä.',
@@ -623,7 +622,7 @@ export const recursionReviewTranslations = {
         ],
       },
       'dfs-scope': {
-        title: 'Mikä on PRE kutsulle traverse(graph, 2, false)?',
+        title: 'Mikä on PRE kutsulle traverse(graph, vertices, vertices.get(2), false)?',
         assumptions:
           'Solmu 2 on eristetty. all = false tarkoittaa vain saavutettavan osan läpikäyntiä.',
         choices: ['0 → 1', '2 → 0 → 1 → 3 → 4', 'Tyhjä lista', 'Vain 2'],
@@ -677,7 +676,7 @@ export const recursionReviewTranslations = {
       'dfs-cost': {
         title: 'Mikä on koko rekursiivisen DFS:n vaativuus?',
         assumptions:
-          'Kutsu traverse(graph, start, true). Vieruslistoissa on V solmua ja E kaarta. ArrayList-lisäys on amortisoidusti O(1). Muisti sisältää pinon, visited-taulukon ja PRE/POST-listat, ei syötegraafia eikä visualisoinnin historiaa.',
+          'Kutsu traverse(graph, vertices, start, true). Vieruslistoissa on V solmua ja E kaarta. ArrayList-lisäys on amortisoidusti O(1). Muisti sisältää pinon, visited-taulukon ja PRE/POST-listat, ei syötegraafia eikä visualisoinnin historiaa. Identiteettikuvauksen operaation oletetaan vievän odotetusti O(1) aikaa. ',
         choices: [
           'Aika Θ(V), muisti O(V), E:stä riippumatta',
           'Aika Θ(V + E), muisti O(V)',
@@ -696,7 +695,7 @@ export const recursionReviewTranslations = {
       'dfs-setup': {
         title: 'Tekeekö eristetty aloitussolmu koko traverse-kutsusta vakioaikaisen?',
         assumptions:
-          'Kutsu traverse(graph, 2, false). Esimerkissä on 5 solmua; asymptoottisessa tarkastelussa ajattele vastaavia graafeja, joissa V kasvaa ja solmu 2 on eristetty. Laske mukaan visited-alustus, älä vain dfs(2):ta.',
+          'Kutsu traverse(graph, vertices, vertices.get(2), false). Esimerkissä on 5 solmua; asymptoottisessa tarkastelussa ajattele vastaavia graafeja, joissa V kasvaa ja solmu 2 on eristetty. Laske mukaan visited-alustus, älä vain dfs(2):ta.',
         choices: [
           'Kyllä: aika ja muisti O(1)',
           'Aika Θ(log V), muisti O(V)',
@@ -704,12 +703,12 @@ export const recursionReviewTranslations = {
           'Aika Θ(V²), muisti Θ(V)',
         ],
         explanation:
-          'dfs(2):n ydin tekee vakiomäärän työtä, mutta traverse varaa ja nollaa boolean[V]-taulukon. Tämä vaatii Θ(V) aikaa ja muistia yhdelläkin käydyllä solmulla. Ulompaa silmukkaa ei tässä suoriteta.',
+          'dfs(2):n ydin tekee vakiomäärän työtä, mutta traverse luo visited=false-merkinnän jokaiselle Vertex-oliolle. Alustus vie odotetusti Θ(V) aikaa ja Θ(V) tilaa, vaikka käydään vain yksi solmu. Ulompaa silmukkaa ei suoriteta.',
         feedback: [
-          'Yksi DFS-kutsu ei poista koko graafin kokoisen taulukon varausta.',
-          'Ongelmaa ei puoliteta; koko visited-taulukko alustetaan.',
-          'Taulukon alustus määrää tässä kokonaiskustannusten kasvun.',
-          'Sisäkkäisiä silmukoita kaikkien solmujen yli ei ole: taulukko alustetaan kerran.',
+          'Yhden solmun käynti ei poista kaikkien V solmun visited-alustusta.',
+          'Puolittamista ei ole: jokainen solmu tarvitsee merkinnän.',
+          'Oikein: kuvauksen alustus vie odotetusti lineaarisen ajan ja tilan.',
+          'Kaikkia pareja ei käydä läpi: visited alustetaan kerran.',
         ],
       },
     },
