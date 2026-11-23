@@ -1,7 +1,9 @@
 import { useId } from 'react'
-import starterCode from '../../exercises/dfs-reachable/Solution.java?raw'
+import dfsStarter from '../../exercises/dfs-reachable/Solution.java?raw'
+import bfsStarter from '../../exercises/bfs-distances/Solution.java?raw'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
 import { graphCodingExerciseTranslations } from '../i18n/graphCodingExercise.js'
+import { bfsCodingExerciseTranslations } from '../i18n/bfsCodingExercise.js'
 
 const vertices = [
   [55, 110],
@@ -79,12 +81,19 @@ function ExampleGraph({ id, label }) {
   )
 }
 
-export default function GraphCodingExercise() {
+export default function GraphCodingExercise({ algorithm = 'dfs' }) {
   const { language } = useLanguage()
-  const labels = graphCodingExerciseTranslations[language]
+  const isBfs = algorithm === 'bfs'
+  const labels = (isBfs ? bfsCodingExerciseTranslations : graphCodingExerciseTranslations)[language]
+  const folder = isBfs ? 'bfs-distances' : 'dfs-reachable'
+  const starterCode = isBfs ? bfsStarter : dfsStarter
   const id = useId()
   return (
-    <section className="lab-shell graph-coding-exercise" aria-labelledby={`${id}-title`}>
+    <section
+      className="lab-shell graph-coding-exercise"
+      data-coding-algorithm={algorithm}
+      aria-labelledby={`${id}-title`}
+    >
       <h2 id={`${id}-title`}>{labels.title}</h2>
       <p>{labels.intro}</p>
       <p className="coding-note">{labels.rules[1]}</p>
@@ -98,8 +107,8 @@ export default function GraphCodingExercise() {
       </div>
       <a
         className="java-download coding-download"
-        href={`${import.meta.env.BASE_URL}exercises/dfs-reachable.zip`}
-        download="dfs-reachable.zip"
+        href={`${import.meta.env.BASE_URL}exercises/${folder}.zip`}
+        download={`${folder}.zip`}
       >
         {labels.download}
       </a>
@@ -156,6 +165,14 @@ export default function GraphCodingExercise() {
         ))}
       </details>
       <p className="coding-note">{labels.after}</p>
+      <details className="coding-chapter">
+        <summary>{labels.selfEvaluation}</summary>
+        <ol>
+          {labels.selfItems.map(item => (
+            <li key={item}>{item}</li>
+          ))}
+        </ol>
+      </details>
     </section>
   )
 }

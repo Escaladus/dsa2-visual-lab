@@ -71,12 +71,20 @@ export function createStoredZip(files) {
 }
 
 export function packageGraphExercise(output = resolve(root, 'public/exercises/dfs-reachable.zip')) {
+  return packageExercise('dfs-reachable', output)
+}
+
+export function packageBfsExercise(output = resolve(root, 'public/exercises/bfs-distances.zip')) {
+  return packageExercise('bfs-distances', output)
+}
+
+function packageExercise(folder, output) {
   const files = exercisePackageFiles.map(name => ({
-    name: `dfs-reachable/${name}`,
+    name: `${folder}/${name}`,
     data:
       name === 'traj.jar'
         ? readTraLibrary()
-        : readFileSync(resolve(root, 'exercises/dfs-reachable', name)),
+        : readFileSync(resolve(root, 'exercises', folder, name)),
   }))
   mkdirSync(dirname(output), { recursive: true })
   writeFileSync(output, createStoredZip(files))

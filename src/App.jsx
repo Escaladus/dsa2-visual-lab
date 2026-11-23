@@ -109,9 +109,9 @@ function Lesson({ topic, onOpen }) {
       {(id === 'graph-dfs' || id === 'graph-bfs') && (
         <GraphLab initialMode={id === 'graph-dfs' ? 'dfs' : 'bfs'} />
       )}
-      {id === 'graph-dfs' && (
+      {(id === 'graph-dfs' || id === 'graph-bfs') && (
         <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
-          <GraphCodingExercise />
+          <GraphCodingExercise algorithm={id === 'graph-bfs' ? 'bfs' : 'dfs'} />
         </Suspense>
       )}
 

@@ -1,18 +1,17 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve, delimiter } from 'node:path'
 import test from 'node:test'
-import { hasPrimaryTraExamples, traJavaExamples } from '../src/data/traJavaExamples.js'
+import { hasPrimaryTraExamples } from '../src/data/traJavaExamples.js'
+import { traReferenceExamples as traJavaExamples } from '../src/data/traReferenceExamples.js'
 import { graphBasicsExample, graphConstructionExcerpt } from '../src/data/graphBasics.js'
-import { traJavaExampleTranslations } from '../src/i18n/traJavaExamples.js'
 import { javaExamples } from '../src/data/javaExamples.js'
 import { topics } from '../src/data/topics.js'
-import { packageTraExamples, traExampleSourceFiles } from '../scripts/package-tra-examples.mjs'
 import { readTraLibrary } from '../scripts/tra-library.mjs'
 
-test('TRA examples have complete descriptions and a deliberate main/comparison placement', () => {
+test('technical reference files and optional JDK comparison placement stay available', () => {
   assert.equal(javaExamples.length, 31, 'The original standalone catalogue stays intact')
   assert.deepEqual(
     readdirSync('src/tra-examples')
@@ -32,37 +31,6 @@ test('TRA examples have complete descriptions and a deliberate main/comparison p
       readFileSync(`src/tra-examples/${example.className}.java`, 'utf8'),
       /import fi\.uef\.cs\.tra\./,
     )
-  }
-  for (const [language, labels] of Object.entries(traJavaExampleTranslations)) {
-    assert.match(labels.intro, /JDK 11/)
-    assert.equal(Object.keys(labels.examples).length, traJavaExamples.length)
-    for (const example of traJavaExamples) {
-      assert.equal(labels.examples[example.id].length, 3)
-      assert.ok(labels.examples[example.id].every(text => text.trim()))
-    }
-    for (const key of [
-      'title',
-      'primaryTitle',
-      'primaryIntro',
-      'download',
-      'setup',
-      'order',
-      'basicOrder',
-      'treeNote',
-      'queueNote',
-      'applicationsNote',
-      'weightedNote',
-      'mstNote',
-      'analysisNote',
-    ])
-      assert.ok(labels[key].trim())
-    if (language !== 'ru') assert.doesNotMatch(JSON.stringify(labels), /[а-яё]/i)
-    const readme = readFileSync(
-      `src/tra-examples/${language === 'en' ? 'README.md' : `README.${language}.md`}`,
-      'utf8',
-    )
-    for (const example of traJavaExamples)
-      assert.ok(readme.includes(`-cp traj.jar ${example.className}.java`))
   }
   for (const topic of ['graph-basics', 'maps']) {
     assert.ok(hasPrimaryTraExamples(topic))
@@ -104,21 +72,18 @@ test('TRA examples have complete descriptions and a deliberate main/comparison p
 const hasJdk = ['java', 'javac', 'jar'].every(name => spawnSync(name, ['--version']).status === 0)
 
 test(
-  'the actual TRA download runs on Java 11 and passes graph reference checks',
+  'preserved technical TRA sources run on Java 11 and pass independent graph reference checks',
   { skip: hasJdk ? false : 'JDK 11+ required' },
   async t => {
     const directory = mkdtempSync(join(tmpdir(), 'dsa2-tra-examples-'))
     try {
-      const archive = packageTraExamples(join(directory, 'tra.zip'))
-      const unpack = spawnSync('jar', ['xf', archive], { cwd: directory, encoding: 'utf8' })
-      assert.equal(unpack.status, 0, unpack.stderr)
-      const work = join(directory, 'tra-graphs')
-      for (const name of traExampleSourceFiles)
-        assert.deepEqual(
-          readFileSync(join(work, name)),
-          readFileSync(resolve('src/tra-examples', name)),
-        )
-      assert.deepEqual(readFileSync(join(work, 'traj.jar')), readTraLibrary())
+      // These files remain technical references for existing visualisations, outside the student ZIP.
+      const work = directory
+      writeFileSync(join(work, 'traj.jar'), readTraLibrary())
+      for (const example of traJavaExamples) {
+        const name = `${example.className}.java`
+        writeFileSync(join(work, name), readFileSync(resolve('src/tra-examples', name)))
+      }
       const compile = spawnSync(
         'javac',
         [
@@ -142,7 +107,7 @@ test(
         assert.equal(readFileSync(join(directory, name)).readUInt16BE(6), 55, name)
       for (const example of traJavaExamples) {
         await t.test(
-          `${example.className}: downloaded source and precompiled output match the site`,
+          `${example.className}: technical source and precompiled output match regression expectations`,
           () => {
             const source = spawnSync(
               'java',
@@ -158,9 +123,6 @@ test(
             )
             assert.equal(compiled.status, 0, compiled.stderr)
             assert.equal(compiled.stdout.trim().replace(/\r\n/g, '\n'), example.output)
-            assert.ok(
-              readFileSync(join(work, 'expected-output.txt'), 'utf8').includes(example.output),
-            )
           },
         )
       }

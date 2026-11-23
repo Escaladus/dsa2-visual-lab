@@ -14,4 +14,10 @@ public class Solution {
         // TODO: replace this line with your recursive traversal.
         throw new UnsupportedOperationException("TODO: implement reachableCount");
     }
+
+    /* Optional self-evaluation after solving:
+     * 1. Why does the recursion stop on a cycle?
+     * 2. Why is a vertex reached by two paths counted only once?
+     * 3. What are the time and maximum recursion-stack costs?
+     */
 }

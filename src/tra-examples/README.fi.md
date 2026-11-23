@@ -1,82 +1,354 @@
-# Esimerkit TRA-kirjastolla — JDK 11+
+# TRA-esimerkit: yksi asia kerrallaan — Java 11+
 
-Nämä ovat valmiita esimerkkejä paketilla fi.uef.cs.tra. TRA on graafi-/puuaiheiden päärajapinta, myös graafianalyysissä, sovituksessa ja virtauksessa. Aiemmat 31 JDK-esimerkkiä säilyvät; siirretyt versiot ovat lisävertailuja.
+Jokainen tiedosto opettaa yhden toiminnon tai algoritmin vaiheen ja toimii itsenäisesti. Etene perusteista DFS/BFS:ään, sovelluksiin, puihin/jonoon, painotettuihin polkuihin/virittäviin puihin ja lopuksi analyysiin/virtaukseen. Sivulla näkyy ensin ydinkoodi; koko tiedosto ja komento avautuvat erikseen.
 
-Pura ZIP. Pidä kuusitoista `.java`-tiedostoa ja `traj.jar` samassa kansiossa. Avaa pääte tässä kansiossa ja suorita mikä tahansa esimerkki:
+Pura ZIP ja avaa pääte `tra-graphs`-kansioon, jossa `traj.jar` on. Alla olevat komennot ovat suhteessa tähän kansioon ja toimivat Windowsissa, macOS:ssä ja Linuxissa. Laita yksittäin ladattu tiedosto JARin viereen ja suorita `java -Dfile.encoding=UTF-8 -cp traj.jar Filename.java`. Lisää IDE:ssä JAR kirjastoksi. Muita esimerkkitiedostoja ei tarvita.
+
+Aihekansioiden `RUN.txt` sisältää juuresta suoritettavat komennot; `expected-output.txt` sisältää tarkistetun tulosteen. Java-kommentit ja tulosteet ovat englanniksi; sivun selitykset ovat suomeksi, venäjäksi ja englanniksi.
+
+## Lähtöoletukset
+
+- Yksinkertainen DFS käyttää vierailukarttaa; värioppitunti on erillinen. Värejä käyttävät menetelmät alustavat ne ennen kutsua ja saavat muuttaa niitä. Läpikäynnit säilyttävät verkon rakenteen.
+- Naapurijärjestys riippuu mukana tulevasta JARista. Se voi muuttaa DFS-järjestystä ja yhtä lyhyen BFS-polun valintaa, mutta ei lyhimpiä etäisyyksiä. Samat nimet eivät yhdistä Vertex-olioita: kartat käyttävät identiteettiä.
+- Ensimmäinen Dijkstra selaa solmut: odotettu O(V² + E) aikaa ja O(V) muistia; painot ovat äärellisiä ja ei-negatiivisia. Floyd muodostaa matriisin TRAsta, sallii negatiiviset painot ja hylkää negatiiviset syklit. Infinity tarkoittaa saavuttamattomuutta.
+- Prim ja Kruskal ovat erillisiä. Prim käyttää TRA PriorityQueue -jonoa; ensimmäinen Kruskal näkyvää DSU:ta ilman rankia tai poluntiivistystä: odotettu O(V + E log(E + 1) + E·V), ei optimoidun DSU:n arvio. Painot ovat äärellisiä ja pysyviä; epäyhtenäinen syöte antaa metsän.
+- tin/low, sillat ja nivelpisteet ovat erillisiä oppitunteja. Juurelle lasketaan DFS-lapset, ei astetta. Paritus olettaa tunnetun kelvollisen kaksijaon: kaikki kaaret ylittävät sen. Mielivaltaista jakoa ei lasketa eikä tarkisteta.
+- Ennen koko virtausalgoritmia on kolme lyhyttä esimerkkiä; yksi vaihe ei ole maksimivirtausalgoritmi. Koko versio kuvaa TRAn jäännösmatriisiin ja käyttää TRA LinkedQueue -jonoa. Tallennetut float-kapasiteetit ovat äärellisiä kokonaislukuja [0, 1_000_000_000]. Matriisi muuttuu, verkko säilyy. Alkio yhdistää vastakkaisen kapasiteetin ja perumisen, joten tulos on kokonaisvirtaus/leikkaus, ei yksittäisten syötekaarien virtaukset. Matriisi-BFS antaa O(V² + E + V³·E) aikaa ja O(V²) muistia. Solmulista sisältää jokaisen solmun kerran; lähteen ja nielun indeksit ovat kelvolliset ja eri.
+- Tyhjän binääripuun korkeus on -1, lehden 0. PRE, IN ja POST ovat eri metodeissa. Tree esitetään erillisessä esimerkissä ensimmäisen lapsen ja seuraavan sisaruksen avulla.
+- TRAssa `addEdge(v, 5.0f)` asettaa painon, `addEdge(v, 5)` värin. Käytä fi.uef.cs.tra-pakettia. Map-arviot olettavat odotetun O(1)-identiteettihaun.
+
+Alkuperäinen JAR säilyy muuttumattomana: SHA-256 `589c64b49dd8fa77fa1fb9f99d252bf475c180be437a70d81208f4e9f70f3423`. Vanhojen visualisointien tekniset vertailutoteutukset jäävät repositorioon opiskelija-ZIPin ulkopuolelle.
+
+## Esimerkkien järjestys
+
+### basics
+
+**Luo suuntaamaton verkko**
 
 ```bash
-java -Dfile.encoding=UTF-8 -cp traj.jar TraGraphExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraGraphDataExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraRecursiveDfsExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraDfsExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraTraversalExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraBfsExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraTreeExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraPriorityQueueExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraComponentsExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraTopologicalExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraDijkstraExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraFloydWarshallExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraMinimumSpanningTreeExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraGraphCutsExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraBipartiteMatchingExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraMaxFlowExample.java
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraCreateGraph.java
 ```
 
-Komennot toimivat Windowsissa, macOS:ssä ja Linuxissa. Lisää IDE:ssä `traj.jar` kirjastoksi. Jokainen tiedosto sisältää oman main-metodin ja apuluokat eikä riipu muista esimerkeistä. `expected-output.txt` sisältää tällä JARilla tarkistetun tulosteen.
+**Luo suunnattu verkko**
 
-- **TraGraphExample:** luo `DiGraph`/`Graph`, lisää solmut ja kaaret, käytä metodeja `vertices()`, `neighbors()`, `getColor()` ja `setColor()`. Suuntaamaton kaari lisätään kerran: Graph muodostaa molemmat naapuruussuunnat.
-- **TraDfsExample:** rekursiivinen DFS, GREY/PRE saapuessa, POST/BLACK valmistuessa, kutsujan jatkuminen paluun jälkeen, vanhemmat ja juuret. `traverse(graph, start, false)` käy saavutettavan osan; `true` jatkaa jäljellä olevista WHITE-solmuista. Suunnatun metsän juuret eivät tarkoita vahvasti yhtenäisiä komponentteja.
-- **TraBfsExample:** `LinkedQueue<Vertex>`, GREY ennen jonoon lisäämistä, BLACK naapureiden käsittelyn jälkeen, lyhimmät etäisyydet kaarten määrän mukaan ja vanhempipolku. Saavuttamattoman etäisyys on -1 ja polku tyhjä. Jonosta poistaminen ei itsessään muuta väriä BLACKiksi.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraCreateDirectedGraph.java
+```
 
-Molemmat läpikäyntimetodit ottavat `AbstractGraph`-argumentin ja toimivat sekä `DiGraph`- että `Graph`-luokalla. Epätyhjässä graafissa aloitussolmun on kuuluttava graafiin; tyhjälle graafille anna null. Jokainen ajo alustaa värit uudelleen. Vanhempi- ja etäisyystauluissa käytetään solmuolioita: samat nimiöt eivät yhdistä solmuja.
+**Käy kaikki solmut läpi**
 
-Tässä TRA-versiossa `DiGraph` sallii silmukat, mutta `Graph` hylkää ne kaarta lisättäessä.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraListVertices.java
+```
 
-Näytetyt PRE/POST- ja löytämisjärjestykset vastaavat mukana olevan JARin `neighbors()`-järjestystä. Eri naapurijärjestys voi muuttaa DFS:n vanhempia, läpikäyntilistoja ja valintaa yhtä lyhyiden BFS-polkujen välillä, mutta ei lyhimpiä etäisyyksiä. Lähdekoodin kommentit ja tuloste ovat yhteiset käyttöliittymän kolmelle kielelle.
+**Käy yhden solmun naapurit läpi**
 
-Täysi DFS vie Θ(V + E) aikaa ja O(V) lisätilaa tuloksille ja pinolle. Saavutettavan osan DFS ja BFS vievät Θ(V + R + A_R), mukaan lukien värialustus ja BFS:n etäisyysalustus. R on saavutettavien solmujen määrä ja A_R tutkittujen lähtevien naapuruusmerkintöjen määrä. Syötegraafin tilaa ei lasketa lisätilaan. Naapureita ei lajitella eikä kaikkia vieruslistoja kopioida ennen läpikäyntiä.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraListNeighbors.java
+```
 
-Mukana tuleva `traj.jar` on muuttamaton (SHA-256 `589c64b49dd8fa77fa1fb9f99d252bf475c180be437a70d81208f4e9f70f3423`). Se sisältää myös vanhan paketin `fi.joensuu.cs.tra`; esimerkit käyttävät johdonmukaisesti pakettia `fi.uef.cs.tra`. Kirjaston dokumentaatio on JARin sisällä hakemistossa `javadoc/fi/uef/cs/tra/`.
+**Lue kaaren paino**
 
-- **TraGraphDataExample:** tallenna lähtevien naapurien määrät rakenteeseen `Map<Vertex, Integer>`; TRA säilyttää verkon rakenteen. A/B/C/D-verkko vastaa pääoppituntia; kaksi X-nimistä solmua näyttävät identiteettiin perustuvat avaimet. Laskenta säilyttää värit ja rakenteen, vie odotetusti Θ(V + E) aikaa ja O(V) Map-lisätilaa.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraReadEdgeWeight.java
+```
 
-Pääoppitunti näyttää kaaret A→B (5.0f), A→C (2.0f), B→C (1.0f) sekä eristetyn D:n. Kuvaa, naapurilistoja ja TraGraphExample.createDirectedGraph()-metodia verrataan todelliseen JARiin. addEdgen float-argumentti on paino, int-argumentti väri.
+**Liitä solmuun tietoja**
 
-Perus-DFS käyttää **TraRecursiveDfsExample**-tiedostoa: oma TRA-naapuri-iteraattori ja erillinen IdentityHashMap visited, värejä muuttamatta. i laskee käsitellyt naapurit; next() siirtää iteraattoria jo ennen lapsikutsua. Lapsen palattua sama vanhemman iteraattori jatkuu. Koko läpikäynnin odotettu aika on Θ(V + E), saavutettavan osan visited-alustuksineen Θ(V + R + A_R); lisätila O(V). Opetusesimerkkien järjestys tarkistetaan mukana tulevalla JARilla eikä tarkoita nimien lajittelutakuuta.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraVertexMap.java
+```
 
-**TraTraversalExample** on väri-, kaarityyppi- ja harjoittelunäkymien yhteinen lähde: vakaat identiteetti-ID:t, solmukuvaukset, fyysiset Edge-oliot, ajat, syklitodiste, polut ja topologinen järjestys, joka hylkää syklin, keskeneräisen DFS:n ja BFS:n. BFS käyttää TRA LinkedQueue -jonoa. Lajitellut naapurilistat valmistellaan eksplisiittisesti ajassa O(V + E + Σ d(v) log(d(v) + 1)) ja tilassa O(V + E). Sen jälkeen koko läpikäynnin ydin vie Θ(V + E), saavutettava osa Θ(R + A_R). Lisätila listoineen ja kaariluokkineen on yhteensä O(V + E); lajittelua ei lasketa lineaariseksi läpikäynniksi.
+### dfs
 
-TraBfsExample luo saman A–H Graph -verkon kuin peruskuva ja tulostaa löytämisjärjestyksen, etäisyydet ja lyhimmän A–H-polun. Yleinen search tukee myös DiGraphia, saavuttamattomia kohteita ja tyhjää verkkoa. GREY ennen jonoon lisäämistä, BLACK kaikkien naapurien jälkeen; poistaminen ei yksin päätä käsittelyä.
+**Rekursiivinen DFS: käy solmussa**
 
-**TraTreeExample** luo kuvan A–G BTree -puun ja täyttää PRE/IN/POST-listat yhdellä läpikäynnillä. Korkeus kaarina: tyhjä -1, lehti 0, n solmun ketju n-1. Kukin traverse/size/height vie Θ(n) aikaa; epätyhjän puun pino on O(h+1), lyhyt null-kutsu lisää yhden kehyksen (huippu h+2). Tulokset lisäävät O(n) tilaa. Tree/TreeNode käyttävät ensimmäistä lasta ja seuraavaa sisarusta: R:n lapset ovat X/Y/Z. BTree ei automaattisesti ole hakupuu/keko eikä ulkoisen muistin B-puu.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraSimpleDfs.java
+```
 
-**TraPriorityQueueExample** tuo fi.uef.cs.tra.PriorityQueuen, käyttää opetuskeon arvoja, säilyttää toisen 3:n sekä näyttää poistamattoman peekin, poistavan pollin ja tyhjän jonon nullin. Nullin lisääminen on kielletty. Tehtävät käyttävät kapasiteettia ja vertailijaa. Iteraattori ei takaa lajittelua eikä kuvan tarkkaa järjestystä. priorityOrder kopioi ja poistaa muuttamatta alkuperäistä: O(n log n) aikaa ja O(n) tilaa. peek O(1), poll O(log n), offer amortoidusti O(log n) taulukon kasvatuksineen.
+**DFS: miksi sykli pysähtyy**
 
-**TraComponentsExample** ottaa suuntaamattoman Graphin. Alusta värit kerran, käy kaikki solmut ja aloita DFS vain WHITE-solmusta: yksi tuloslista on yksi komponentti. Tehdas ja kuva sisältävät 0—1, eristetyn 2:n ja 3—4. Tyhjällä graafilla on nolla komponenttia. Erillinen koko graafin syklitarkistus ohittaa saman fyysisen vanhempi-Edge-kaaren: yksi kaari ei muodosta sykliä, kolmio muodostaa. Molemmat metodit päättävät kaikki juuret BLACKiksi ajassa Θ(V + E) ja O(V) lisätilassa tuloksineen ja pinoineen. Vain solmuvärit muuttuvat, kukin ajo luo uudet listat.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraDfsCycle.java
+```
 
-**TraTopologicalExample** ottaa DiGraphin ja kerää POST:n koko DFS:llä. Lähtevä kaari GREY-solmuun, myös silmukka, heittää `IllegalArgumentException("cycle")`-poikkeuksen. POST käännetään ja palautetaan vasta kaikkien juurien onnistuttua; eristetty solmu sisältyy tulokseen, tyhjä graafi antaa tyhjän järjestyksen. Sykli erillisessä osassa estää myös koko järjestyksen. Virheen jälkeen värit voivat olla WHITE/GREY/BLACK, mutta uusi ajo alustaa ne, eikä osittaista järjestystä palauteta. Aika Θ(V + E), lisätila O(V). Kaaret, painot ja nimiöt säilyvät. DAG- ja syklitehtaat vastaavat yhteistä visualisointia.
+**DFS: saapuminen ja paluu (PRE / POST)**
 
-Vanhempipolkuihin ja syklin todistavaan polkuun käytetään sovellusten työtilassa **TraTraversalExample**-esimerkkiä. `path(state, target)` palauttaa polun alkuperäisestä alusta tai tyhjän listan saavuttamattomalle/vieraalle kohteelle; alku → alku sisältää nolla kaarta. DFS antaa löydetyn polun, BFS minimoi kaarimäärän. Koko metsä ei luo saavutettavuutta: muut juuret säilyttävät etäisyyden -1 alkuperäisestä alusta ja oman syvyyden nolla. DiGraphin naapurit ovat lähteviä, eikä sen metsä ole SCC-jako. Erilaiset kelvolliset polut, komponenttilistat ja topologiset järjestykset hyväksytään ominaisuuksien, ei yhden tarkan listan perusteella. Yhteinen animaatio valmistelee lajitellut naapurit erikseen edellä kuvatulla kustannuksella; kaksi uutta esimerkkiä eivät lajittele.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraDfsPrePost.java
+```
 
-**TraDijkstraExample** ottaa Graphin/DiGraphin ja sen aloitussolmun (null vain tyhjälle). Kaikki Edge-painot tarkistetaan, myös saavuttamattomat: vain äärelliset ei-negatiiviset painot sallitaan. TRA PriorityQueue luodaan kapasiteetilla ja vertailijalla. Muuttumaton tietue sisältää Vertexin ja double-etäisyyden; parannus lisää uuden tietueen, vanhentunut ohitetaan. Jonossa olevan Vertexin kenttiä ei muuteta. Aika O(V + E log(E + 1)), lisätila O(V + E) tauluineen ja laiskoine jonotietueineen. A/B/C/D/E antaa etäisyydet 0/3/1/4/INF ja polun A→C→B→D; E on eristetty.
+**DFS väreillä WHITE, GREY ja BLACK**
 
-**TraFloydWarshallExample** ottaa Graphin/DiGraphin, liittää oikeisiin Vertex-olioihin ulkoiset indeksit ja muodostaa etäisyys-/seuraavan askeleen matriisit lähtevistä Edge-kaarista. Nolladiagonaali tarkoittaa tyhjää polkua, +∞ puuttumista/saavuttamattomuutta. Ulompi k-silmukka käsittelee välisolmut. Äärelliset negatiiviset painot sallitaan. Mikä tahansa laskettu negatiivinen diagonaali hylkää koko tuloksen poikkeuksella `IllegalArgumentException("negative cycle")`, myös erilliset negatiiviset syklit ja silmukat; osittaista matriisia/polkua ei palauteta. Matemaattisesti äärellinen minimi puuttuu vain vaikutuksen alaisilta pareilta; tässä valitaan koko tuloksen hylkäys. Negatiivinen suuntaamaton kaari mahdollistaa painon rajattoman pienentämisen edestakaisin kulkemalla ja hylätään myös. Aika O(V³ + E), lisätila O(V²). A→B:5, B→C:-2, A→C:10 antavat A→B→C:n painolla 3; D on eristetty.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraColourDfs.java
+```
 
-Dijkstra: `distanceTo(target)` / `pathTo(target)`. Floyd: `distance(from, to)` / `path(from, to)`. Käytetään identiteettiä, ei nimeä tai Vertex.index-kenttää. Vieraat/null-kyselysolmut hylätään. Saavuttamattomuus on Double.POSITIVE_INFINITY (tulosteessa INF) ja tyhjä polku; solmusta itseensä etäisyys on 0 ja polussa yksi solmu, nolla kaarta. Polkukysely vie O(polun pituus); yhtä halvat eri polut sallitaan. Kaikki graafin kentät, myös värit, säilyvät, ja eri ajojen tulokset ovat riippumattomia.
+**DFS: saapumis- ja poistumisajat**
 
-Lukupolitiikka: Edge.getWeight()-metodin äärelliset float-arvot summataan doublena, parannuksia verrataan aidosti pienempinä ja Floydin äärettömät osapolut ohitetaan. Float.MAX_VALUE-summat pienissä graafeissa ovat äärellisiä doublena; 0.1f on silti binäärinen likiarvo. Liukulukulaskenta ei todista negatiivisen syklin puuttumista painojen lähes kumotessa toisensa; opetusesimerkit käyttävät pieniä tarkasti esitettävissä olevia arvoja. Testit käyttävät tarkkoja binäärimurtolukuja sekä mittakaava-/ULP-toleransseja etäisyyksille ja polkusummille. NaN ja molemmat äärettömyydet hylätään syötteestä. Kirjoita addEdge-kutsuun 5.0f: kokonaislukuargumentti valitsee värin. BFS on vertailu pienimmälle kaarimäärälle, ei mielivaltaiselle painosummalle.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraDfsTimes.java
+```
 
-**TraMinimumSpanningTreeExample** ottaa suuntaamattoman Graphin ja palauttaa Resultin: vertices(), edges(), components(), totalWeight(), isSpanningTree(). Lista sisältää oikeat syötteen Edge-viitteet, ei keinotekoisia käänteisiä tai aloituskaaria. Epäyhtenäinen syöte antaa pienimmän virittävän metsän: V solmua ja C komponenttia vaativat V-C valittua kaarta, eristetytkin solmut huomioidaan. Tyhjän graafin komponenttimäärä/paino on 0 eikä sitä kutsuta puuksi; yksi solmu on kaareton puu. Listat ovat vain luettavia, kukin ajo omistaa uuden tuloksen ja graafin kentät säilyvät. Oliot pysyvät syötteen muuttuvina olioina, joten tulos ei ole syväkopio.
+**Suunnattu DFS: luokittele kaari**
 
-Prim tallentaa rajakaaret TRA PriorityQueueen kapasiteetilla ja vertailijalla. Kaari, jonka molemmat päät on jo saavutettu, ohitetaan, ja komponentin jälkeen aloitetaan uudesta juuresta. Graphin päiden tallennussuunta ei merkitse mitään; painoja ei muuteta jonossa ollessa. Kruskal lajittelee Graph.edges()-kopion, jossa kukin fyysinen kaari esiintyy kerran, ja käyttää omia union-find-taulukoita poluntiivistyksellä/rankeilla sekä ulkoisia identiteettipohjaisia Vertex-indeksejä. Molemmat säilyttävät värit ja Vertex.index/weight-kentät. Aika on kummallakin O(V + E log(E + 1)), lisätila O(V + E), olettaen kuvauksen/joukon odotetut O(1)-operaatiot; Prim lisää kunkin fyysisen kaaren jonoon enintään kerran.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraDfsEdgeTypes.java
+```
 
-Äärelliset negatiiviset/nollapainot ja yhtäsuuret painot sallitaan; algoritmien ei tarvitse valita samoja kaaria tai järjestystä. NaN ja molemmat äärettömyydet hylätään koko graafista. Float-painot summataan doublena tavallisin pyöristyksin. Yhtenäinen esimerkki painaa 4; eristetty E ja F-G:-2 antavat kolme komponenttia, neljä kaarta ja painon 2. Graafissa A-B:2, A-C:2, B-C:1 MST painaa 3, mutta A:n lyhimpien polkujen puu valitsee kaksi painon 2 kaarta, summa 4. MST minimoi kaarisumman, ei etäisyyksiä alusta. Vanha JDK-esimerkki säilyy vertailuna ja hylkää epäyhtenäisen syötteen.
+### bfs
 
-**TraGraphCutsExample** ottaa Graphin ja ohittaa painot. Koko DFS palauttaa oikeat leikkaus-Vertexit ja silta-Edget kaikista komponenteista. tin laskee saapumiset; low on varhaisin saapuminen puuta alas ja enintään yhtä ei-vanhempipaluukaarta pitkin. Käyty naapuri antaa tin-arvon, palaava lapsi low-arvon. Muu kuin juuri on leikkaussolmu, kun low[child] >= tin[v]; silta, kun low[child] > tin[v]; juuri tarvitsee kaksi DFS-lasta. Sama fyysinen parent Edge ohitetaan. Tyhjyys, eristys ja epäyhtenäisyys käyvät. Odotettu O(V + E) aika/O(V) tila; tulosten nimien lajittelu erikseen. Vieraat aikakyselysolmut hylätään.
+**BFS: läpikäynti jonolla**
 
-**TraBipartiteMatchingExample** ottaa Graphin ja eksplisiittisen listan eri vasemman puolen syöte-Vertexeistä; oikea on loput. Jokainen kaari tarkistetaan osajaon yli, jakoa ei lasketa automaattisesti. Rekursiiviset vuorottelevat polut vaihtavat parit; uusi seen luodaan vasenta juurta kohti. Saadaan suurin parimäärä, ei vain maksimaalista joukkoa. Painot ohitetaan. Tulos antaa oikeat Edget, osalistat ja symmetrisen partnerOf-kyselyn: null vapaalle, virhe vieraalle solmulle. Odotettu O(V + E + L·E) aika/O(V) tila. L0:[R0,R1], L1:[R0] siirtää L0:n R1:een; eristetty R2 jää vapaaksi.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/bfs/TraSimpleBfs.java
+```
 
-**TraMaxFlowExample** ottaa DiGraphin ja eri syötesolmuina lähteen/nielun; tyhjässä graafissa ei ole kelvollisia päitä. Opetustoteutus hyväksyy tallennetut float-Edge-kapasiteetit vain äärellisinä kokonaislukuina [0, 1 000 000 000]. Negatiiviset, murto-, ei-äärelliset ja ylisuuret arvot hylätään koko graafista pyöristämättä; sitten käytetään tarkkoja longeja ja tarkistettuja summia. Desimaaliluku on voinut pyöristyä float-tallennuksessa: tarkistus koskee tallennettua arvoa. Kirjoita addEdge(v, 3.0f), kokonaislukuargumentti valitsee värin. Kukin Edge saa oman eteenpäin/peruutusparin, myös oikeiden vastakkaisten kaarien tapauksessa. Peruutus ei vaadi syötekaarta eikä muuta syötettä. BFS käyttää TRA LinkedQueuea. Tulos antaa flowOn/capacityOf-kyselyt, valuen, sourceSiden, cutEdges/cutCapacityn ja peruutusaskelmäärän; vieraat Edget hylätään. Leikkauskapasiteetti vastaa virtausarvoa. Odotettu O(V + E + V·E²) aika/O(V + E) tila; uusi BFS-vanhempikuvaus ei alusta kaikkia eristettyjä solmuja joka kierroksella.
+**BFS: miksi D lisätään jonoon vain kerran**
 
-Kaikki kolme säilyttävät syötekentät/rakenteen, palauttavat oikeat oliot vain luettavissa listoissa ja riippumattomat uusinta-ajon tulokset. Vaativuudet olettavat identiteettihaun odotetun O(1)-ajan. Uudelleenreitityksen x→a peruu a→x:n, vaikka x→a puuttuu syötteestä; lopullinen virtaus on 2, a→x:n virtaus 0. SCC ja uudet ohjelmointitehtävät jäävät erillisiksi. Vanhat taulukko-/matriisiversiot säilyvät suljetuissa vertailuissa omine sopimuksineen ja kustannuksineen.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/bfs/TraBfsDiscovery.java
+```
+
+**BFS: etäisyys kaarien määränä**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/bfs/TraBfsDistances.java
+```
+
+**BFS: palauta polku**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/bfs/TraBfsPath.java
+```
+
+### applications
+
+**DFS: jatka toisessa komponentissa**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/applications/TraFullDfs.java
+```
+
+**Sykli suuntaamattomassa verkossa**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/applications/TraUndirectedCycle.java
+```
+
+**Sykli suunnatussa verkossa**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/applications/TraDirectedCycle.java
+```
+
+**DAG: käännä POST-järjestys**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/applications/TraTopologicalOrder.java
+```
+
+### trees
+
+**Luo binääripuu**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraCreateTree.java
+```
+
+**Lue solmun lapset**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreeChildren.java
+```
+
+**PRE: solmu, vasen, oikea**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreePRE.java
+```
+
+**IN: vasen, solmu, oikea**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreeIN.java
+```
+
+**POST: vasen, oikea, solmu**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreePOST.java
+```
+
+**Laske puun solmut**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreeSize.java
+```
+
+**Laske korkeus kaarina**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreeHeight.java
+```
+
+**Yleinen puu: lapset ja sisarukset**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraGeneralTreeChildren.java
+```
+
+### queue
+
+**PriorityQueue: lisää arvoja**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraQueueOffer.java
+```
+
+**PriorityQueue: katso poistamatta**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraQueuePeek.java
+```
+
+**PriorityQueue: poista pienin**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraQueuePoll.java
+```
+
+**PriorityQueue: samat arvot sallitaan**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraQueueDuplicates.java
+```
+
+**PriorityQueue: valitse toinen järjestys**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraQueueComparator.java
+```
+
+**Tehtävät: prioriteetti ja tasatilanne**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraTaskPriority.java
+```
+
+### weighted
+
+**Dijkstra: etäisyydet ei-negatiivisilla painoilla**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/weighted/TraDijkstraDistances.java
+```
+
+**Dijkstra: tallenna parantunut polku**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/weighted/TraDijkstraPath.java
+```
+
+**TRA-verkko → etäisyysmatriisi**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/weighted/TraGraphMatrix.java
+```
+
+**Floyd: kokeile yhtä välisolmua**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/weighted/TraFloydDistances.java
+```
+
+**Floyd: palauta polku**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/weighted/TraFloydPath.java
+```
+
+### mst
+
+**Prim: kasvata puuta**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/mst/TraPrim.java
+```
+
+**Erilliset joukot: ovatko päätesolmut jo yhteydessä?**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/mst/TraDisjointSets.java
+```
+
+**Kruskal: hyväksy kaaret luomatta sykliä**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/mst/TraKruskal.java
+```
+
+### analysis
+
+**DFS: mitä tin ja low tarkoittavat**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/analysis/TraLowValues.java
+```
+
+**Silta: pääseekö lapsen alipuu takaisin?**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/analysis/TraBridges.java
+```
+
+**Nivelpiste: entä jos solmu poistetaan?**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/analysis/TraArticulationPoints.java
+```
+
+**Paritus: siirrä olemassa oleva pari**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/analysis/TraMatchingStep.java
+```
+
+**Paritus: toista jokaiselle vasemmalle solmulle**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/analysis/TraMaximumMatching.java
+```
+
+### flow
+
+**Virtaus: jäljellä oleva kapasiteetti**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/flow/TraResidualCapacity.java
+```
+
+**Virtaus: lisää yhdelle tunnetulle polulle**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/flow/TraAugmentFlow.java
+```
+
+**Virtaus: peru aiempi valinta**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/flow/TraCancelFlow.java
+```
+
+**Maksimivirtaus: toista lisääviä polkuja**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/flow/TraMaximumFlow.java
+```
+
+**Minimileikkaus: jäännösverkossa saavutettava puoli**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/flow/TraMinimumCut.java
+```

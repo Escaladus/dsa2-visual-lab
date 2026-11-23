@@ -56,6 +56,12 @@ export const graphCodingExerciseTranslations = {
     after:
       'After solving: explain why a cycle terminates, why converging paths do not double-count, and how reachable vertices and examined adjacency entries determine time and maximum stack depth.',
     template: 'Starter method — edit Solution.java in the downloaded folder',
+    selfEvaluation: 'Optional: explain your solution',
+    selfItems: [
+      'Why does the traversal terminate on a cycle?',
+      'Why is a vertex reached by two paths counted only once?',
+      'What are the running time and maximum recursion-stack costs?',
+    ],
   },
   ru: {
     title: 'Попробуйте на Java: посчитайте достижимые вершины',
@@ -114,6 +120,12 @@ export const graphCodingExerciseTranslations = {
     after:
       'После решения объясните, почему обход завершается на цикле, почему сходящиеся пути не дают повторного подсчёта и как достижимые вершины и просмотренные записи смежности определяют время и максимальный стек.',
     template: 'Шаблон — редактируйте Solution.java в скачанной папке',
+    selfEvaluation: 'По желанию: обоснуйте решение',
+    selfItems: [
+      'Почему обход завершается на цикле?',
+      'Почему вершина, достигнутая двумя путями, считается один раз?',
+      'Каковы время работы и максимальная память рекурсивного стека?',
+    ],
   },
   fi: {
     title: 'Kokeile Javalla: laske saavutettavat solmut',
@@ -173,5 +185,11 @@ export const graphCodingExerciseTranslations = {
     after:
       'Ratkaistuasi perustele pysähtyminen syklissä, yhdistyvien polkujen kertalaskenta ja se, miten saavutettavat solmut ja tutkitut naapuruusmerkinnät määräävät ajan ja rekursiopinon enimmäiskoon.',
     template: 'Aloituspohja — muokkaa ladatun kansion Solution.java-tiedostoa',
+    selfEvaluation: 'Vapaaehtoinen: perustele ratkaisusi',
+    selfItems: [
+      'Miksi läpikäynti päättyy syklissä?',
+      'Miksi kahta polkua saavutettu solmu lasketaan vain kerran?',
+      'Mitkä ovat suoritusaika ja rekursiopinon enimmäismuisti?',
+    ],
   },
 }

@@ -7,7 +7,7 @@ import { readTraLibrary } from './tra-library.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 export const traExampleSourceFiles = [
-  ...traJavaExamples.map(example => `${example.className}.java`),
+  ...traJavaExamples.map(example => example.sourcePath),
   'README.md',
   'README.ru.md',
   'README.fi.md',
@@ -18,20 +18,29 @@ export function packageTraExamples(output = resolve(root, 'public/examples/tra-g
     name: `tra-graphs/${name}`,
     data: readFileSync(resolve(root, 'src/tra-examples', name)),
   }))
-  // Reuse the supplied library rather than maintaining a second source JAR.
-  files.push({
-    name: 'tra-graphs/traj.jar',
-    data: readTraLibrary(),
-  })
+  files.push({ name: 'tra-graphs/traj.jar', data: readTraLibrary() })
   files.push({
     name: 'tra-graphs/expected-output.txt',
     data: Buffer.from(
       traJavaExamples
-        .map(example => `=== ${example.className} ===\n${example.output}\n`)
+        .map(example => `=== ${example.sourcePath} ===\n${example.output}\n`)
         .join('\n'),
       'utf8',
     ),
   })
+  // Every topic has its own command index; paths are relative to the ZIP root.
+  for (const group of new Set(traJavaExamples.map(example => example.group))) {
+    files.push({
+      name: `tra-graphs/lessons/${group}/RUN.txt`,
+      data: Buffer.from(
+        traJavaExamples
+          .filter(example => example.group === group)
+          .map(example => `java -Dfile.encoding=UTF-8 -cp traj.jar ${example.sourcePath}`)
+          .join('\n') + '\n',
+        'utf8',
+      ),
+    })
+  }
   mkdirSync(dirname(output), { recursive: true })
   writeFileSync(output, createStoredZip(files))
   return output

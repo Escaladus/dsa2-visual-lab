@@ -1,82 +1,354 @@
-# TRA examples — JDK 11+
+# TRA examples: one idea at a time — Java 11+
 
-These are complete runnable examples using fi.uef.cs.tra. TRA is the main API in graph/tree topics, including graph analysis, matching and flow. The original 31 JDK-only sources remain; migrated variants are optional comparisons.
+Each file teaches one operation or one algorithm step and runs independently. Start with basics, then DFS/BFS, applications, trees/queue, weighted paths/MST, and finally analysis/flow. On the site the main code comes first; the complete source and launch command are expandable.
 
-Extract the ZIP. Keep the sixteen `.java` files and `traj.jar` together. Open a terminal in that folder and run any example:
+Extract this ZIP and open a terminal in `tra-graphs` (the folder containing `traj.jar`). The commands below use paths from that folder and work on Windows, macOS and Linux. For one file downloaded from the site, put it next to `traj.jar` and run `java -Dfile.encoding=UTF-8 -cp traj.jar Filename.java`. In an IDE, add the JAR as a library. No other example source is needed.
+
+The topic folders contain `RUN.txt` with the same root-relative commands. `expected-output.txt` records the checked console output. Comments and output in Java are in English; lesson explanations are available in English, Russian and Finnish on the site.
+
+## Assumptions and next steps
+
+- Each lesson states its own starting conditions. Basic DFS uses a visited map; colour DFS is separate. Algorithms that use colours initialise them before the call and are allowed to change them. Topology is not changed by traversal.
+- Neighbours follow the supplied JAR's order. Changing it can change DFS order, parents and the chosen equally short BFS path. The demonstrated fixture order is checked, not promised for arbitrary inputs. Duplicate labels are not vertex IDs: maps use Vertex identity.
+- The first Dijkstra scans vertices: expected O(V² + E) time, O(V) extra space. It requires finite nonnegative weights. Floyd starts from a matrix built from actual TRA edges; it allows negative weights and rejects negative cycles. Infinity means unreachable.
+- Prim and Kruskal are separate. Prim uses TRA PriorityQueue; the first Kruskal uses an explicit DSU without rank/compression, giving expected O(V + E log(E + 1) + E·V) time. Do not assign the optimised DSU bound to this version. Edge weights must be finite and fixed. Disconnected inputs give forests.
+- tin/low, bridges and articulation points are separate lessons. The root rule counts DFS children, not degree. Matching assumes an explicitly known valid bipartition: all edges cross it. It does not compute or validate an arbitrary partition.
+- Flow has three small prerequisite examples before the complete algorithm. Individual steps are not maximum-flow solvers. The full implementation maps TRA vertices to a residual matrix, uses TRA LinkedQueue, and accepts stored finite integral float capacities in [0, 1_000_000_000]. The residual matrix changes, the input graph does not. It aggregates cancellation and opposite capacity, so it reports a total flow/min-cut, not per-input-edge flows. Matrix scanning gives O(V² + E + V³·E) time and O(V²) space. Vertex lists must contain every graph vertex exactly once; terminal indices must be valid and distinct.
+- An empty binary tree has height -1; a leaf has height 0. PRE, IN and POST have separate methods. Tree's first-child/next-sibling representation has its own example.
+- In TRA, `addEdge(v, 5.0f)` sets a weight; `addEdge(v, 5)` sets a colour. Use `fi.uef.cs.tra` consistently. Map bounds assume expected O(1) identity-map operations.
+
+The original course JAR is unchanged: SHA-256 `589c64b49dd8fa77fa1fb9f99d252bf475c180be437a70d81208f4e9f70f3423`. Technical reference implementations used to verify existing visualisations stay in the repository, outside this student ZIP.
+
+## Examples in learning order
+
+### basics
+
+**Create an undirected graph**
 
 ```bash
-java -Dfile.encoding=UTF-8 -cp traj.jar TraGraphExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraGraphDataExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraRecursiveDfsExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraDfsExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraTraversalExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraBfsExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraTreeExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraPriorityQueueExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraComponentsExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraTopologicalExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraDijkstraExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraFloydWarshallExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraMinimumSpanningTreeExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraGraphCutsExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraBipartiteMatchingExample.java
-java -Dfile.encoding=UTF-8 -cp traj.jar TraMaxFlowExample.java
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraCreateGraph.java
 ```
 
-The same commands work on Windows, macOS and Linux. In an IDE, add `traj.jar` as a library. Each file contains its own main method and helper classes; it does not depend on the other examples. `expected-output.txt` contains the output verified with this JAR.
+**Create a directed graph**
 
-- **TraGraphExample:** create `DiGraph`/`Graph`, add vertices and edges, use `vertices()`, `neighbors()`, `getColor()` and `setColor()`. An undirected edge is added once; Graph provides both neighbour directions.
-- **TraDfsExample:** recursive DFS, GREY/PRE on entry, POST/BLACK on completion, caller continuation, parents and roots. `traverse(graph, start, false)` visits the reachable part; `true` continues from remaining WHITE vertices. Directed traversal roots are not strongly connected components.
-- **TraBfsExample:** `LinkedQueue<Vertex>`, GREY before enqueueing, BLACK after examining neighbours, shortest distances by number of edges and a parent path. Unreachable distance is -1 and its path is empty. Queue removal does not immediately turn a vertex BLACK.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraCreateDirectedGraph.java
+```
 
-Both traversal methods accept `AbstractGraph`, so they work with `DiGraph` or `Graph`. A nonempty graph needs a start vertex belonging to that graph; an empty graph uses null. Each call resets colours. Vertex identities are used for parent/distance maps: duplicate labels do not merge vertices.
+**Visit every vertex**
 
-In this TRA version, `DiGraph` permits self-loops; `Graph` rejects them when an edge is added.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraListVertices.java
+```
 
-The displayed PRE/POST and discovery orders follow `neighbors()` in the included JAR. Changing neighbour order may change DFS parents and traversal lists, and may choose a different equally short BFS path. It does not change shortest distances. Source comments and console output are shared across interface languages.
+**Visit one vertex’s neighbours**
 
-Full DFS takes Θ(V + E) time and O(V) additional memory, including results and stack. Reachable-only DFS and BFS take Θ(V + R + A_R), including the initial colour reset and, for BFS, distance initialisation. R is the number of reachable vertices; A_R counts examined outgoing adjacency entries. The graph itself is excluded from additional memory. These examples do not sort neighbours or copy all adjacency lists before traversal.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraListNeighbors.java
+```
 
-The supplied `traj.jar` is included unchanged (SHA-256 `589c64b49dd8fa77fa1fb9f99d252bf475c180be437a70d81208f4e9f70f3423`). It also contains the older `fi.joensuu.cs.tra` package; these examples consistently use `fi.uef.cs.tra`. Library documentation is inside `javadoc/fi/uef/cs/tra/` in the JAR.
+**Read an edge weight**
 
-- **TraGraphDataExample:** keep outgoing-neighbour counts in `Map<Vertex, Integer>` while TRA owns the graph. The A/B/C/D topology matches the main lesson; two additional vertices named X demonstrate identity-keyed data. Counting leaves colours and graph structure intact and takes expected Θ(V + E) time and O(V) map space.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraReadEdgeWeight.java
+```
 
-The main graph lesson shows A→B (5.0f), A→C (2.0f), B→C (1.0f), plus isolated D. The drawing, neighbour lists and TraGraphExample.createDirectedGraph() are checked against the real JAR. A float second argument to addEdge is a weight; an int is a colour.
+**Attach data to a vertex**
 
-The basic DFS lesson uses **TraRecursiveDfsExample**: an owned TRA neighbour iterator and a separate identity-keyed visited map, leaving colours unchanged. Its i counter counts completed neighbours; the iterator advances at next(), before a recursive child starts. Each returning child resumes that same parent iterator. Expected time is Θ(V + E) for a full run and Θ(V + R + A_R) for a partial run including visited initialisation; additional space O(V). Native order for the lesson fixtures is checked with this JAR, not promised for arbitrary labels.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/basics/TraVertexMap.java
+```
 
-**TraTraversalExample** supplies the colour/edge/practice lesson, with stable identity IDs, per-vertex maps, physical Edge classification, timestamps, a cycle witness, paths and a topological order that rejects cycles/incomplete DFS/BFS. It uses TRA LinkedQueue for BFS. Its sorted neighbour lists are explicit preparation: O(V + E + Σ d(v) log(d(v) + 1)) time and O(V + E) space. The traversal core afterwards is Θ(V + E) for a full graph; the reachable core is Θ(R + A_R). Total extra space including prepared lists and saved edge classes is O(V + E). Do not count the sorting as linear traversal work.
+### dfs
 
-TraBfsExample now builds the same A–H Graph as the basic drawing. Main prints discovery, distances and a shortest A–H path. Its generic search still handles DiGraph, unreachable targets and empty graphs. Vertex colours become GREY before enqueue and BLACK after neighbour processing; removal itself does not finish a vertex.
+**Recursive DFS: visit a vertex**
 
-**TraTreeExample** constructs the same A–G BTree as the drawing and fills PRE/IN/POST in one traversal. Height counts edges: empty -1, leaf 0, n-node chain n-1. Each of traverse/size/height takes Θ(n) time; stack space for a nonempty tree is O(h+1), with one short additional null-base frame (actual peak h+2). Results add O(n) space. General Tree/TreeNode use first child and next sibling: R has children X/Y/Z. Binary BTree is neither automatically a BST/heap nor an external-memory B-tree.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraSimpleDfs.java
+```
 
-**TraPriorityQueueExample** imports fi.uef.cs.tra.PriorityQueue, starts with the teaching heap values, keeps duplicate 3, shows non-removing peek and removing poll, and returns null on empty. Null insertions are rejected. Use capacity plus comparator for task order. Iterator layout is not a sorted contract or the drawing's exact layout. The priorityOrder preview copies and polls the queue, preserving it in O(n log n) time and O(n) space. Heap operations: peek O(1), poll O(log n), offer amortised O(log n), including occasional array growth.
+**DFS: why a cycle stops**
 
-**TraComponentsExample** accepts an undirected Graph. Reset colours once, scan all vertices, and start a new DFS only at WHITE: each result list is one component. The drawing and factory both use 0—1, isolated 2, 3—4. Empty input has zero components. Its separate full cycle scan skips the same physical parent Edge; one undirected edge is not a cycle, a triangle is. Both methods complete all roots, ending BLACK, and take Θ(V + E) time and O(V) additional space including outputs/stack. Only vertex colours change. Each run creates fresh result lists.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraDfsCycle.java
+```
 
-**TraTopologicalExample** accepts a DiGraph and collects POST through a full DFS. An outgoing edge to GREY, including a self-loop, throws `IllegalArgumentException("cycle")`. Only after every root succeeds is POST reversed and returned; an isolated vertex is included and empty input gives an empty order. A cycle in a disconnected part also rejects the whole order. On failure colours can be WHITE/GREY/BLACK, but a new run resets them and no partial order escapes. Time Θ(V + E), additional space O(V). Edges, weights and labels stay intact. The DAG and cyclic factories match the shared visualisation.
+**DFS: entry and return (PRE / POST)**
 
-For parent paths and cycle witnesses, use **TraTraversalExample** in the application workspace. `path(state, target)` returns a path from the original start, or an empty list for an unreachable/foreign target; `start → start` has zero edges. DFS gives a found path, while BFS minimises edge count. A full forest does not create reachability: later roots retain distance -1 from the original start, with their own depth zero. DiGraph neighbours follow outgoing direction, and its forest trees are not SCCs. Multiple valid paths, component listings and topological orders are possible; check graph properties rather than one exact sequence. Explicitly sorted neighbours in this shared animation add the preparation cost described above; the two new native-order examples do not sort.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraDfsPrePost.java
+```
 
-**TraDijkstraExample** accepts Graph or DiGraph and a member start (null only for an empty graph). It validates every Edge weight, even outside the reachable part: finite and non-negative only. It imports TRA PriorityQueue and uses the capacity-plus-comparator constructor. Immutable entries hold a Vertex reference and saved double distance; improvements offer fresh entries, and stale entries are skipped. No queued Vertex priority is mutated. Worst-case time O(V + E log(E + 1)), additional space O(V + E), including maps and lazy queue entries. The A/B/C/D/E fixture gives distances 0/3/1/4/INF and path A→C→B→D; E is isolated.
+**DFS with WHITE, GREY and BLACK**
 
-**TraFloydWarshallExample** accepts Graph or DiGraph, maps actual Vertex identities to external indices, and derives distance/next-hop matrices from outgoing Edge objects. Zero diagonal represents empty paths; +infinity represents absence/unreachability. The outer k loop considers each intermediate vertex. Negative finite edges are allowed. Any computed negative diagonal rejects the whole result with `IllegalArgumentException("negative cycle")`, including disconnected negative cycles and negative self-loops; no partial matrix/path escapes. Mathematically only affected pairs lack a finite minimum, but this example deliberately uses a whole-result rejection policy. A negative undirected edge allows an unbounded back-and-forth walk and is also rejected. Time O(V³ + E), additional space O(V²). Its A→B:5, B→C:-2, A→C:10 fixture gives A→B→C of weight 3; D is isolated.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraColourDfs.java
+```
 
-Dijkstra `distanceTo(target)` / `pathTo(target)` and Floyd `distance(from, to)` / `path(from, to)` use identity, not labels or Vertex.index. Foreign/null query vertices are rejected. Unreachable distance is Double.POSITIVE_INFINITY (printed INF), with an empty path. A vertex to itself has distance 0 and a one-vertex, zero-edge path. Path queries take O(path length). Different equally cheap paths are valid. Both methods leave all graph fields intact, allocate independent results on each run, and do not change input colours.
+**DFS: entry and exit times**
 
-Numeric policy: read finite float values from Edge.getWeight(), accumulate them in double, compare improvements strictly, and never add infinity subpaths in Floyd. Float.MAX_VALUE sums in these small graphs remain finite in double; 0.1f is still the stored binary approximation, not an exact decimal tenth. Floating-point arithmetic is not an exact-arithmetic negative-cycle certificate near cancellation; the teaching examples use small representable values. Verification uses exact binary fractions for generated graph properties and scale/ULP-aware tolerances for finite distance/path comparisons. NaN and positive/negative infinity are invalid input weights. Write 5.0f in addEdge, because an int argument selects edge colour in this TRA API. BFS remains the unweighted comparison and minimises edge count, not arbitrary total weight.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraDfsTimes.java
+```
 
-**TraMinimumSpanningTreeExample** accepts an undirected Graph and returns a Result with vertices(), edges(), components(), totalWeight() and isSpanningTree(). The Edge list contains actual input references, not synthetic reverse/dummy edges. A disconnected input produces a minimum spanning forest instead of throwing: V vertices and C components give V-C chosen edges, including coverage of isolated vertices. Empty input has zero components/weight and is not called a tree; one vertex is a zero-edge tree. Result lists are read-only, each run owns a fresh result, and all graph fields stay intact. The selected objects themselves remain the graph's mutable objects, so this is not a deep copy.
+**Directed DFS: classify one edge**
 
-Prim uses the real TRA PriorityQueue (capacity + comparator) to store boundary Edge objects. It skips an edge if both endpoints have become reached, and restarts at each remaining component. Endpoint storage direction is irrelevant in Graph. Weights stay fixed while queued. Kruskal sorts a copy of Graph.edges(), where each physical undirected edge occurs once, then uses algorithm-owned union-find arrays with path compression/rank and external identity-based Vertex indices. Neither method writes colours or Vertex.index/weight. Each takes O(V + E log(E + 1)) time and O(V + E) additional space with expected O(1) identity-map/set operations. Prim queues each physical edge at most once; stale entries still cost removals.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/dfs/TraDfsEdgeTypes.java
+```
 
-Finite negative/zero weights are allowed, equal weights may give several minimum forests, and neither method promises the same chosen edge set or selection order as the other. NaN and either infinity are rejected globally, including other components. Stored float weights accumulate in double with ordinary rounding; a numeric total is not exact decimal arithmetic. The connected example weighs 4; adding isolated E and F-G:-2 gives three components, four selected edges and weight 2. The separate A-B:2, A-C:2, B-C:1 graph has MST weight 3, while a shortest-path tree from A uses the two weight-2 edges, total 4. MST minimises total edge weight, not distances from one source. The optional old JDK example remains available for comparison and rejects disconnected input.
+### bfs
 
-**TraGraphCutsExample** accepts Graph, ignores weights and finds articulation Vertex objects and physical bridge Edge objects over all components. tin counts entries only; low is the earliest entry reachable through tree descent and at most one non-parent back edge. A visited neighbour contributes tin, a returning child contributes low. Non-root cut: low[child] >= tin[v]; bridge: low[child] > tin[v]; root cut: at least two DFS children. Skip the identical parent Edge, not every edge to a parent label. Empty/disconnected/isolated inputs work. Expected O(V + E) time and O(V) extra space; sorting printed bridge names is separate. Foreign time queries are rejected.
+**BFS: visit using a queue**
 
-**TraBipartiteMatchingExample** accepts Graph and an explicit duplicate-free member list for the left side; right is the complement. It validates every input edge crosses the supplied partition, not automatically computing one. Alternating recursive searches reassign partners and use fresh seen state per left root, giving maximum cardinality rather than merely a maximal matching. Weights are ignored. Results contain actual Edge pairs, left/right lists and symmetric partnerOf queries: null means unmatched, a foreign vertex is rejected. Expected O(V + E + L·E) time and O(V) extra space. L0:[R0,R1], L1:[R0] requires moving L0 to R1; isolated R2 stays unmatched.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/bfs/TraSimpleBfs.java
+```
 
-**TraMaxFlowExample** accepts DiGraph and two distinct member terminals; empty input cannot supply valid terminals. Capacity is the stored Edge float, restricted by this teaching implementation to finite integers in [0, 1,000,000,000]. Negative/fractional/non-finite/out-of-range values are rejected globally without rounding; valid capacities/flows use exact long arithmetic and checked sums. A decimal literal may already be rounded by float storage; validation applies to the stored value. Write addEdge(v, 3.0f), since an int argument selects colour. Each original Edge owns a separate internal forward/cancellation pair, including actual opposite arcs; a residual cancellation entry need not exist in the input graph. No input edge is inserted or mutated. TRA LinkedQueue BFS finds augmenting paths. Results expose flowOn/capacityOf per actual Edge, value, residual sourceSide, cutEdges/cutCapacity and reverse-step count. Foreign Edge queries are rejected. The min-cut capacity equals the flow value. Expected O(V + E + V·E²) time and O(V + E) space; a fresh identity parent map visits only reachable residual entries each BFS, rather than clearing all isolated vertices every round.
+**BFS: why D enters the queue once**
 
-All three preserve colours, labels, indices, weights and topology, return read-only lists of actual input objects, and own independent results on repeated runs. Bounds assume expected O(1) identity-map/set access. The rerouting flow example reaches 2 using residual x→a to cancel a→x, although x→a is absent from the input; final a→x flow is 0. SCC decomposition and new coding exercises are separate later work. Old standalone array/matrix sources remain closed optional comparisons, with their own contracts and costs.
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/bfs/TraBfsDiscovery.java
+```
+
+**BFS: distance in number of edges**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/bfs/TraBfsDistances.java
+```
+
+**BFS: reconstruct a path**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/bfs/TraBfsPath.java
+```
+
+### applications
+
+**DFS: continue in another component**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/applications/TraFullDfs.java
+```
+
+**Cycle in an undirected graph**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/applications/TraUndirectedCycle.java
+```
+
+**Cycle in a directed graph**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/applications/TraDirectedCycle.java
+```
+
+**DAG: reverse the POST order**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/applications/TraTopologicalOrder.java
+```
+
+### trees
+
+**Create a binary tree**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraCreateTree.java
+```
+
+**Read a node’s children**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreeChildren.java
+```
+
+**PRE: node, left, right**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreePRE.java
+```
+
+**IN: left, node, right**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreeIN.java
+```
+
+**POST: left, right, node**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreePOST.java
+```
+
+**Count tree nodes**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreeSize.java
+```
+
+**Compute height in edges**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraTreeHeight.java
+```
+
+**General tree: children and siblings**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/trees/TraGeneralTreeChildren.java
+```
+
+### queue
+
+**PriorityQueue: add values**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraQueueOffer.java
+```
+
+**PriorityQueue: look without removing**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraQueuePeek.java
+```
+
+**PriorityQueue: remove the minimum**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraQueuePoll.java
+```
+
+**PriorityQueue: equal values are allowed**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraQueueDuplicates.java
+```
+
+**PriorityQueue: choose another order**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraQueueComparator.java
+```
+
+**Tasks: priority and a tie-breaker**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/queue/TraTaskPriority.java
+```
+
+### weighted
+
+**Dijkstra: distances with nonnegative weights**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/weighted/TraDijkstraDistances.java
+```
+
+**Dijkstra: remember the improved path**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/weighted/TraDijkstraPath.java
+```
+
+**TRA graph → distance matrix**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/weighted/TraGraphMatrix.java
+```
+
+**Floyd: try one intermediate vertex**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/weighted/TraFloydDistances.java
+```
+
+**Floyd: reconstruct a path**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/weighted/TraFloydPath.java
+```
+
+### mst
+
+**Prim: grow one tree**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/mst/TraPrim.java
+```
+
+**Disjoint sets: are endpoints already connected?**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/mst/TraDisjointSets.java
+```
+
+**Kruskal: accept edges without creating cycles**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/mst/TraKruskal.java
+```
+
+### analysis
+
+**DFS: what tin and low mean**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/analysis/TraLowValues.java
+```
+
+**Bridge: can the child subtree get back?**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/analysis/TraBridges.java
+```
+
+**Articulation point: what if the vertex disappears?**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/analysis/TraArticulationPoints.java
+```
+
+**Matching: move an existing pair**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/analysis/TraMatchingStep.java
+```
+
+**Matching: repeat with each left vertex**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/analysis/TraMaximumMatching.java
+```
+
+### flow
+
+**Flow: remaining capacity**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/flow/TraResidualCapacity.java
+```
+
+**Flow: augment one known path**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/flow/TraAugmentFlow.java
+```
+
+**Flow: cancel an earlier decision**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/flow/TraCancelFlow.java
+```
+
+**Maximum flow: repeat augmenting paths**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/flow/TraMaximumFlow.java
+```
+
+**Minimum cut: reachable residual side**
+
+```bash
+java -Dfile.encoding=UTF-8 -cp traj.jar lessons/flow/TraMinimumCut.java
+```

@@ -18,8 +18,8 @@ The project separates the algorithm being taught from playback and rendering. A 
 | Execution panels, memoisation comparison and predictions     | `RecursionExecution`, `RecursionComparison` and `RecursionPrediction` in `src/components`                      |
 | Recurrence work/geometry and its viewport                    | `src/utils/recurrenceTree.js`, `RecurrenceTreeLab` and `RecurrenceTreeViewport`                                |
 | Runnable Java sources                                        | `src/examples`                                                                                                 |
-| Additional ready-to-run TRA examples and their catalogue | `src/tra-examples`, `src/data/traJavaExamples.js`, `TraJavaExamples` and `src/i18n/traJavaExamples.js` |
-| Downloadable DFS coding task, supplied JAR and local checker | `exercises/dfs-reachable` |
+| Short TRA teaching examples | `src/tra-examples/lessons`, `src/data/traJavaExamples.js`, `TraJavaExamples`, `src/utils/javaLesson.js` and `src/i18n/traJavaExamples.js` |
+| Downloadable graph coding tasks and local checkers | `exercises/dfs-reachable`, `exercises/bfs-distances`; canonical JAR remains in dfs-reachable |
 | Coding task page and archive builder | `GraphCodingExercise`, `src/i18n/graphCodingExercise.js` and `scripts/package-graph-exercise.mjs` |
 | Translated UI and event explanations                         | `src/i18n`                                                                                                     |
 
@@ -137,3 +137,21 @@ Kruskal copies Graph.edges(), sorts by weight and uses external IdentityHashMap 
 `TraMaxFlowExample.maxFlow(DiGraph, source, sink)` validates distinct member terminals and stored float capacities as finite integers in [0, 1_000_000_000]. This is a deliberate teaching policy, not a restriction of TRA Edge itself. Validated capacities, flow and residual amounts are exact longs with checked additions. ResidualArc is private cancellation bookkeeping referring to real Vertex/Edge objects; it is not a replacement input graph class. Each original Edge has a distinct forward/reverse pair, so original antiparallel arcs remain independent. No graph edge is inserted or mutated. LinkedQueue BFS allocates discovered-parent state only for reached vertices per round. Expected O(V + E + V E²) time/O(V + E) space includes initial/final full-input passes. Results snapshot per-Edge capacities/flows and a min-cut witness. No full augmentation history is stored; reverseSteps is only a counter.
 
 `tests/traGraphAnalysis.test.js` compiles all three real sources for release 11 and runs TraGraphAnalysisChecks. Independent references remove vertices/edges, enumerate matching choices and enumerate source-side cuts. They check actual edge identity, capacity bounds, conservation, cut equality, repeats and preserved fields on 160 graphs per algorithm plus boundaries. Cases include duplicate labels, ignored NaN weights for topology algorithms, invalid partitions/capacities/terminals, zero/antiparallel/loop flow edges, real residual cancellation and a 3-billion flow. Keep these algorithms' different input contracts explicit; do not propagate flow's capacity restriction to unweighted cuts/matching.
+
+
+## Editing the short TRA teaching catalogue
+
+The student examples live in `src/tra-examples/lessons/<group>`, separate from the sixteen technical reference files at the parent level. One file teaches one operation and runs independently with Java 11 and traj.jar. Add its metadata to `src/data/traJavaExamples.js` and four translated fields (title, goal, complexity, explanation) to `src/i18n/traJavaExamples.js`. Set advanced only for a next step with explained prerequisites.
+
+Mark exactly one source region with `// lesson:start` and `// lesson:end`. `javaLessonExcerpt` extracts it with relative indentation intact, so the page never maintains a second code copy. The full file stays in a nested disclosure. Choose a small input diagram matching main and add its exact console output. Keep setup in main and algorithm methods readable; technical validators belong in tests unless needed by the lesson's correctness.
+
+The package builder includes catalogue paths under topic folders plus root traj.jar, three README files, expected output and per-group RUN.txt. Update all three instructions when adding a source. Commands in the ZIP run from tra-graphs; individual-download commands assume the file is next to the JAR. `tests/traLessons.test.js` checks both the packaged source launcher and compiled output for every entry. `tests/fixtures/TraLessonChecks.java` supplies independent algorithm references for the shorter implementations.
+
+The parent Java files and `traReferenceExamples.js` support existing animation/code synchronisation and stricter regression checks. They are no longer beginner downloads. Do not change them or their generated line maps merely to edit a student lesson. Earlier implementation sections in this guide describe those reference algorithms; the current teaching versions and their different bounds are documented in TRA_CONTRACTS.md and the lesson README.
+
+
+## Contracts, narrated cases and the BFS task
+
+Write short Javadoc before algorithm methods, outside the teaching-region markers. Explain initial state, return values and mutations; comments inside the region should explain the reason for a critical step. `contracts` in the TRA translation dictionary makes those prerequisites visible in each interface language. `traces` adds short narrated steps for DFS cycles, BFS shared discovery and full disconnected traversal. These annotations do not change the original animation models.
+
+`GraphCodingExercise` selects DFS or BFS using its algorithm prop. The two starter contracts and translations are separate; the small directed diamond drawing is shared. `packageBfsExercise` writes the new kit, reusing the same verified JAR bytes as DFS. Keep checkers out of the beginner example catalogue. Tests compile their fixtures into a separate directory so Java 11 source-file launch does not encounter an existing Check.class in its application classpath. Run meaningful incorrect implementations as well as the reference to verify feedback and retries. Optional self-evaluation is a comment/disclosure, not a scored web form.

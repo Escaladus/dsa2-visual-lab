@@ -1069,6 +1069,78 @@ summary:focus-visible {
   color: #b9c3d7;
   line-height: 1.7;
 }
+.java-lesson-group {
+  min-width: 0;
+  margin-top: 28px;
+}
+.java-lesson-group h3 {
+  color: var(--accent-2);
+  font-size: 18px;
+}
+.java-example-body h4 {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 12px 0 6px;
+}
+.java-example-body .java-lesson-goal {
+  color: var(--text);
+  margin: 12px 0 8px;
+}
+.java-example-body .java-lesson-contract {
+  margin: 6px 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.java-lesson-data {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.java-lesson-data > div {
+  min-width: 0;
+}
+.java-lesson-data .code-block {
+  margin: 0;
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+.java-lesson-data [data-lesson-output] {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.java-lesson-trace ol {
+  padding-left: 22px;
+  color: #b9c3d7;
+  line-height: 1.6;
+}
+.java-lesson-trace li + li {
+  margin-top: 6px;
+}
+.java-lesson-input {
+  color: var(--accent-2);
+  line-height: 1.6;
+}
+.java-full-source,
+.java-lesson-advanced,
+.java-lesson-setup {
+  margin-top: 16px;
+  min-width: 0;
+}
+.java-full-source > summary,
+.java-lesson-advanced > summary,
+.java-lesson-setup > summary {
+  padding: 12px 0;
+  color: var(--accent);
+  font-size: 13px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.java-full-source[open] > summary {
+  border-bottom: 0;
+}
+.java-lesson-advanced > .java-example {
+  margin-left: 0;
+}
 .java-complexity {
   font-size: 13px;
 }

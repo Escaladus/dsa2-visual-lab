@@ -5,6 +5,7 @@ dist
 # Local working plan
 /план.md
 
-# Generated download; rebuilt from exercises/dfs-reachable before dev/build.
+# Generated downloads; rebuilt from exercise and lesson sources before dev/build.
 /public/exercises/dfs-reachable.zip
+/public/exercises/bfs-distances.zip
 /public/examples/tra-graphs.zip

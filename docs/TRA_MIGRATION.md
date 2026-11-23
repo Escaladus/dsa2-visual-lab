@@ -1,65 +1,50 @@
 # Moving graph and tree lessons to TRA
 
-Stages 1–6 completed (6c on 20 November 2026): library contracts/packaging, Graph basics/Map, DFS/BFS, trees/PQ, traversal applications, weighted paths, spanning forests and graph analysis. Stages 7–8 remain pending.
+Stages 1–6 of the API migration are complete. The teaching-example rewrite was completed on 23 November 2026; new coding exercises and the final overall audit remain stages 7–8. The ignored local plan retains the historical completed items and tracks the rewrite separately in section 16.
 
-The target is for the main graph/tree lesson, runnable example and exercise to use the same `fi.uef.cs.tra` API. Preserve the existing visualisations, the basic traversal before the separate colour/edge lessons, saved continuations, bottom controls, code expansion and mobile tabs. The browser continues to animate JavaScript snapshots; Java tests check those snapshots against the supplied JAR.
+## Current teaching catalogue
 
-The verified API and algorithm conventions are in [TRA_CONTRACTS.md](TRA_CONTRACTS.md). The ignored local `план.md`, section 15, tracks the eight implementation stages.
+`src/data/traJavaExamples.js` lists 52 independent Java 11 lessons in `src/tra-examples/lessons/<group>`. `src/i18n/traJavaExamples.js` supplies their titles, goals, explanations and implementation-specific bounds in English, Russian and Finnish. `TraJavaExamples` groups them by topic, extracts the marked teaching region directly from the downloadable source, and collapses the complete file/command separately. Advanced lessons are under a separate disclosure. No new runtime library is used.
 
-## Lesson inventory
-
-`src/i18n/{en,fi,ru}.js` contains the base page cards. `src/i18n/handout.{en,fi,ru}.js` supplies additional cards and most example descriptions. `extend.js` **appends** supplement cards, so changing only one layer can leave a contradictory explanation on the same page. Change the `pages[topicId]` and matching example keys in all three languages at the owning stage.
-
-Java names below refer to `src/examples/*.java`, except names starting with `Tra`, which live in `src/tra-examples`. The standalone catalogue remains in `src/data/javaExamples.js`. Sixteen TRA files are catalogued in `src/data/traJavaExamples.js`; `primaryTopics` makes TRA appear first on migrated topics. `comparisonTopics` moves previous custom graph/tree versions into a collapsed optional block. Other lessons retain their previous placement until their migration stage.
-
-| Topic | Current primary material and Java | Visualisation / displayed code | Exercises and checks | Required TRA and stage |
-| --- | --- | --- | --- | --- |
-| `graph-basics` | Migrated base/supplement cards; primary `TraGraphExample` and `TraGraphDataExample`. `GraphRepresentationExample` is an optional comparison. | `GraphBasicsLesson`, `data/graphBasics.js`, `i18n/graphBasics.js`: static A/B/C/D drawing, outgoing lists, actual Java construction excerpt and class Javadoc links. No graph editor. | `java.test.js`, `ExamplesChecks.java`, `traJavaExamples.test.js`, `TraExamplesChecks.java`, `i18n.test.js`. | `Graph`, `DiGraph`, `Vertex`, `Edge`; primary creation/neighbour lesson in stage 2. |
-| `graph-dfs` basic view | Cards; Primary TraRecursiveDfsExample uses Vertex.neighborIterator() and a separate identity visited map. RecursiveDfsExample/DfsExample are optional JDK comparisons. | `BasicDfsLab`, `BasicDfsGraph`, `BasicDfsSummary`; `data/recursiveDfs.js`, `data/recursiveDfsLesson.js`; `utils/recursiveDfs.js`, `utils/recursiveDfsPresentation.js`. | `recursiveDfs.test.js`, graph questions in `recursionReview`, the TRA coding task below. | `Vertex.neighbors()` plus an explicitly initialised visited set; stage 3. Preserve the simpler call/return lesson. |
-| `graph-dfs` colour / edge / practice views | Primary TraTraversalExample uses Vertex/Edge, identity maps, sorted lists and captured colours. TraDfsExample is the short native-order supplement; GraphTraversalExample is optional JDK comparison. | `GraphLearningLab` → `GraphTraversalLab`; `data/graphTraversalCode.js`, `data/graphTraversal.js`, `data/graphTraversalLessons.js`; `utils/graphTraversal.js`; `hooks/useGraphTraversal.js`. | `data/graphQuiz.js`, `GraphQuiz`, `graphLessons.test.js`, `graphTraversal.test.js`, Java fixtures. | `AbstractGraph`, `Vertex`, `Edge`; identity-keyed metadata, GREY/PRE/POST/BLACK, timestamps and edge identity; stage 3. |
-| `graph-bfs` basic view | Cards; Primary TraBfsExample uses Vertex/LinkedQueue and builds the real A–H graph; BfsExample is an optional JDK comparison. | `BasicBfsLab`; A–H fixture and queue snapshots in `utils/graphAlgorithms.js`. This graph differs from the extended view. | Java source/output checks; basic queue model currently has no dedicated reference test. Add a real TRA comparison in stage 3. | `Graph`, `Vertex`, `LinkedQueue<Vertex>`; keep A–H drawing and queue explanation; stage 3. |
-| `graph-bfs` colour / practice views | BFS in primary TraTraversalExample; native-order TraBfsExample serves the basic view. | Shared extended graph components/code above; `TraversalFrontier`, `TraversalStateTable`, `TraversalStepSummary`, `TraversalPractice`. | `graphTraversal.test.js`, `graphLessons.test.js`, graph quiz, Java fixtures, TRA example checks. | `AbstractGraph`, `Vertex`, `LinkedQueue`; parent/distance maps, precise colour transitions; stage 3. |
-| `trees` | Primary TraTreeExample uses BTree/BTreeNode and general Tree/TreeNode. TreeTraversalExample is an optional JDK comparison. | TreeTraversalLab, data/treeTraversal.js, utils/treeTraversal.js and i18n/trees.js share four presets. The A–G Java factory matches the drawing; generated snippets highlight processing events. | treeTraversal.test.js compares actual TRA factories/generated trees to the drawing model and an iterative reference. Tree coding tasks are pending. | `BTree<E>`, `BTreeNode<E>`; distinguish `Tree`/`TreeNode`; use one shared teaching tree; stage 4. |
-| `heap` | Primary TraPriorityQueueExample explicitly imports the TRA PriorityQueue; the JDK source is an optional comparison. | `HeapLab`, `utils/heapAlgorithms.js`, `i18n/heap.js`; educational heap array, no Java inside the renderer. | `heap.test.js`, Java example/fixture checks. | Explicit `fi.uef.cs.tra.PriorityQueue` import; keep educational heap drawing; stage 4. |
-| `graph-apps` | Primary TraComponentsExample, TraTopologicalExample and shared TraTraversalExample; updated paths/forest/cycle cards. Old ComponentsExample/TopologicalExample are optional comparisons. | Expandable GraphApplicationsLab reuses GraphTraversalLab and the existing five task presets; no second algorithm model. | traApplications.test.js/TraApplicationsChecks.java compare properties on 240 generated graphs and match the actual factories to the drawings; component coding exercise remains stage 7. | `Graph` components and physical parent Edge; full `DiGraph` cycle/topological checks; `Vertex` parent/root metadata; stage 5. |
-| `shortest-paths` | Primary TraDijkstraExample/TraFloydWarshallExample; finite-weight/queue/matrix/path/cycle cards in all three supplements. Old array/custom-Edge files are optional comparisons. | Complete source and verified distances/paths; no new animation replaces the existing unweighted BFS practice. | traShortestPaths.test.js/TraShortestPathsChecks.java use Bellman-Ford and path properties on 340 generated graphs, numerical/identity/preservation boundaries; download checks run both source files on Java 11. | `AbstractGraph`, `Graph`/`DiGraph`, `Vertex`, `Edge`, TRA `PriorityQueue`; float weights accumulated in double, external identity matrix index; stage 6a. |
-| `mst` | Primary TraMinimumSpanningTreeExample: Graph input, actual chosen Edge references, component count, total weight, Prim forest and Kruskal forest. Old MinimumSpanningTreeExample is a closed optional comparison with a connected-only contract. | Runnable source/output and six translated cards; no replacement of existing visualisations. | traSpanningForests.test.js/TraSpanningForestChecks.java: exhaustive small spanning subsets, 76 labelled topologies, 320 generated graphs, identity/coverage/acyclicity/exchange optimality, numeric/preservation boundaries. | `Graph`, `Vertex`, `Edge`, TRA `PriorityQueue`, algorithm-owned union-find arrays and external identity indices; stage 6b. |
-| `graph-analysis` | Primary TraGraphCutsExample, TraBipartiteMatchingExample and TraMaxFlowExample, with shared TRA traversal/topological sources. All five old JDK versions are closed optional comparisons. | Source/output and eight translated cards; existing traversal visualisations remain unchanged. | traGraphAnalysis.test.js/TraGraphAnalysisChecks.java: deletion, exhaustive cardinality matching, min-cut enumeration, capacity/conservation/witness/input-preservation checks on 160 graphs per algorithm plus boundaries. | `Graph` for cuts/matching; `DiGraph` and `LinkedQueue` for flow; identity metadata, explicit partition and paired residual entries; stage 6c. |
-| `recursion` graph fragments | `RecursiveDfsExample`, `GraphTraversalExample`; `data/recursionReview.js` now embeds real Graph/Vertex fixture construction and TRA snippets. | `RecursionLab` → `RecursiveDfsLab` → the same `GraphLearningLab`; not a second independent DFS. | `recursionReview.test.js`, `recursiveDfs.test.js`, graph tests; translations in `i18n/recursionReview.js`, `i18n/recursiveDfs.js`. | Change shared DFS once, then update questions, fixture declarations and explanations; stage 3. Ordinary factorial/Fibonacci and recurrence trees stay as they are. |
-| `maps` graph example | Primary `TraGraphDataExample` stores outgoing counts keyed by Vertex identity; `GraphRepresentationExample` is an optional comparison. Ordinary JDK Map lessons remain. | No separate graph lab. | Existing example and i18n checks. | Replace the graph-facing example with TRA + `Map<Vertex, ...>` data; preserve ordinary Map lessons; stage 2. |
-
-### Existing coding task
-
-`exercises/dfs-reachable/{Solution.java,Check.java,GraphChecks.java}` already uses TRA. `GraphCodingExercise.jsx` and `i18n/graphCodingExercise.js` show it on DFS. The contract is `reachableCount(Vertex start)`: input vertices start WHITE; each reachable vertex must become GREY or BLACK, and graph structure must remain intact. The checker owns initialisation. Preserve that published contract; it is intentionally less strict than a complete colour-tracing DFS.
-
-`tests/graphCodingExercise.test.js` covers compilation, correct/incorrect solutions, repeats and worker limits. Reuse this infrastructure for stage 7; do not replace it with more answer-selection forms. New tasks are BFS path/distances, Graph components, BTree size/height and BTree orders.
-
-## Shared dependencies that must change together
-
-| Responsibility | Files / consequence |
+| Topic | Short independent examples |
 | --- | --- |
-| Main and supplementary placement | `App.jsx`, `JavaExamples.jsx`, `TraJavaExamples.jsx`, both Java catalogues, `i18n/traJavaExamples.js`, translated `ui.javaNote`. TRA renders first on migrated topics; normal Map examples remain, while custom graph comparisons are collapsed. Other topics keep their previous placement. |
-| Generated Java snippets | `scripts/sync-java-snippets.mjs` extracts TraTraversalExample, TraRecursiveDfsExample and TraBfsExample into graphTraversalCode.js, recursiveDfsCode.js and basicBfsCode.js. Regenerate and update matching statement selectors whenever those sources change. Never edit only the generated file. |
-| Basic DFS line highlights | `data/recursiveDfs.js`, `utils/recursiveDfs.js` and continuation/presentation helpers currently depend on `v`, `i`, `next` and numeric line positions. A for-each frame owns an iterator; an optional visible neighbour ordinal is teaching metadata, not a TRA API field. |
-| Guided moments and questions | `data/recursiveDfsLesson.js`, `data/graphTraversalLessons.js`, `data/graphQuiz.js`, `data/recursionReview.js`; their explanations in `i18n/recursiveDfs.js`, `graphTraversal.js`, `graphLearning.js`, `graphQuiz.js`, `recursionReview.js`. Update snippets, real event positions, options and explanations together. |
-| Java checks | `java.test.js` currently expects exactly the standalone catalogue, no classpath, and the shared `ExamplesChecks.java` fixture. Keep these archive comparisons; add TRA equivalence checks rather than deleting a test to accommodate a new API. `traJavaExamples.test.js` checks each TRA file and its corresponding translated description; update those counts at the stage that adds a file. |
-| Downloads | `package-graph-exercise.mjs`, `package-tra-examples.mjs`, `package-java-downloads.mjs`, `scripts/tra-library.mjs`; `predev`/`prebuild` generate both ignored ZIPs. All library reads now pass the same SHA-256 guard. |
-| Course claims | `README.md`, `docs/CODE_GUIDE.md`, `docs/HANDOUT_ALIGNMENT.md`, `data/handout.js`. Current descriptions of standalone alternatives are accurate until the owning lesson migrates; update them with each completed stage. |
+| Graph basics | TraCreateGraph, TraCreateDirectedGraph, TraListVertices, TraListNeighbors, TraReadEdgeWeight |
+| Map | TraVertexMap: two same-label Vertex keys remain distinct |
+| DFS / graph recursion | TraSimpleDfs, TraDfsCycle, TraDfsPrePost; separate TraColourDfs, then TraDfsTimes and TraDfsEdgeTypes |
+| BFS | TraSimpleBfs, TraBfsDiscovery, TraBfsDistances, TraBfsPath |
+| Traversal applications | TraFullDfs, TraUndirectedCycle, TraDirectedCycle, TraTopologicalOrder |
+| Trees | TraCreateTree, TraTreeChildren, separate TraTreePRE/IN/POST, TraTreeSize, TraTreeHeight, TraGeneralTreeChildren |
+| PriorityQueue | TraQueueOffer, TraQueuePeek, TraQueuePoll, TraQueueDuplicates, TraQueueComparator, TraTaskPriority |
+| Weighted paths | TraDijkstraDistances, TraDijkstraPath, TraGraphMatrix, TraFloydDistances, TraFloydPath |
+| MST | TraPrim, TraDisjointSets, TraKruskal |
+| Graph analysis | TraLowValues, TraBridges, TraArticulationPoints, TraMatchingStep, TraMaximumMatching |
+| Flow | TraResidualCapacity, TraAugmentFlow, TraCancelFlow, TraMaximumFlow, TraMinimumCut |
 
-## Placement and compatibility decisions
+The ZIP contains only this teaching catalogue, the pinned JAR, three instructions, checked output and per-topic RUN.txt indexes. Paths in the instructions are relative to the extracted tra-graphs folder; each source runs alone. Individual downloads can sit next to traj.jar. The original 31 JDK files remain optional comparisons where replaced.
 
-1. Migrate one topic at a time. When migrated, its first runnable example and visible Java lesson use TRA, with an explicit JAR requirement and a working classpath command. Stop showing a separate “additional TRA” block containing the same main example.
-2. Preserve old standalone sources and regression checks. Expose them only through clearly labelled optional comparison material; they must not displace the main TRA lesson. A single page may link to both versions, but each download needs its own correct dependency note.
-3. Keep one catalogue entry per runnable source and associate it with every relevant topic. Share common DFS/BFS source and snippets across recursion and graph pages; do not fork implementations to change a label.
-4. The current 31 standalone files are a baseline, not a reason to keep them as the primary teaching API. Inventory/count assertions must reflect the deliberate final catalogue, not be removed to hide omissions.
-5. Each stage includes RU/FI/EN, Java 11 execution, the matching snippets/steps and appropriate regression checks. Stage 8 audits the complete route; it is not the first time translations or Java are checked.
+## Existing visualisations and technical references
 
-## Out of scope for this migration
+The sixteen original multi-purpose TRA files remain at `src/tra-examples/*.java` and are catalogued separately in `src/data/traReferenceExamples.js`. They support source synchronisation and independent regression checks. They are outside the student catalogue and ZIP. Basic DFS/colour separation, graph/tree drawings, saved call continuations, bottom controls, code expansion and mobile tabs remain unchanged.
 
-- Ordinary recursion, recursion-complexity trees, sorting, Set/Map and file algorithms retain their suitable existing representations.
-- The external-memory **B-tree/B+ tree** lesson is not the binary `fi.uef.cs.tra.BTree`. Do not substitute one for the other because the names resemble each other.
-- Browser graph data can remain serialisable arrays/objects. TRA is the Java teaching API; it is not a JavaScript dependency or a JAR executed inside the static site.
-- No arbitrary graph editor, additional SCC/bridge curriculum, server for executing Java, or new external dependency is required. Existing bridge/articulation code is migrated in stage 6c; this does not add a new module.
+`scripts/sync-java-snippets.mjs` still reads those technical files for the animation. `GraphBasicsLesson` still extracts its small A/B/C/D construction method from the reference source. New examples intentionally use smaller independent inputs and are not exact replacements for the Java API of those visualisation fixtures. Do not silently replace a generated snippet or published exercise method when changing a student example.
+
+## Teaching contracts and verification
+
+Each new example states its starting conditions. A basic DFS uses visited instead of colours. Colour-based examples initialise colours in main and may change them. Static tin/low clocks/maps are explicitly reset for each demonstration. Matching assumes a known valid bipartition. Matrix algorithms require the supplied list to contain every actual Vertex exactly once.
+
+The first Dijkstra scans vertices: expected O(V² + E), O(V) space. The first Kruskal uses an explicit unoptimised DSU: expected O(V + E log(E + 1) + E·V), O(V + E) space. Prim uses the real TRA PriorityQueue. Complete flow uses the simpler residual matrix, reports total flow/cut rather than per-Edge flow, and has O(V² + E + V³·E) time/O(V²) space. These versions deliberately have different bounds/contracts from the older technical implementations below. Flow stored capacities must be finite integral floats in [0, 10⁹].
+
+`tests/traLessons.test.js` checks metadata/translations, exact source regions, actual ZIP layout, class version 55, isolated source-file launch commands and displayed output. `TraLessonChecks.java` independently verifies the new algorithms using relaxation, enumeration and deletion references. Existing source/animation equivalence and technical algorithm checks are retained. Browser checks cover all three languages, mobile/desktop layouts, disclosures, source/output identity and downloads with a Pages base path.
+
+## Remaining work
+
+- Stage 7 in progress: DFS reachability and BFS shortest-distance exercises are available; parent-path, component and tree exercises remain. The existing DFS method contract is unchanged.
+- Stage 8: final overall migration audit and course-material review after the exercise stage.
+- SCC, bridges exercises, a graph editor, weighted animations and arbitrary partition validation are not added by this rewrite.
+
+## Historical API migration verification
+
+The sections below describe the technical reference implementations and their packaging at the time each migration stage finished. Their old source counts, ZIP contents and “primary” placements are historical, superseded by the current teaching catalogue above. Algorithm tests for those references remain useful and are preserved.
 
 ## Stage 1 verification
 
@@ -113,3 +98,10 @@ Java checks verify the actual physical Edge set, coverage, acyclicity, component
 Graph analysis now leads with TraGraphCutsExample, TraBipartiteMatchingExample and TraMaxFlowExample. The old five standalone graph-analysis sources are optional closed comparisons; shared TRA traversal/topological examples remain available. Eight cards and three translated source descriptions explain entry-only tin/low, root/physical-parent exceptions, explicit bipartition validation, maximum versus maximal matching, exact integer flow capacities, cancellation versus opposite input edges, and min-cut witnesses. Auxiliary residual lists refer to actual Vertex/Edge objects and do not mutate DiGraph. The handout alignment document remains English.
 
 Independent checks cover 160 generated undirected cuts graphs, 160 bipartite graphs and 160 directed capacity graphs with two terminal directions, plus boundaries. References use vertex/edge deletion, exhaustive matching and exhaustive cuts. Capacity bounds, flow conservation, actual output object identity, zero/self/antiparallel arcs, cancellation without a reverse input edge, large long totals, invalid partitions/weights/terminals, immutable lists and repeat/input preservation are checked. All sixteen source files target Java 11; the ZIP contains them, three instructions, the original pinned JAR and expected output (21 entries). This completes the algorithm migration in stage 6; new exercises and the final migration audit remain stages 7–8.
+
+
+## Teaching clarity follow-up
+
+Method contracts now live beside the algorithm in Java and as translated prerequisites in the card. Comments explain base cases, early discovery and caller continuation. The DFS-cycle and BFS-diamond examples print the skipped repeat and have narrated state changes; a full-DFS trace explains isolated components. Input and output share a compact row; installation/setup is expandable.
+
+A second coding kit, `exercises/bfs-distances`, asks for shortest outgoing hop distances from one non-null Vertex. It uses external state and preserves all input fields including arbitrary colours. `scripts/package-graph-exercise.mjs` packages both graph exercises using the same pinned JAR reader, without a second maintained binary. Separate tests check the actual archive, Java 11 execution, correct BFS, incorrect DFS depths, duplicate-label mistakes, mutation, null/foreign keys and compilation failure followed by correction. Both starters include optional reasoning comments. This follows the documented-method, separate-template/checker and self-evaluation pattern in the UEF examples; it does not copy their solutions or submission process.

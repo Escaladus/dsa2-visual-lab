@@ -2,6 +2,23 @@
 
 Verified on 19 November 2026 against the supplied binary, its bundled Javadoc and its public signatures. These are the starting rules for [the graph/tree migration](TRA_MIGRATION.md). Algorithm rules below are project conventions, not extra methods supplied by the library.
 
+## Short teaching examples (23 November 2026)
+
+The student catalogue now contains 52 independent lessons under `src/tra-examples/lessons`, grouped by a single operation or algorithm step. The original sixteen root-level Java files are technical references only. Algorithm contracts in the historical stage notes below apply to those references; do not copy their stronger input checks, preserved-colour guarantees or optimised bounds onto the shorter versions.
+
+Each lesson has an explicit input condition and a main method that creates it. Basic DFS owns a visited map. Colour DFS/BFS, full DFS, cycle detection, topological sorting and Prim may change colours; main initialises them where needed. The tin/low teaching files own resettable clocks/maps. Other auxiliary data uses actual Vertex identity, not labels. Matrix inputs use an explicitly ordered list of all vertices once.
+
+The initial Dijkstra scans vertices and globally rejects non-finite/negative weights: expected O(V² + E) time and O(V) space. Path reconstruction is a separate file. Floyd's matrix and update loop are separate lessons; the optional next-hop file rejects negative cycles before returning paths. Prim expects finite fixed weights and uses TRA PriorityQueue. Kruskal uses the preceding simple DSU without rank/compression, with expected O(V + E log(E + 1) + E·V) time; both produce forests on disconnected input. Matching assumes a valid known bipartition rather than validating arbitrary input.
+
+Flow begins with three explicitly partial examples (remaining capacity, one known augmenting path and cancellation). Only TraMaximumFlow and TraMinimumCut contain the whole solver. They convert a DiGraph to a long residual matrix via an identity index map, validating stored Edge float capacities as finite integers in [0, 1_000_000_000]. Input topology/fields stay intact. The matrix aggregates opposite capacity and cancellation; no per-input-edge flow contract is claimed. Source/sink must be distinct valid indices. Matrix BFS uses TRA LinkedQueue<Integer> over auxiliary indices; O(V² + E + V³·E) time and O(V²) space account for its scans. The cut uses original capacities across the final residual reachable boundary.
+
+Student code has no Result/State framework or shared example dependency. Launch commands and complete files are tested from the packaged topic folders. See the three source README files for the learning order and each implementation's prerequisites. Numerical and preservation checks for the older per-Edge solver remain in separate reference tests.
+
+
+Teaching algorithm methods have short Java contracts for initial state, results and mutation. These are also exposed as RU/FI/EN prerequisites without bloating the highlighted algorithm region. The new cycle/diamond demonstrations log the repeated neighbour explicitly.
+
+The BFS-distance exercise has a separate contract from the colour-based DFS task: start is non-null and belongs to a directed unweighted graph; return a fresh Map<Vertex,Integer> containing exactly reachable vertices, start at 0 and shortest hop distances. Unreachable vertices must be absent. Preserve vertex colours/indices/weights/labels and all original edges/fields; initial colours are arbitrary. Known method signatures and the existing DFS contract remain stable. Local tests check results and preservation, not whether BFS is present syntactically or its asymptotic bound. Each attempt compiles fresh for release 11 and runs isolated worker groups.
+
 ## Library and Java version
 
 The single source JAR remains [`exercises/dfs-reachable/traj.jar`](../exercises/dfs-reachable/traj.jar), so the existing exercise folder also remains directly runnable. Do not add a second maintained source copy under `src`, `lib` or another exercise. Download ZIPs contain generated copies of this same binary.
@@ -14,7 +31,7 @@ Java examples/checkers: JDK 11+
 SHA-256: 589c64b49dd8fa77fa1fb9f99d252bf475c180be437a70d81208f4e9f70f3423
 ```
 
-The JAR also includes the older `fi.joensuu.cs.tra` package. Do not mix packages. Its binary classes target Java 8; our examples/checkers target Java 11. All sixteen runnable TRA sources and both ZIP builders use this pinned library. Both ZIP builders call the shared reader and reject a different checksum before writing an archive; verification requires Node, not a JDK. A deliberate library upgrade must update the pin, recheck contracts, rerun Java checks and regenerate **both** packages.
+The JAR also includes the older `fi.joensuu.cs.tra` package. Do not mix packages. Its binary classes target Java 8; our examples/checkers target Java 11. The short teaching sources, sixteen technical references and both ZIP builders use this pinned library. Both ZIP builders call the shared reader and reject a different checksum before writing an archive; verification requires Node, not a JDK. A deliberate library upgrade must update the pin, recheck contracts, rerun Java checks and regenerate **both** packages.
 
 ```bash
 npm run check:tra-library
