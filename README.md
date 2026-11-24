@@ -81,6 +81,12 @@ npm run build
 npm run preview
 ```
 
+## GitHub Pages deployment
+
+`.github/workflows/deploy.yml` builds and uploads `dist` in the `build` job, then deploys the `github-pages` artifact in a separate job with `needs: build`. This avoids starting the artifact lookup immediately after upload in the same job ([upstream issue](https://github.com/actions/deploy-pages/issues/451)). Pages write and OIDC permissions belong to deployment; the build only reads Pages metadata.
+
+After changing the workflow, push it and start a new run using **Actions → Deploy DSA2 Visual Lab to GitHub Pages → Run workflow**. Existing runs retain their original workflow definition. With the separate jobs, use **Re-run failed jobs** to retry deployment while its uploaded artifact is still available; if it has expired, start a new workflow run to rebuild and upload it.
+
 ## Tests
 
 Run translation, quiz state, recursion and complexity, graph traversal, sorting visualisation, and Java example checks:
