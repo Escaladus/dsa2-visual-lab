@@ -5005,6 +5005,32 @@ summary:focus-visible {
 .graph-coding-exercise {
   min-width: 0;
 }
+.coding-task-disclosure {
+  margin: 24px 0;
+  min-width: 0;
+}
+.coding-task-disclosure > summary {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #0e1525;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.coding-task-disclosure > summary:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+.coding-task-example > div {
+  min-width: 0;
+}
+.graph-coding-exercise .coding-run-command {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .graph-coding-exercise p,
 .graph-coding-exercise li {
   line-height: 1.8;

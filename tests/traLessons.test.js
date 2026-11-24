@@ -67,7 +67,7 @@ test('short teaching sources have exact excerpts, topic placement and three comp
     }
     assert.match(labels.intro, /JDK 11/)
     if (language !== 'ru') assert.doesNotMatch(JSON.stringify(labels), /[а-яё]/i)
-    const name = language === 'en' ? 'README.md' : `README.${language}.md`
+    const name = language === 'fi' ? 'README.fi.md' : 'README.md'
     const readme = readFileSync(join(sourceRoot, name), 'utf8')
     for (const example of traJavaExamples)
       assert.ok(readme.includes(`-cp traj.jar ${example.sourcePath}`))

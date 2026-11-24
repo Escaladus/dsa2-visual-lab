@@ -22,7 +22,7 @@ Muuttamaton aloituspohja kertoo, ettei ratkaisua ole vielä kirjoitettu. Toteutu
 - Värit voivat olla mielivaltaisia. Älä käytä niitä vierailumerkkeinä äläkä muuta verkon kenttiä: tallenna löytyminen uuteen etäisyyskarttaan.
 - Avaimet ovat oikeita Vertex-olioita ja arvot kokonaisia kaarietäisyyksiä. Saavuttamattomat puuttuvat; -1-merkintöjä ei hyväksytä.
 
-ZIP sisältää tiedostot Solution.java, Check.java, GraphChecks.java, mukana tulleen traj.jar-kirjaston sekä ohjeet suomeksi, venäjäksi ja englanniksi. Mavenia tai Gradlea ei tarvitse määrittää.
+ZIP sisältää tiedostot Solution.java, Check.java, GraphChecks.java, mukana tulleen traj.jar-kirjaston sekä README-ohjeet englanniksi ja suomeksi. Mavenia tai Gradlea ei tarvitse määrittää.
 
 ## Miten tarkistin toimii
 

@@ -1,9 +1,25 @@
 import { useId } from 'react'
 import dfsStarter from '../../exercises/dfs-reachable/Solution.java?raw'
 import bfsStarter from '../../exercises/bfs-distances/Solution.java?raw'
+import pathStarter from '../../exercises/bfs-path/Solution.java?raw'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
 import { graphCodingExerciseTranslations } from '../i18n/graphCodingExercise.js'
 import { bfsCodingExerciseTranslations } from '../i18n/bfsCodingExercise.js'
+import { bfsPathExerciseTranslations } from '../i18n/bfsPathExercise.js'
+
+const codingTasks = {
+  dfs: {
+    folder: 'dfs-reachable',
+    starter: dfsStarter,
+    translations: graphCodingExerciseTranslations,
+  },
+  bfs: {
+    folder: 'bfs-distances',
+    starter: bfsStarter,
+    translations: bfsCodingExerciseTranslations,
+  },
+  bfsPath: { folder: 'bfs-path', starter: pathStarter, translations: bfsPathExerciseTranslations },
+}
 
 const vertices = [
   [55, 110],
@@ -19,7 +35,7 @@ const edges = [
   [2, 3],
 ]
 
-function ExampleGraph({ id, label }) {
+function ExampleGraph({ id, label, target = null }) {
   return (
     <svg className="coding-example-graph" viewBox="0 0 450 230" role="img" aria-label={label}>
       <defs>
@@ -61,7 +77,7 @@ function ExampleGraph({ id, label }) {
             cy={y}
             r="25"
             fill={index === 0 ? '#284d79' : '#152238'}
-            stroke={index === 0 ? '#8ff0c4' : '#8ca6ce'}
+            stroke={index === 0 ? '#8ff0c4' : index === target ? '#ffd166' : '#8ca6ce'}
             strokeWidth="2"
           />
           <text
@@ -81,28 +97,37 @@ function ExampleGraph({ id, label }) {
   )
 }
 
-export default function GraphCodingExercise({ algorithm = 'dfs' }) {
+export default function GraphCodingExercise({ task = 'dfs', collapsible = false }) {
   const { language } = useLanguage()
-  const isBfs = algorithm === 'bfs'
-  const labels = (isBfs ? bfsCodingExerciseTranslations : graphCodingExerciseTranslations)[language]
-  const folder = isBfs ? 'bfs-distances' : 'dfs-reachable'
-  const starterCode = isBfs ? bfsStarter : dfsStarter
+  const { folder, starter: starterCode, translations } = codingTasks[task]
+  const labels = translations[language]
   const id = useId()
-  return (
+  const content = (
     <section
       className="lab-shell graph-coding-exercise"
-      data-coding-algorithm={algorithm}
+      data-coding-algorithm={task === 'dfs' ? 'dfs' : 'bfs'}
+      data-coding-exercise={folder}
       aria-labelledby={`${id}-title`}
     >
       <h2 id={`${id}-title`}>{labels.title}</h2>
       <p>{labels.intro}</p>
       <p className="coding-note">{labels.rules[1]}</p>
       <div className="coding-task-example">
-        <ExampleGraph id={`${id}-arrow`} label={labels.graph} />
+        <ExampleGraph
+          id={`${id}-arrow`}
+          label={labels.graph}
+          target={task === 'bfsPath' ? 3 : null}
+        />
         <div>
           <h3>{labels.task}</h3>
           <p>{labels.description}</p>
+          {labels.signature && (
+            <pre className="code-block coding-run-command" tabIndex={0}>
+              <code>{labels.signature}</code>
+            </pre>
+          )}
           <p className="coding-example-answer">{labels.example}</p>
+          {labels.pathExplanation && <p>{labels.pathExplanation}</p>}
         </div>
       </div>
       <a
@@ -157,13 +182,24 @@ export default function GraphCodingExercise({ algorithm = 'dfs' }) {
       </details>
       <details className="coding-chapter">
         <summary>{labels.hints}</summary>
-        {labels.hintItems.map(([title, explanation]) => (
-          <details className="coding-hint" key={title}>
+        {labels.hintItems.map(([title, explanation], index) => (
+          <details className="coding-hint" key={`hint-${index}`}>
             <summary>{title}</summary>
             <p>{explanation}</p>
           </details>
         ))}
       </details>
+      {labels.walkthrough && (
+        <details className="coding-chapter" data-coding-walkthrough>
+          <summary>{labels.walkthroughTitle}</summary>
+          <ol>
+            {labels.walkthrough.map(step => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+          <p className="coding-note">{labels.costNote}</p>
+        </details>
+      )}
       <p className="coding-note">{labels.after}</p>
       <details className="coding-chapter">
         <summary>{labels.selfEvaluation}</summary>
@@ -174,5 +210,13 @@ export default function GraphCodingExercise({ algorithm = 'dfs' }) {
         </ol>
       </details>
     </section>
+  )
+  return collapsible ? (
+    <details className="coding-task-disclosure" data-coding-task={folder}>
+      <summary>{labels.title}</summary>
+      {content}
+    </details>
+  ) : (
+    content
   )
 }

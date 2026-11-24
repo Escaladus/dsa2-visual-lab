@@ -56,9 +56,11 @@ test('BFS exercise has matching instructions, hints and optional reasoning in th
     assert.deepEqual(shape(labels), reference)
     assert.equal(labels.steps.length, 3)
     assert.equal(labels.selfItems.length, 3)
-    const name = lang === 'en' ? 'README.md' : `README.${lang}.md`
+    const name = lang === 'fi' ? 'README.fi.md' : 'README.md'
     const instructions = readFileSync(join(kit, name), 'utf8')
-    assert.ok(instructions.includes(`java -Dfile.encoding=UTF-8 Check.java ${lang}`))
+    assert.ok(
+      instructions.includes(`java -Dfile.encoding=UTF-8 Check.java ${lang === 'fi' ? 'fi' : 'en'}`),
+    )
     assert.ok(instructions.includes('bfs-distances'))
     assert.match(labels.example, /0:0, 1:1, 2:1, 3:2/)
     assert.ok(labels.rules[1].includes('WHITE') === false)

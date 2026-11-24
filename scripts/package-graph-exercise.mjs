@@ -9,7 +9,6 @@ export const exercisePackageFiles = [
   'Check.java',
   'GraphChecks.java',
   'README.md',
-  'README.ru.md',
   'README.fi.md',
   'traj.jar',
 ]
@@ -76,6 +75,10 @@ export function packageGraphExercise(output = resolve(root, 'public/exercises/df
 
 export function packageBfsExercise(output = resolve(root, 'public/exercises/bfs-distances.zip')) {
   return packageExercise('bfs-distances', output)
+}
+
+export function packageBfsPathExercise(output = resolve(root, 'public/exercises/bfs-path.zip')) {
+  return packageExercise('bfs-path', output)
 }
 
 function packageExercise(folder, output) {

@@ -63,11 +63,10 @@ test('graph coding task: all languages cover instructions, library methods, feed
       ['vertex.neighbors()', 'vertex.getColor()', 'vertex.setColor(AbstractGraph.GREY)'],
     )
     assert.match(labels.example, /start = 0.*4/)
-    const readme = readFileSync(
-      join(kit, language === 'en' ? 'README.md' : `README.${language}.md`),
-      'utf8',
+    const readme = readFileSync(join(kit, language === 'fi' ? 'README.fi.md' : 'README.md'), 'utf8')
+    assert.ok(
+      readme.includes(`java -Dfile.encoding=UTF-8 Check.java ${language === 'fi' ? 'fi' : 'en'}`),
     )
-    assert.ok(readme.includes(`java -Dfile.encoding=UTF-8 Check.java ${language}`))
     assert.ok(readme.includes('Solution.java'))
     assert.ok(readme.includes('GREY'))
   }

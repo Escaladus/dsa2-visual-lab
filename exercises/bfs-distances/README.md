@@ -22,7 +22,7 @@ The untouched template reports unfinished work. After implementing the method, t
 - Colours can have arbitrary values. Do not read them as discovery marks or change any graph fields: record discovery in your new distance map.
 - Return actual Vertex keys and integer hop distances. Unreachable vertices must be absent; -1 entries are not accepted.
 
-The ZIP contains Solution.java, Check.java, GraphChecks.java, the supplied traj.jar, and instructions in English, Russian and Finnish. No Maven or Gradle setup is needed.
+The ZIP contains Solution.java, Check.java, GraphChecks.java, the supplied traj.jar, and English and Finnish README files. No Maven or Gradle setup is needed.
 
 ## What the checker does
 

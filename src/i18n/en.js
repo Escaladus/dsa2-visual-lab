@@ -197,6 +197,14 @@ const base = {
           'Read the neighbours',
           'Use `for (Vertex next : v.neighbors())` to enumerate outgoing neighbours. The iterable is not automatically sorted by label. `graph.vertices()` includes isolated vertices too.',
         ],
+        [
+          'BFS — breadth-first search',
+          'BFS visits the starting vertex’s neighbours first, then the next layer of vertices. It uses a queue and finds shortest paths by number of edges in an unweighted graph.',
+        ],
+        [
+          'DFS — depth-first search',
+          'DFS follows one branch as deeply as possible, then returns to explore other branches. It uses recursion or a stack. Visited marks prevent processing the same vertex again.',
+        ],
       ],
     },
     'graph-dfs': {

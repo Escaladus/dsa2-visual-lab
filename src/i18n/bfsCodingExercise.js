@@ -19,7 +19,7 @@ export const bfsCodingExerciseTranslations = {
     initial:
       'The untouched template reports unfinished work. After implementing the method, the checker shows which cases pass and explains failures. To start over, restore Solution.java from the ZIP.',
     files:
-      'The ZIP contains Solution.java, Check.java, GraphChecks.java, the supplied traj.jar, and instructions in English, Russian and Finnish. No Maven or Gradle setup is needed.',
+      'The ZIP contains Solution.java, Check.java, GraphChecks.java, the supplied traj.jar, and English and Finnish README files. No Maven or Gradle setup is needed.',
     contract: 'Conditions and useful library methods',
     rules: [
       'The directed unweighted graph may contain cycles, self-loops and equal labels, but no parallel edges. start is a valid non-null vertex.',
@@ -87,7 +87,7 @@ export const bfsCodingExerciseTranslations = {
     initial:
       'Нетронутый шаблон сообщает, что решение ещё не написано. После реализации проверка покажет пройденные случаи и объяснит ошибки. Чтобы начать заново, возьмите исходный Solution.java из ZIP.',
     files:
-      'В ZIP находятся Solution.java, Check.java, GraphChecks.java, приложенный traj.jar и инструкции на русском, финском и английском. Настраивать Maven или Gradle не требуется.',
+      'В ZIP находятся Solution.java, Check.java, GraphChecks.java, приложенный traj.jar и README на английском и финском. Настраивать Maven или Gradle не требуется.',
     contract: 'Условия и нужные методы библиотеки',
     rules: [
       'Ориентированный невзвешенный граф может иметь циклы, петли и одинаковые метки, но не параллельные рёбра. start — допустимая вершина, не null.',
@@ -156,7 +156,7 @@ export const bfsCodingExerciseTranslations = {
     initial:
       'Muuttamaton aloituspohja kertoo, ettei ratkaisua ole vielä kirjoitettu. Toteutuksen jälkeen tarkistin näyttää läpäistyt tapaukset ja selittää virheet. Aloita alusta palauttamalla alkuperäinen Solution.java ZIPistä.',
     files:
-      'ZIP sisältää tiedostot Solution.java, Check.java, GraphChecks.java, mukana tulleen traj.jar-kirjaston sekä ohjeet suomeksi, venäjäksi ja englanniksi. Mavenia tai Gradlea ei tarvitse määrittää.',
+      'ZIP sisältää tiedostot Solution.java, Check.java, GraphChecks.java, mukana tulleen traj.jar-kirjaston sekä README-ohjeet englanniksi ja suomeksi. Mavenia tai Gradlea ei tarvitse määrittää.',
     contract: 'Ehdot ja tarvittavat kirjastometodit',
     rules: [
       'Suunnatussa painottomassa verkossa voi olla syklejä, silmukoita ja samoja nimiä, mutta ei rinnakkaiskaaria. start on kelvollinen solmu, ei null.',

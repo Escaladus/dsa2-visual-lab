@@ -12,12 +12,15 @@ The initial Dijkstra scans vertices and globally rejects non-finite/negative wei
 
 Flow begins with three explicitly partial examples (remaining capacity, one known augmenting path and cancellation). Only TraMaximumFlow and TraMinimumCut contain the whole solver. They convert a DiGraph to a long residual matrix via an identity index map, validating stored Edge float capacities as finite integers in [0, 1_000_000_000]. Input topology/fields stay intact. The matrix aggregates opposite capacity and cancellation; no per-input-edge flow contract is claimed. Source/sink must be distinct valid indices. Matrix BFS uses TRA LinkedQueue<Integer> over auxiliary indices; O(V² + E + V³·E) time and O(V²) space account for its scans. The cut uses original capacities across the final residual reachable boundary.
 
-Student code has no Result/State framework or shared example dependency. Launch commands and complete files are tested from the packaged topic folders. See the three source README files for the learning order and each implementation's prerequisites. Numerical and preservation checks for the older per-Edge solver remain in separate reference tests.
+Student code has no Result/State framework or shared example dependency. Launch commands and complete files are tested from the packaged topic folders. See the English source README for the learning order and each implementation's prerequisites. Numerical and preservation checks for the older per-Edge solver remain in separate reference tests.
 
 
 Teaching algorithm methods have short Java contracts for initial state, results and mutation. These are also exposed as RU/FI/EN prerequisites without bloating the highlighted algorithm region. The new cycle/diamond demonstrations log the repeated neighbour explicitly.
 
 The BFS-distance exercise has a separate contract from the colour-based DFS task: start is non-null and belongs to a directed unweighted graph; return a fresh Map<Vertex,Integer> containing exactly reachable vertices, start at 0 and shortest hop distances. Unreachable vertices must be absent. Preserve vertex colours/indices/weights/labels and all original edges/fields; initial colours are arbitrary. Known method signatures and the existing DFS contract remain stable. Local tests check results and preservation, not whether BFS is present syntactically or its asymptotic bound. Each attempt compiles fresh for release 11 and runs isolated worker groups.
+
+
+The shortest-path exercise adds `List<Vertex> shortestPath(Vertex start, Vertex target)`. Both non-null arguments belong to the same DiGraph. Interpret each directed edge as one step; labels are not identity. Return input Vertex objects in forward order with both endpoints, any shortest tie, `[]` when unreachable and `[start]` for equal arguments. Preserve all input fields/structure and use external discovery/parent state; colours may be arbitrary. The checker verifies identity, direction, endpoints and minimum hop length, including the alternate diamond route. Tests do not establish BFS use or its complexity syntactically. The walkthrough defines k as the number of path vertices: parent-chain reading/reversal adds O(k) time and result space to the expected O(R+A) BFS time/O(R) working memory.
 
 ## Library and Java version
 

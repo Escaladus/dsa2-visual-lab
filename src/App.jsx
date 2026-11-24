@@ -111,7 +111,8 @@ function Lesson({ topic, onOpen }) {
       )}
       {(id === 'graph-dfs' || id === 'graph-bfs') && (
         <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
-          <GraphCodingExercise algorithm={id === 'graph-bfs' ? 'bfs' : 'dfs'} />
+          <GraphCodingExercise task={id === 'graph-bfs' ? 'bfs' : 'dfs'} />
+          {id === 'graph-bfs' && <GraphCodingExercise task="bfsPath" collapsible />}
         </Suspense>
       )}
 

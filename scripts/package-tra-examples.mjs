@@ -9,7 +9,6 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 export const traExampleSourceFiles = [
   ...traJavaExamples.map(example => example.sourcePath),
   'README.md',
-  'README.ru.md',
   'README.fi.md',
 ]
 

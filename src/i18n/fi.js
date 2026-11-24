@@ -198,6 +198,14 @@ const base = {
           'Naapurien lukeminen',
           'Silmukka `for (Vertex next : v.neighbors())` luettelee lähtevät naapurit. Järjestystä ei automaattisesti lajitella nimien mukaan. `graph.vertices()` sisältää myös eristetyt solmut.',
         ],
+        [
+          'BFS — leveyshaku (Breadth-First Search)',
+          'Leveyshaku käy ensin aloitussolmun naapurit, sitten seuraavan tason solmut. Se käyttää jonoa ja löytää painottomassa verkossa lyhimmät polut kaarien määrällä mitattuna.',
+        ],
+        [
+          'DFS — syvyyshaku (Depth-First Search)',
+          'Syvyyshaku etenee yhtä haaraa pitkin mahdollisimman syvälle ja palaa sitten tutkimaan muita haaroja. Se käyttää rekursiota tai pinoa. Vierailumerkinnät estävät saman solmun käsittelyn uudelleen.',
+        ],
       ],
     },
     'graph-dfs': {

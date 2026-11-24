@@ -20,7 +20,7 @@ Stages 1–6 of the API migration are complete. The teaching-example rewrite was
 | Graph analysis | TraLowValues, TraBridges, TraArticulationPoints, TraMatchingStep, TraMaximumMatching |
 | Flow | TraResidualCapacity, TraAugmentFlow, TraCancelFlow, TraMaximumFlow, TraMinimumCut |
 
-The ZIP contains only this teaching catalogue, the pinned JAR, three instructions, checked output and per-topic RUN.txt indexes. Paths in the instructions are relative to the extracted tra-graphs folder; each source runs alone. Individual downloads can sit next to traj.jar. The original 31 JDK files remain optional comparisons where replaced.
+The ZIP contains only this teaching catalogue, the pinned JAR, English/Finnish README files, checked output and per-topic RUN.txt indexes. Paths in the instructions are relative to the extracted tra-graphs folder; each source runs alone. Individual downloads can sit next to traj.jar. The original 31 JDK files remain optional comparisons where replaced.
 
 ## Existing visualisations and technical references
 
@@ -38,7 +38,7 @@ The first Dijkstra scans vertices: expected O(V² + E), O(V) space. The first Kr
 
 ## Remaining work
 
-- Stage 7 in progress: DFS reachability and BFS shortest-distance exercises are available; parent-path, component and tree exercises remain. The existing DFS method contract is unchanged.
+- Stage 7 in progress: DFS reachability, BFS shortest-distance and shortest-path exercises are available; component and tree exercises remain. The existing DFS method contract is unchanged.
 - Stage 8: final overall migration audit and course-material review after the exercise stage.
 - SCC, bridges exercises, a graph editor, weighted animations and arbitrary partition validation are not added by this rewrite.
 
@@ -104,4 +104,11 @@ Independent checks cover 160 generated undirected cuts graphs, 160 bipartite gra
 
 Method contracts now live beside the algorithm in Java and as translated prerequisites in the card. Comments explain base cases, early discovery and caller continuation. The DFS-cycle and BFS-diamond examples print the skipped repeat and have narrated state changes; a full-DFS trace explains isolated components. Input and output share a compact row; installation/setup is expandable.
 
-A second coding kit, `exercises/bfs-distances`, asks for shortest outgoing hop distances from one non-null Vertex. It uses external state and preserves all input fields including arbitrary colours. `scripts/package-graph-exercise.mjs` packages both graph exercises using the same pinned JAR reader, without a second maintained binary. Separate tests check the actual archive, Java 11 execution, correct BFS, incorrect DFS depths, duplicate-label mistakes, mutation, null/foreign keys and compilation failure followed by correction. Both starters include optional reasoning comments. This follows the documented-method, separate-template/checker and self-evaluation pattern in the UEF examples; it does not copy their solutions or submission process.
+A second coding kit, `exercises/bfs-distances`, asks for shortest outgoing hop distances from one non-null Vertex. It uses external state and preserves all input fields including arbitrary colours. `scripts/package-graph-exercise.mjs` packages the graph exercises using the same pinned JAR reader, without a second maintained binary. Separate tests check the actual archive, Java 11 execution, correct BFS, incorrect DFS depths, duplicate-label mistakes, mutation, null/foreign keys and compilation failure followed by correction. Both starters include optional reasoning comments. This follows the documented-method, separate-template/checker and self-evaluation pattern in the UEF examples; it does not copy their solutions or submission process.
+
+
+## Stage 7.1: shortest-path practice
+
+`exercises/bfs-path` adds a second BFS task after distances. `GraphCodingExercise` selects a small task configuration by task key; BFS path content is initially collapsed. Existing graph visuals and the first two exercise contracts remain unchanged. Its shared diamond drawing highlights target 3, and translated text identifies the start/target independently of colour. The method signature and both valid example routes are shown before the optional template and hints. A separate walkthrough explains parent links, reversal, vertex/edge counts and the extra cost of producing the path.
+
+The contract returns actual input Vertex objects from start to target. Empty means unreachable; equal endpoints return a one-vertex list. Colours are arbitrary and all graph fields must stay unchanged. A non-null pair belonging to the same directed graph is a precondition, so no unrelated argument-validation framework is needed in the student solution. The checker validates directed edges and shortest length against independent all-pairs relaxation, not a canonical sequence. The new package function uses the shared pinned JAR reader; no additional maintained binary or runtime dependency is added. Components and BTree practice remain later stage-7 work.
