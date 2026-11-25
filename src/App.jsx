@@ -21,6 +21,7 @@ const JavaExamples = lazy(() => import('./components/JavaExamples.jsx'))
 const TraJavaExamples = lazy(() => import('./components/TraJavaExamples.jsx'))
 const RecurrenceTreeLab = lazy(() => import('./components/RecurrenceTreeLab.jsx'))
 const GraphCodingExercise = lazy(() => import('./components/GraphCodingExercise.jsx'))
+const TreeCodingExercise = lazy(() => import('./components/TreeCodingExercise.jsx'))
 const GraphBasicsLesson = lazy(() => import('./components/GraphBasicsLesson.jsx'))
 const GraphApplicationsLab = lazy(() => import('./components/GraphApplicationsLab.jsx'))
 
@@ -98,7 +99,18 @@ function Lesson({ topic, onOpen }) {
         </div>
       )}
       {id === 'complexity' && <ComplexityLab />}
-      {id === 'trees' && <TreeTraversalLab />}
+      {id === 'trees' && (
+        <>
+          <TreeTraversalLab />
+          <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
+            <TreeCodingExercise task="size" />
+            <TreeCodingExercise task="height" />
+            <TreeCodingExercise task="pre" />
+            <TreeCodingExercise task="in" />
+            <TreeCodingExercise task="post" />
+          </Suspense>
+        </>
+      )}
       {id === 'heap' && <HeapLab />}
       {id === 'sorting' && (
         <>
@@ -124,6 +136,7 @@ function Lesson({ topic, onOpen }) {
       {id === 'graph-apps' && (
         <Suspense fallback={<p role="status">{text.recursion.enhancements.loading}</p>}>
           <GraphApplicationsLab />
+          <GraphCodingExercise task="components" collapsible />
         </Suspense>
       )}
       {id !== 'recursion' && (

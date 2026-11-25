@@ -106,7 +106,7 @@ Floyd distance matrices, bipartite partitions, DSU and residual capacities can r
 
 ## Tree and memory conventions
 
-For the planned size/height tasks, count **height in edges**: empty tree -1, leaf 0. Recursion stack along a nonempty root-to-leaf path has h + 1 frames for actual nodes (possibly one extra null-base frame). Traversal costs Θ(n) time and O(h + 1) stack, or O(n) in the worst case. PRE/IN/POST result lists add O(n) output storage. Keep the number of levels separate from edge depth; update existing ambiguous text such as “a chain has h = n” in stage 4.
+For the size/height tasks, count **height in edges**: empty tree -1, leaf 0. Recursion stack along a nonempty root-to-leaf path has h + 1 frames for actual nodes (possibly one extra null-base frame). Traversal costs Θ(n) time and O(h + 1) stack, or O(n) in the worst case. PRE/IN/POST result lists add O(n) output storage. Keep the number of levels separate from edge depth; update existing ambiguous text such as “a chain has h = n” in stage 4.
 
 The educational heap's internal tree/array is an explanation of heap mechanics. Do not assert its precise array layout equals a specific TRA PriorityQueue instance. Mutating a queued object's priority does not automatically repair an ordinary queue.
 
@@ -181,3 +181,28 @@ Flow accepts DiGraph and distinct member source/sink, so an empty graph cannot s
 LinkedQueue BFS discovers before enqueueing and uses a fresh identity parent map without repeatedly clearing all isolated V vertices. Expected O(V + E + V E²) time and O(V + E) space assume expected O(1) identity access. Result exposes actual input objects in read-only lists, captured per-Edge capacities/flows, value, source-side cut and capacity, plus a reverse-step counter. A foreign Edge query fails. The last unsuccessful BFS supplies residual reachability for the cut witness. Capacity/conservation and value=cut capacity are independently checked, including antiparallel arcs, rerouting absent input reverse arcs and values above int range.
 
 All three allocate independent results on repeat runs. Tests use deletion and exhaustive matching/min-cut references on 160 generated graphs for each algorithm, plus invalid input, identity, empty/isolated/disconnected, root, zero/loop/reverse and preservation boundaries. Old array/matrix sources remain explicitly optional comparisons with their own contracts. SCC decomposition and new programming exercises are not added in this stage.
+
+
+### Stage 7.2 exercise contract (25 November 2026)
+
+`Solution.components(Graph)` accepts a non-null undirected Graph, including empty, disconnected and cyclic inputs, isolated vertices and repeated labels. Inputs have no loops or parallel edges. Return nonempty lists partitioning all actual input Vertex references exactly once. Both list orders are arbitrary. Empty input gives an empty outer list; neither nulls nor empty groups are components. DFS or BFS is allowed. This task preserves topology and **all** vertex/edge fields, including arbitrary colours; use algorithm-owned visited state. This differs deliberately from the colour-mutating technical/teaching component examples above.
+
+With adjacency lists and expected O(1) identity-set operations, a complete traversal takes expected O(V + E) time and O(V) worst-case working memory; result storage adds O(V). Two adjacency entries per undirected physical Edge do not change that bound. The checker uses independent symmetric transitive closure and pairwise partition equivalence, not a canonical ordering or label-based IDs. It checks input identity/fields and accepts BFS and DFS alternatives. Its tests and timeout do not establish asymptotic complexity; students explain the bound separately.
+
+
+### Stage 7.3 exercise contracts (25 November 2026)
+
+The separate btree-size and btree-height kits accept `BTreeNode<?> node`, which is null or the root of a proper binary subtree with no cycles/shared child nodes. It may have an outside parent; measure only the descendants of the supplied node. For a whole BTree use tree.getRoot(). `size` returns 0 for null and counts all actual nodes. `height` returns -1 for null and measures the longest downward path in edges, so a leaf is 0. Values may repeat or be null and balance metadata is arbitrary. Preserve every child/parent link, element reference, balance field and the owning tree root.
+
+The standard recursive implementations take Θ(n) time for n > 0 and O(h + 1) stack, with constant cost for empty input and a constant-size integer result. A short null-child frame may add one to the actual-node path length without changing the bound. The iterative reference uses factory child indices, not the student implementation. All node fields, including outside the requested subtree, are checked after each of two calls. Passing tests does not prove recursion use or asymptotic bounds.
+
+Inspection and execution of this JAR confirmed runtime element-type checks in BTreeNode.setLeftChild/setRightChild/setElement: do not mix freshly created null-element and String-element nodes while constructing a test tree. The checker uses separate all-null and repeated-String trees. A null element is still a real node and must not be treated as a missing child. The supplied student APIs only need to read links and test the node itself for null.
+
+
+### Stage 7.4 traversal exercise contracts (25 November 2026)
+
+The separate btree-pre, btree-in and btree-post kits each expose one method: `public static List<BTreeNode<?>> pre(BTreeNode<?> node)`, `in(BTreeNode<?> node)` or `post(BTreeNode<?> node)`, respectively. Only the selected method appears in each kit. The input is null or a proper binary subtree, possibly with an outside parent. Follow children only. Return all actual subtree nodes once, in node-left-right / left-node-right / left-right-node order respectively. Null input yields an empty list; never include null children, payload values, copies or outside nodes. Each call must produce only its own traversal, without accumulated prior results. Preserve child/parent links, element identity, balance metadata and the owning root. Payloads may repeat or be null; the factory uses separate uniform-type trees to satisfy TRA runtime type checks.
+
+The exercise asks for recursion, but result tests do not prove its use; correct iterative alternatives also pass. For the standard helper appending to a single ArrayList, amortised O(1) appends yield Θ(n) time for n > 0, O(h + 1) recursion stack and O(n) result space; empty input is constant. Repeatedly copying/merging child lists can change that bound. IN yields sorted keys only under a compatible BST ordering invariant, which this arbitrary BTree input does not promise.
+
+The oracle uses explicit iterative phases over factory indices, independent of student node traversal. Two calls per input, exact identity/order checks, original-field snapshots and 40 fixed-seed trees per kit complement explicit boundaries. Diagnostics display factory node IDs, not payloads or arbitrary balance fields. The original print-based TRA teaching examples and existing traversal animations retain their APIs.

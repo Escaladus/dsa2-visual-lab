@@ -38,7 +38,7 @@ The first Dijkstra scans vertices: expected O(V² + E), O(V) space. The first Kr
 
 ## Remaining work
 
-- Stage 7 in progress: DFS reachability, BFS shortest-distance and shortest-path exercises are available; component and tree exercises remain. The existing DFS method contract is unchanged.
+- Stage 7 practice is complete: DFS reachability, BFS shortest distances/paths, connected components, BTree size/height and separate PRE/IN/POST kits are available. The existing DFS method contract is unchanged.
 - Stage 8: final overall migration audit and course-material review after the exercise stage.
 - SCC, bridges exercises, a graph editor, weighted animations and arbitrary partition validation are not added by this rewrite.
 
@@ -112,3 +112,24 @@ A second coding kit, `exercises/bfs-distances`, asks for shortest outgoing hop d
 `exercises/bfs-path` adds a second BFS task after distances. `GraphCodingExercise` selects a small task configuration by task key; BFS path content is initially collapsed. Existing graph visuals and the first two exercise contracts remain unchanged. Its shared diamond drawing highlights target 3, and translated text identifies the start/target independently of colour. The method signature and both valid example routes are shown before the optional template and hints. A separate walkthrough explains parent links, reversal, vertex/edge counts and the extra cost of producing the path.
 
 The contract returns actual input Vertex objects from start to target. Empty means unreachable; equal endpoints return a one-vertex list. Colours are arbitrary and all graph fields must stay unchanged. A non-null pair belonging to the same directed graph is a precondition, so no unrelated argument-validation framework is needed in the student solution. The checker validates directed edges and shortest length against independent all-pairs relaxation, not a canonical sequence. The new package function uses the shared pinned JAR reader; no additional maintained binary or runtime dependency is added. Components and BTree practice remain later stage-7 work.
+
+
+## Stage 7.2: connected-component practice
+
+`exercises/graph-components` adds one-method DFS/BFS practice to Graph applications, after the existing visual lab. A collapsed task shows a five-vertex undirected graph, two equivalent partition listings, explicit return signature and conditions, progressive hints, a separate walkthrough and time/space reasoning in RU/FI/EN. Prior DFS/BFS tasks and visualisations are preserved. The new kit includes only one English README; its five-file ZIP reuses the canonical pinned JAR without another maintained binary.
+
+The Java 11 checker validates actual Vertex partitions against independent undirected transitive closure, accepting every component/member order. It covers empty, singleton, isolated and disconnected inputs, cycles/bridge, reversed stored edge endpoints, repeated labels and 40 reproducible graphs. All graph fields and physical edges must be preserved. Archive/source-launch tests accept BFS and reversed-order DFS and exercise concrete incorrect partitions, mutation, compile failure and correction. Stage 7 remains in progress: BTree size/height and PRE/IN/POST exercises are next, before the final audit.
+
+
+## Stage 7.3: separate BTree size and height tasks
+
+Trees now offers two independently downloadable, initially collapsed one-method exercises after the preserved visual workspace. The method signatures match the short TRA lessons: size(BTreeNode<?>) and height(BTreeNode<?>). Each kit has an English README and uses the canonical JAR, while site instructions, hints, walkthroughs and checker feedback support RU/FI/EN. Both use the same asymmetric four-node picture, with size 4 versus height 2; empty, leaf and chain conventions are explicit.
+
+The local Java 11 checker has an independent iterative reference, ten groups including 40 reproducible inputs, repeated calls and full field/link snapshots. It accepts inner subtree roots with outside parents and handles repeated/null element values without interpreting them as node identity. Wrong counts/heights, stale state, skipped branches, input mutation, compile errors and stack overflow are covered. A shared CodingExercise shell reuses the existing graph-task UI without modifying graph/tree animation models. Stage 7.4 PRE/IN/POST tasks and the final stage-8 audit remain pending.
+
+
+## Stage 7.4: PRE, IN and POST as separate exercises
+
+Three one-method kits collect actual BTreeNode references in exact PRE/IN/POST order. Each follows the existing size/height tasks in a collapsed block with its own starter and five-file ZIP, an English README and the original pinned JAR. Site instructions, hints, walkthroughs and checker feedback support RU/FI/EN. The four-node drawing demonstrates all three different sequences and the null/leaf rules; narration identifies append timing and continuation after child calls. IN is distinguished from sorting an arbitrary tree.
+
+Independent iterative phase walks, identity/membership/uniqueness/coverage/order checks, repeated calls and full input snapshots validate empty/leaf/chains, balanced/asymmetric branches, equal/null payloads, outside parents and 40 reproducible inputs. Tests exercise correct recursive and iterative implementations plus wrong orders, mirrored children, missing/repeated/foreign/null nodes, input changes, stale lists and fresh correction. The shared task UI and archive infrastructure are reused; no animation model changes. This completes the baseline stage-7 practice sequence. Stage 8 remains the overall migration audit; the newly planned algorithm-design, deeper recursion and expanded tree-family lessons remain separate future work.

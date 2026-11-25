@@ -9,4 +9,10 @@ dist
 /public/exercises/dfs-reachable.zip
 /public/exercises/bfs-distances.zip
 /public/exercises/bfs-path.zip
+/public/exercises/graph-components.zip
+/public/exercises/btree-size.zip
+/public/exercises/btree-height.zip
+/public/exercises/btree-pre.zip
+/public/exercises/btree-in.zip
+/public/exercises/btree-post.zip
 /public/examples/tra-graphs.zip

@@ -12,6 +12,17 @@ export const exercisePackageFiles = [
   'README.fi.md',
   'traj.jar',
 ]
+// New kits have one English README; checker feedback still supports all three languages.
+export const componentsExercisePackageFiles = exercisePackageFiles.filter(
+  name => name !== 'README.fi.md',
+)
+export const treeExercisePackageFiles = [
+  'Solution.java',
+  'Check.java',
+  'TreeChecks.java',
+  'README.md',
+  'traj.jar',
+]
 
 function crc32(bytes) {
   let crc = 0xffffffff
@@ -81,8 +92,35 @@ export function packageBfsPathExercise(output = resolve(root, 'public/exercises/
   return packageExercise('bfs-path', output)
 }
 
-function packageExercise(folder, output) {
-  const files = exercisePackageFiles.map(name => ({
+export function packageComponentsExercise(
+  output = resolve(root, 'public/exercises/graph-components.zip'),
+) {
+  return packageExercise('graph-components', output, componentsExercisePackageFiles)
+}
+
+export function packageTreeSizeExercise(output = resolve(root, 'public/exercises/btree-size.zip')) {
+  return packageExercise('btree-size', output, treeExercisePackageFiles)
+}
+
+export function packageTreeHeightExercise(
+  output = resolve(root, 'public/exercises/btree-height.zip'),
+) {
+  return packageExercise('btree-height', output, treeExercisePackageFiles)
+}
+
+export function packageTreeTraversalExercise(order, output) {
+  if (!['pre', 'in', 'post'].includes(order)) {
+    throw new Error(`Unknown tree traversal: ${order}`)
+  }
+  return packageExercise(
+    `btree-${order}`,
+    output ?? resolve(root, `public/exercises/btree-${order}.zip`),
+    treeExercisePackageFiles,
+  )
+}
+
+function packageExercise(folder, output, packageFiles = exercisePackageFiles) {
+  const files = packageFiles.map(name => ({
     name: `${folder}/${name}`,
     data:
       name === 'traj.jar'

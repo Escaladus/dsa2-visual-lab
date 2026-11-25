@@ -5001,8 +5001,8 @@ summary:focus-visible {
   background: #20354e;
 }
 
-/* The coding task is a separate download, below the existing graph workspace. */
-.graph-coding-exercise {
+/* Coding tasks are separate downloads below the existing visual workspaces. */
+.coding-exercise {
   min-width: 0;
 }
 .coding-task-disclosure {
@@ -5027,12 +5027,12 @@ summary:focus-visible {
 .coding-task-example > div {
   min-width: 0;
 }
-.graph-coding-exercise .coding-run-command {
+.coding-exercise .coding-run-command {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-.graph-coding-exercise p,
-.graph-coding-exercise li {
+.coding-exercise p,
+.coding-exercise li {
   line-height: 1.8;
   overflow-wrap: anywhere;
 }
@@ -5043,7 +5043,8 @@ summary:focus-visible {
   align-items: center;
   margin: 18px 0;
 }
-.coding-example-graph {
+.coding-example-graph,
+.coding-example-tree {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--line);
