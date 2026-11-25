@@ -12,7 +12,7 @@ For code navigation, trace state, Java snippet synchronisation and development c
 
 ## Course handout and Java examples
 
-The material is aligned with the supplied `dsaII_handout.pdf` (University of Eastern Finland, autumn 2025, 89 pages). The [coverage map and implementation notes](docs/HANDOUT_ALIGNMENT.md) document the corresponding sections and identify topics covered at an introductory level. That companion document is in English.
+The material is aligned with the supplied `dsaII_handout.pdf` by Simo Juvaste (University of Eastern Finland, autumn 2025, 89 pages). The author is identified on the supplied PDF's title page and shown beside its filename in every lesson's handout reference. Source authors are displayed when known. The [coverage map and implementation notes](docs/HANDOUT_ALIGNMENT.md) document the corresponding sections and identify topics covered at an introductory level. That companion document is in English.
 
 The site contains 22 topics and 31 standalone Java examples covering Set/Map, `equals`/`hashCode`, lists and queues, traversals, merge sort, Dijkstra/Floyd–Warshall, Prim/Kruskal, articulation points, matching, maximum flow, dynamic programming, strings, and files. Each example includes source code, expected output, complexity, assumptions, and a `.java` download.
 

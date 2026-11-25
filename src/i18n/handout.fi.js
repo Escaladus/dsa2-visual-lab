@@ -1,6 +1,7 @@
 export default {
   ui: {
     handout: 'Kurssimoniste',
+    materialAuthor: 'Tekijä',
     handoutPages: 's.',
     javaExamples: 'Java-esimerkit',
     javaNote:

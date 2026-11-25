@@ -1,6 +1,7 @@
 export default {
   ui: {
     handout: 'Конспект',
+    materialAuthor: 'Автор',
     handoutPages: 'стр.',
     javaExamples: 'Примеры на Java',
     javaNote:

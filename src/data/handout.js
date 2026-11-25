@@ -1,6 +1,8 @@
 export const handout = {
   filename: 'dsaII_handout.pdf',
   title: 'Data Structures and Algorithms II',
+  // Credited on the title page of the supplied 2025 handout.
+  author: 'Simo Juvaste',
   year: 2025,
 }
 

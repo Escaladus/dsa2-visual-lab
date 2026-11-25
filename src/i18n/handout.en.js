@@ -1,6 +1,7 @@
 export default {
   ui: {
     handout: 'Handout',
+    materialAuthor: 'Author',
     handoutPages: 'pp.',
     javaExamples: 'Java examples',
     javaNote:

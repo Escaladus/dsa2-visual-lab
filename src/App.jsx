@@ -81,7 +81,14 @@ function Lesson({ topic, onOpen }) {
       <div className="handout-reference">
         <strong>{text.ui.handout}</strong>
         <span>
-          {handout.filename} · § {reference.section} · {text.ui.handoutPages} {reference.pages}
+          {handout.filename}
+          {handout.author && (
+            <>
+              {' '}
+              · {text.ui.materialAuthor}: {handout.author}
+            </>
+          )}{' '}
+          · § {reference.section} · {text.ui.handoutPages} {reference.pages}
         </span>
       </div>
 

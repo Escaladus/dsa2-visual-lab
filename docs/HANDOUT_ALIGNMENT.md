@@ -1,6 +1,6 @@
 # Alignment with dsaII_handout.pdf
 
-Source: **Data Structures and Algorithms II**, University of Eastern Finland, autumn 2025, 89 pages. Page numbers below refer to PDF pages, which match the printed page numbers. The handout is used as a teaching source; its PDF is not included in the published site files.
+Source: **Data Structures and Algorithms II**, Simo Juvaste, University of Eastern Finland, autumn 2025, 89 pages. The author's name is verified from the supplied handout's title page and displayed beside its filename on the site. Page numbers below refer to PDF pages, which match the printed page numbers. The handout is used as a teaching source; its PDF is not included in the published site files.
 
 The project now has 22 topics and 31 standalone Java files. Explanations are available in Russian, Finnish and English. The Java code is shared across languages: download a file and run `java ClassName.java` with JDK 11 or newer, without the course TRA library.
 
